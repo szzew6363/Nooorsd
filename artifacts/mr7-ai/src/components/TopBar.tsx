@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, Sparkles, Coins, LayoutGrid, HelpCircle, Search, Zap, Brain, Server } from "lucide-react";
+import { Menu, Sparkles, Coins, LayoutGrid, HelpCircle, Search, Zap, Brain, Server, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -18,9 +18,10 @@ interface TopBarProps {
   onOpenHelp: () => void;
   onOpenPersonaEditor: () => void;
   onOpenLocalModel: () => void;
+  onOpenAgent: () => void;
 }
 
-export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp, onOpenPersonaEditor, onOpenLocalModel }: TopBarProps) {
+export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp, onOpenPersonaEditor, onOpenLocalModel, onOpenAgent }: TopBarProps) {
   const { state, dispatch } = useStore();
   const { t } = useT();
   const { toast } = useToast();
@@ -166,6 +167,33 @@ export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp,
           title={t("top.toolsHub")}
         >
           <LayoutGrid className="w-4 h-4" />
+        </button>
+
+        {/* KaliAgent button */}
+        <button
+          onClick={onOpenAgent}
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap transition-all hover:opacity-95"
+          style={{
+            background: "rgba(255,77,77,0.1)",
+            borderColor: "rgba(255,77,77,0.35)",
+            color: "#ff4d4d",
+            boxShadow: "0 0 10px rgba(255,77,77,0.15)",
+          }}
+          aria-label="KaliAgent — AI Autonomous Agent"
+          title="KaliAgent — Autonomous AI Agent"
+        >
+          <Bot className="w-3.5 h-3.5" />
+          <span>KaliAgent</span>
+        </button>
+
+        <button
+          onClick={onOpenAgent}
+          className="sm:hidden p-2 rounded-lg transition-colors"
+          style={{ color: "#ff4d4d" }}
+          aria-label="KaliAgent"
+          title="KaliAgent — Autonomous AI Agent"
+        >
+          <Bot className="w-4 h-4" />
         </button>
 
         {/* Persona Editor button */}

@@ -28,6 +28,7 @@ import { LocalModelModal } from "./components/modals/LocalModelModal";
 import { OsintDashboard } from "./components/modals/OsintDashboard";
 import { AdminPanel } from "./components/modals/AdminPanel";
 import { ActivateModal } from "./components/modals/ActivateModal";
+import { AgentModal } from "./components/modals/AgentModal";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,7 @@ function AppContent() {
   const [osintDashOpen, setOsintDashOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [activateOpen, setActivateOpen] = useState(false);
+  const [agentOpen, setAgentOpen] = useState(false);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -206,6 +208,7 @@ function AppContent() {
           onOpenHelp={() => setShortcutsOpen(true)}
           onOpenPersonaEditor={() => setPersonaEditorOpen(true)}
           onOpenLocalModel={() => setLocalModelOpen(true)}
+          onOpenAgent={() => setAgentOpen(true)}
         />
         <ChatView onOpenOsintDash={() => setOsintDashOpen(true)} />
         {compareOpen && <CompareView onClose={() => setCompareOpen(false)} />}
@@ -220,6 +223,7 @@ function AppContent() {
         onTools={() => setToolsHubOpen(true)}
         onSettings={() => setSettingsOpen(true)}
         onHelp={() => setShortcutsOpen(true)}
+        onAgent={() => setAgentOpen(true)}
       />
 
       {pricingOpen && <PricingView onClose={() => setPricingOpen(false)} />}
@@ -239,6 +243,7 @@ function AppContent() {
       <OsintDashboard open={osintDashOpen} onOpenChange={setOsintDashOpen} />
       <AdminPanel open={adminOpen} onOpenChange={setAdminOpen} />
       <ActivateModal open={activateOpen} onOpenChange={setActivateOpen} />
+      <AgentModal open={agentOpen} onOpenChange={setAgentOpen} />
 
       {godMode && (
         <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center">

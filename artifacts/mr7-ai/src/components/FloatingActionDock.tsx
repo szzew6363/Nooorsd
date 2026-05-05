@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, Brain, Bookmark, ArrowLeftRight, LayoutGrid, Settings, HelpCircle, Zap, ChevronRight, ChevronLeft } from "lucide-react";
+import { Plus, Search, Brain, Bookmark, ArrowLeftRight, LayoutGrid, Settings, HelpCircle, Zap, ChevronRight, ChevronLeft, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -14,6 +14,7 @@ export type DockHandlers = {
   onTools: () => void;
   onSettings: () => void;
   onHelp: () => void;
+  onAgent: () => void;
 };
 
 export function FloatingActionDock(props: DockHandlers) {
@@ -29,8 +30,9 @@ export function FloatingActionDock(props: DockHandlers) {
     toast({ description: t(next ? "power.activated" : "power.deactivated") });
   }
 
-  const items: { key: string; icon: typeof Plus; labelKey: Parameters<typeof t>[0]; onClick: () => void; accent?: string }[] = [
+  const items: { key: string; icon: typeof Plus; labelKey: Parameters<typeof t>[0]; onClick: () => void; accent?: string; style?: React.CSSProperties }[] = [
     { key: "new",        icon: Plus,           labelKey: "dock.newChat",   onClick: props.onNewChat,   accent: "text-primary" },
+    { key: "agent",      icon: Bot,            labelKey: "dock.tools",     onClick: props.onAgent,     accent: "text-[#ff4d4d]", style: { color: "#ff4d4d" } },
     { key: "search",     icon: Search,         labelKey: "dock.search",    onClick: props.onSearch },
     { key: "memory",     icon: Brain,          labelKey: "dock.memory",    onClick: props.onMemory },
     { key: "bookmarks",  icon: Bookmark,       labelKey: "dock.bookmarks", onClick: props.onBookmarks },
@@ -86,8 +88,9 @@ export function FloatingActionDock(props: DockHandlers) {
                 <button
                   key={it.key}
                   onClick={it.onClick}
-                  title={t(it.labelKey)}
-                  aria-label={t(it.labelKey)}
+                  title={it.key === "agent" ? "KaliAgent — Autonomous AI Agent" : t(it.labelKey)}
+                  aria-label={it.key === "agent" ? "KaliAgent" : t(it.labelKey)}
+                  style={it.style}
                   className={`w-9 h-9 rounded-xl flex items-center justify-center bg-background/40 border border-transparent hover:bg-accent hover:border-border transition-colors ${it.accent ?? "text-muted-foreground hover:text-foreground"}`}
                 >
                   <Icon className="w-4 h-4" />
