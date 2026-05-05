@@ -70,6 +70,56 @@ export function verifyAdminPassword(password: string): boolean {
   return password === ADMIN_SECRET;
 }
 
+export type PaymentSettings = {
+  usdt_trc20: string;
+  usdt_bep20: string;
+  btc: string;
+  paypal_handle: string;
+  paypal_link: string;
+  bank_iban: string;
+  bank_swift: string;
+  bank_name: string;
+  bank_account_name: string;
+  telegram: string;
+  email: string;
+};
+
+const PAYMENT_SETTINGS_KEY = "mr7-payment-settings";
+
+export const DEFAULT_PAYMENT_SETTINGS: PaymentSettings = {
+  usdt_trc20: "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE",
+  usdt_bep20: "0x742d35Cc6634C0532925a3b8D4C9C3e6F1A7B8D2",
+  btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+  paypal_handle: "@KaliGPT",
+  paypal_link: "https://paypal.me/KaliGPT",
+  bank_iban: "SA03 8000 0000 6080 1016 7519",
+  bank_swift: "RJHISARI",
+  bank_name: "Al Rajhi Bank",
+  bank_account_name: "CHAT-GPT AI",
+  telegram: "https://t.me/KaliGPT_Support",
+  email: "support@kaligpt.ai",
+};
+
+export function loadPaymentSettings(): PaymentSettings {
+  try {
+    const raw = localStorage.getItem(PAYMENT_SETTINGS_KEY);
+    return raw ? { ...DEFAULT_PAYMENT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_PAYMENT_SETTINGS };
+  } catch {
+    return { ...DEFAULT_PAYMENT_SETTINGS };
+  }
+}
+
+export function savePaymentSettings(settings: PaymentSettings): void {
+  localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+export function checkAndExpireSubscription(sub: Subscription): Subscription | null {
+  if (sub.tier !== "free" && sub.expiresAt && Date.now() > sub.expiresAt) {
+    return { tier: "free", activatedAt: null, expiresAt: null, tokensUsed: 0, activationCode: null };
+  }
+  return null;
+}
+
 export const INITIAL_SUBSCRIPTION: Subscription = {
   tier: "free",
   activatedAt: null,

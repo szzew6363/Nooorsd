@@ -9,6 +9,7 @@ import { TopBar } from "./components/TopBar";
 import { ChatView } from "./components/ChatView";
 import { PricingView } from "./components/PricingView";
 import { StoreProvider, useStore } from "./lib/store";
+import { checkAndExpireSubscription } from "./lib/subscription";
 import { ApiAccessModal } from "./components/modals/ApiAccessModal";
 import { SettingsModal } from "./components/modals/SettingsModal";
 import { AccountModal } from "./components/modals/AccountModal";
@@ -33,11 +34,33 @@ const queryClient = new QueryClient();
 const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
 
 function AppContent() {
-  const { dispatch } = useStore();
+  const { state, dispatch } = useStore();
   const { toast } = useToast();
   const { t } = useT();
   const konamiRef = useRef<string[]>([]);
   const [godMode, setGodMode] = useState(false);
+
+  // Check subscription expiry on mount and every minute
+  useEffect(() => {
+    function check() {
+      const subRaw = localStorage.getItem("mr7-ai-state-v2");
+      if (!subRaw) return;
+      try {
+        const parsed = JSON.parse(subRaw);
+        const sub = parsed?.subscription;
+        if (!sub) return;
+        const expired = checkAndExpireSubscription(sub);
+        if (expired) {
+          dispatch({ type: "SET_SUBSCRIPTION", patch: expired });
+          toast({ description: "Your subscription has expired. You have been moved to the Free plan." });
+        }
+      } catch { /* ignore */ }
+    }
+    check();
+    const id = setInterval(check, 60_000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     function onKonami(e: KeyboardEvent) {

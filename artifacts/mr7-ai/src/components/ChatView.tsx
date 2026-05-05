@@ -240,6 +240,7 @@ export function ChatView({ onShare, onOpenOsintDash }: { onShare?: () => void; o
         toast({ description: message });
       }
     } finally {
+      if (acc) dispatch({ type: "USE_TOKENS", amount: estimateTokens(acc) });
       setStreaming(false);
     }
   }

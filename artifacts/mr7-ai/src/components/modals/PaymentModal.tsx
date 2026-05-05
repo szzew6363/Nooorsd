@@ -1,41 +1,8 @@
 import { useState } from "react";
 import { Dialog, DialogContentTop, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Copy, Check, ExternalLink, Bitcoin, CreditCard, Building2, Send } from "lucide-react";
-import { type SubscriptionTier, TIER_LABELS, TIER_PRICES } from "@/lib/subscription";
+import { type SubscriptionTier, TIER_LABELS, TIER_PRICES, loadPaymentSettings } from "@/lib/subscription";
 import { useToast } from "@/hooks/use-toast";
-
-const PAYMENT_INFO = {
-  usdt_trc20: {
-    address: "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE",
-    network: "TRON (TRC20)",
-    label: "USDT TRC20",
-  },
-  usdt_bep20: {
-    address: "0x742d35Cc6634C0532925a3b8D4C9C3e6F1A7B8D2",
-    network: "BNB Smart Chain (BEP20)",
-    label: "USDT BEP20",
-  },
-  btc: {
-    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-    network: "Bitcoin Network",
-    label: "Bitcoin (BTC)",
-  },
-  paypal: {
-    handle: "@KaliGPT",
-    link: "https://paypal.me/KaliGPT",
-    label: "PayPal",
-  },
-  bank: {
-    iban: "SA03 8000 0000 6080 1016 7519",
-    swift: "RJHISARI",
-    bank: "Al Rajhi Bank",
-    name: "CHAT-GPT AI",
-    label: "Bank Transfer",
-  },
-};
-
-const TELEGRAM_SUPPORT = "https://t.me/KaliGPT_Support";
-const SUPPORT_EMAIL = "support@kaligpt.ai";
 
 type PaymentTab = "usdt_trc20" | "usdt_bep20" | "btc" | "paypal" | "bank";
 
@@ -53,6 +20,7 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
   const [copied, setCopied] = useState<string | null>(null);
   const [step, setStep] = useState<"payment" | "confirm">("payment");
 
+  const pay = loadPaymentSettings();
   const price = yearly ? TIER_PRICES[plan].yearly : TIER_PRICES[plan].monthly;
   const label = TIER_LABELS[plan];
 
@@ -61,6 +29,7 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
       setCopied(key);
       setTimeout(() => setCopied(null), 2000);
     });
+    toast({ description: "Copied to clipboard" });
   }
 
   const TABS: { id: PaymentTab; icon: React.ReactNode; label: string }[] = [
@@ -113,14 +82,14 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
               <div className="space-y-3">
                 <div className="p-3 rounded-xl bg-background border border-border space-y-2">
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-                    {PAYMENT_INFO[tab].network}
+                    {tab === "usdt_trc20" ? "TRON (TRC20)" : "BNB Smart Chain (BEP20)"}
                   </div>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 text-[11px] font-mono text-emerald-400 break-all bg-accent/30 px-2 py-1.5 rounded">
-                      {PAYMENT_INFO[tab].address}
+                      {tab === "usdt_trc20" ? pay.usdt_trc20 : pay.usdt_bep20}
                     </code>
                     <button
-                      onClick={() => copy(PAYMENT_INFO[tab].address, tab)}
+                      onClick={() => copy(tab === "usdt_trc20" ? pay.usdt_trc20 : pay.usdt_bep20, tab)}
                       className="p-2 rounded-lg border border-border hover:bg-accent transition-colors shrink-0"
                     >
                       {copied === tab ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
@@ -128,7 +97,7 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
                   </div>
                   <div className="text-[11px] text-amber-400/80 bg-amber-400/5 border border-amber-400/20 p-2 rounded-lg">
                     Send exactly <strong className="text-amber-400">${price} USDT</strong> on the{" "}
-                    <strong>{PAYMENT_INFO[tab].network}</strong> network only.
+                    <strong>{tab === "usdt_trc20" ? "TRON TRC20" : "BEP20"}</strong> network only.
                   </div>
                 </div>
               </div>
@@ -140,10 +109,10 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">Bitcoin Network</div>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 text-[11px] font-mono text-orange-400 break-all bg-accent/30 px-2 py-1.5 rounded">
-                      {PAYMENT_INFO.btc.address}
+                      {pay.btc}
                     </code>
                     <button
-                      onClick={() => copy(PAYMENT_INFO.btc.address, "btc")}
+                      onClick={() => copy(pay.btc, "btc")}
                       className="p-2 rounded-lg border border-border hover:bg-accent transition-colors shrink-0"
                     >
                       {copied === "btc" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
@@ -161,15 +130,15 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
                 <div className="p-3 rounded-xl bg-background border border-border space-y-2">
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">PayPal</div>
                   <div className="flex items-center gap-2">
-                    <span className="flex-1 text-[13px] font-mono text-blue-400">{PAYMENT_INFO.paypal.handle}</span>
+                    <span className="flex-1 text-[13px] font-mono text-blue-400">{pay.paypal_handle}</span>
                     <button
-                      onClick={() => copy(PAYMENT_INFO.paypal.handle, "paypal")}
+                      onClick={() => copy(pay.paypal_handle, "paypal")}
                       className="p-2 rounded-lg border border-border hover:bg-accent transition-colors"
                     >
                       {copied === "paypal" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
                     </button>
                     <a
-                      href={PAYMENT_INFO.paypal.link}
+                      href={pay.paypal_link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[12px] font-semibold hover:bg-blue-500/30 transition-colors"
@@ -178,7 +147,7 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
                     </a>
                   </div>
                   <div className="text-[11px] text-amber-400/80 bg-amber-400/5 border border-amber-400/20 p-2 rounded-lg">
-                    Send <strong className="text-amber-400">${price} USD</strong> via PayPal Friends & Family.
+                    Send <strong className="text-amber-400">${price} USD</strong> via PayPal Friends &amp; Family.
                     Include your plan name in the note: <strong>{label}</strong>
                   </div>
                 </div>
@@ -190,10 +159,10 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
                 <div className="p-3 rounded-xl bg-background border border-border space-y-2">
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">Bank Transfer</div>
                   {[
-                    { label: "Bank", value: PAYMENT_INFO.bank.bank },
-                    { label: "Account Name", value: PAYMENT_INFO.bank.name },
-                    { label: "IBAN", value: PAYMENT_INFO.bank.iban },
-                    { label: "SWIFT / BIC", value: PAYMENT_INFO.bank.swift },
+                    { label: "Bank", value: pay.bank_name },
+                    { label: "Account Name", value: pay.bank_account_name },
+                    { label: "IBAN", value: pay.bank_iban },
+                    { label: "SWIFT / BIC", value: pay.bank_swift },
                   ].map(({ label: lbl, value }) => (
                     <div key={lbl} className="flex items-center justify-between gap-2">
                       <span className="text-[11px] text-muted-foreground w-28 shrink-0">{lbl}</span>
@@ -256,7 +225,7 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
 
             <div className="flex gap-2">
               <a
-                href={TELEGRAM_SUPPORT}
+                href={pay.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 font-semibold text-sm hover:bg-blue-500/30 transition-colors"
@@ -264,7 +233,7 @@ export function PaymentModal({ open, onOpenChange, plan, yearly, onActivate }: P
                 <Send className="w-4 h-4" /> Telegram Support
               </a>
               <a
-                href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`${label} Plan Payment`)}`}
+                href={`mailto:${pay.email}?subject=${encodeURIComponent(`${label} Plan Payment`)}`}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-border text-muted-foreground font-semibold text-sm hover:bg-accent transition-colors"
               >
                 <ExternalLink className="w-4 h-4" /> Email Support
