@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, Sparkles, Coins, LayoutGrid, HelpCircle, Search, Zap, Brain, Server, Bot } from "lucide-react";
+import { Menu, Sparkles, Coins, LayoutGrid, HelpCircle, Search, Zap, Brain, Server, Bot, Hexagon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -19,9 +19,10 @@ interface TopBarProps {
   onOpenPersonaEditor: () => void;
   onOpenLocalModel: () => void;
   onOpenAgent: () => void;
+  onOpenNexus: () => void;
 }
 
-export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp, onOpenPersonaEditor, onOpenLocalModel, onOpenAgent }: TopBarProps) {
+export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp, onOpenPersonaEditor, onOpenLocalModel, onOpenAgent, onOpenNexus }: TopBarProps) {
   const { state, dispatch } = useStore();
   const { t } = useT();
   const { toast } = useToast();
@@ -194,6 +195,33 @@ export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp,
           title="KaliAgent — Autonomous AI Agent"
         >
           <Bot className="w-4 h-4" />
+        </button>
+
+        {/* NEXUS button */}
+        <button
+          onClick={onOpenNexus}
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-black whitespace-nowrap tracking-wider transition-all hover:opacity-95"
+          style={{
+            background: "linear-gradient(135deg, rgba(251,191,36,0.12) 0%, rgba(251,146,60,0.08) 100%)",
+            borderColor: "rgba(251,191,36,0.45)",
+            color: "#fbbf24",
+            boxShadow: "0 0 14px rgba(251,191,36,0.2)",
+          }}
+          aria-label="NEXUS Agent — Multi-Tier Super Agent"
+          title="NEXUS Agent — 5-Tier Autonomous Super Agent"
+        >
+          <Hexagon className="w-3.5 h-3.5" />
+          <span>NEXUS</span>
+        </button>
+
+        <button
+          onClick={onOpenNexus}
+          className="sm:hidden p-2 rounded-lg transition-colors"
+          style={{ color: "#fbbf24" }}
+          aria-label="NEXUS Agent"
+          title="NEXUS Agent — 5-Tier Autonomous Super Agent"
+        >
+          <Hexagon className="w-4 h-4" />
         </button>
 
         {/* Persona Editor button */}
