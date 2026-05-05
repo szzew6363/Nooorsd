@@ -28,6 +28,7 @@ import { GodmodeSettingsModal, DEFAULT_GODMODE_CONFIG, type GodmodeConfig } from
 import { COUNCIL_BRAIN_META } from "@/lib/council-brains";
 import { applyStm, activeCount as activeStmCount } from "@/lib/stm";
 import { useT } from "@/lib/i18n";
+import { tierAtLeast } from "@/lib/subscription";
 
 const SLASH = [
   { cmd: "/code", hint: "Generate code for a task" },
@@ -1230,7 +1231,13 @@ export function ChatView({ onShare, onOpenOsintDash }: { onShare?: () => void; o
 
             {/* Power modes */}
             <button
-              onClick={() => { setMode("redteam"); setAgentOn(true); toast({ description: t("redteam.on") }); }}
+              onClick={() => {
+                if (!tierAtLeast(state.subscription.tier, "professional")) {
+                  toast({ description: "Red Team mode requires Professional plan. Upgrade to unlock." });
+                  return;
+                }
+                setMode("redteam"); setAgentOn(true); toast({ description: t("redteam.on") });
+              }}
               title={t("redteam.desc")}
               className={`h-8 px-2.5 rounded-full border flex items-center gap-1.5 shrink-0 transition-all ${
                 mode === "redteam"
@@ -1245,7 +1252,13 @@ export function ChatView({ onShare, onOpenOsintDash }: { onShare?: () => void; o
             </button>
 
             <button
-              onClick={() => setMode("fusion")}
+              onClick={() => {
+                if (!tierAtLeast(state.subscription.tier, "professional")) {
+                  toast({ description: "Fusion mode requires Professional plan. Upgrade to unlock." });
+                  return;
+                }
+                setMode("fusion");
+              }}
               title={`${t("chat.modeFusion")} · ${COUNCIL_BRAIN_META.length} brains`}
               className={`h-8 px-2.5 rounded-full border flex items-center gap-1.5 shrink-0 transition-colors ${
                 mode === "fusion" ? "bg-primary/15 border-primary text-primary shadow-[0_0_12px_rgba(226,18,39,0.35)]" : "bg-card/40 border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
@@ -1259,7 +1272,13 @@ export function ChatView({ onShare, onOpenOsintDash }: { onShare?: () => void; o
             <div className={`inline-flex items-center h-8 rounded-full border shrink-0 transition-all ${
               mode === "council" ? "bg-primary/15 border-primary text-primary shadow-[0_0_15px_rgba(226,18,39,0.35)]" : "bg-card/40 border-border text-foreground hover:border-primary/40"
             }`}>
-              <button onClick={() => setMode("council")} title={t("chat.councilTitle", { count: COUNCIL_BRAIN_META.length })} className="pl-2.5 pr-1.5 h-full inline-flex items-center gap-1.5">
+              <button onClick={() => {
+                if (!tierAtLeast(state.subscription.tier, "professional")) {
+                  toast({ description: "Council mode requires Professional plan. Upgrade to unlock." });
+                  return;
+                }
+                setMode("council");
+              }} title={t("chat.councilTitle", { count: COUNCIL_BRAIN_META.length })} className="pl-2.5 pr-1.5 h-full inline-flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5" />
                 <span className="text-[11px] font-semibold">{t("chat.modeCouncil")}</span>
                 <span className={`text-[9px] font-mono px-1 py-0.5 rounded ${mode === "council" ? "bg-white/20" : "bg-primary/15 text-primary"}`}>
@@ -1280,7 +1299,13 @@ export function ChatView({ onShare, onOpenOsintDash }: { onShare?: () => void; o
             <div className={`inline-flex items-center h-8 rounded-full border shrink-0 transition-all ${
               mode === "godmode" ? "bg-primary/15 border-primary text-primary shadow-[0_0_15px_rgba(226,18,39,0.35)]" : "bg-card/40 border-border text-foreground hover:border-primary/40"
             }`}>
-              <button onClick={() => setMode("godmode")} title={godmodeCfg.mode === "ultraplinian" ? `ULTRAPLINIAN · ${godmodeCfg.tier}` : "GODMODE"} className="pl-2.5 pr-1.5 h-full inline-flex items-center gap-1.5">
+              <button onClick={() => {
+                if (!tierAtLeast(state.subscription.tier, "elite")) {
+                  toast({ description: "Godmode requires Elite plan. Upgrade to unlock." });
+                  return;
+                }
+                setMode("godmode");
+              }} title={godmodeCfg.mode === "ultraplinian" ? `ULTRAPLINIAN · ${godmodeCfg.tier}` : "GODMODE"} className="pl-2.5 pr-1.5 h-full inline-flex items-center gap-1.5">
                 {godmodeCfg.mode === "ultraplinian" ? <Flame className="w-3.5 h-3.5" /> : <Zap className="w-3.5 h-3.5" />}
                 <span className="text-[11px] font-semibold">{godmodeCfg.mode === "ultraplinian" ? "Ultra" : "Godmode"}</span>
                 <span className={`text-[9px] font-mono px-1 py-0.5 rounded ${mode === "godmode" ? "bg-white/20" : "bg-primary/15 text-primary"}`}>
@@ -1301,7 +1326,14 @@ export function ChatView({ onShare, onOpenOsintDash }: { onShare?: () => void; o
             <div className="flex items-center gap-1 shrink-0">
               <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50 font-bold mr-0.5 shrink-0">AI</span>
               <SquareIconBtn
-                onClick={() => { setAgentOn((v) => !v); toast({ description: agentOn ? t("agent.off") : t("agent.on") }); }}
+                onClick={() => {
+                  if (!tierAtLeast(state.subscription.tier, "professional")) {
+                    toast({ description: "Agent mode requires Professional plan. Upgrade to unlock." });
+                    return;
+                  }
+                  setAgentOn((v) => !v);
+                  toast({ description: agentOn ? t("agent.off") : t("agent.on") });
+                }}
                 label={t("agent.title")} active={agentOn}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
+import { type Subscription, type SubscriptionTier, INITIAL_SUBSCRIPTION } from "./subscription";
 
 export type CouncilSeatState = {
   id: string;
@@ -169,7 +170,10 @@ export type AppState = {
   memory: string[];
   customInstructions: string;
   compareModels: string[];
+  subscription: Subscription;
 };
+
+export type { Subscription, SubscriptionTier };
 
 type Action =
   | { type: "NEW_CHAT" }
@@ -207,7 +211,9 @@ type Action =
   | { type: "SET_ACCENT"; accent: ThemeAccent }
   | { type: "MARK_NOTIFS_READ" }
   | { type: "PUSH_NOTIF"; notif: { id: string; title: string; body: string; ts: number; read: boolean } }
-  | { type: "HYDRATE"; state: Partial<AppState> };
+  | { type: "HYDRATE"; state: Partial<AppState> }
+  | { type: "SET_SUBSCRIPTION"; patch: Partial<Subscription> }
+  | { type: "USE_TOKENS"; amount: number };
 
 const STORAGE_KEY = "mr7-ai-state-v2";
 const LEGACY_KEY = "mr7-ai-state-v1";
@@ -312,6 +318,7 @@ const initial: AppState = {
   memory: [],
   customInstructions: "",
   compareModels: ["CHAT-GPT Fast", "CHAT-GPT Thinking"],
+  subscription: INITIAL_SUBSCRIPTION,
 };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -320,8 +327,8 @@ function reducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         ...action.state,
-        // Always merge settings on top of defaults so new fields are never undefined
         settings: { ...initial.settings, ...(action.state.settings ?? {}) },
+        subscription: { ...initial.subscription, ...(action.state.subscription ?? {}) },
       };
     case "NEW_CHAT": {
       const id = `c-${Date.now()}`;
@@ -489,6 +496,10 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, notifications: state.notifications.map((n) => ({ ...n, read: true })) };
     case "PUSH_NOTIF":
       return { ...state, notifications: [action.notif, ...state.notifications].slice(0, 50) };
+    case "SET_SUBSCRIPTION":
+      return { ...state, subscription: { ...state.subscription, ...action.patch } };
+    case "USE_TOKENS":
+      return { ...state, subscription: { ...state.subscription, tokensUsed: state.subscription.tokensUsed + action.amount } };
     default:
       return state;
   }

@@ -25,6 +25,8 @@ import { FloatingActionDock } from "./components/FloatingActionDock";
 import { PersonaEditorModal } from "./components/modals/PersonaEditorModal";
 import { LocalModelModal } from "./components/modals/LocalModelModal";
 import { OsintDashboard } from "./components/modals/OsintDashboard";
+import { AdminPanel } from "./components/modals/AdminPanel";
+import { ActivateModal } from "./components/modals/ActivateModal";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,8 @@ function AppContent() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [osintDashOpen, setOsintDashOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [activateOpen, setActivateOpen] = useState(false);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -110,6 +114,10 @@ function AppContent() {
       }
       if (e.key === "Escape") {
         setSidebarOpen(false);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.altKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        setAdminOpen(true);
       }
     }
     document.addEventListener("keydown", onKey);
@@ -206,6 +214,8 @@ function AppContent() {
       <PersonaEditorModal open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
       <LocalModelModal open={localModelOpen} onOpenChange={setLocalModelOpen} />
       <OsintDashboard open={osintDashOpen} onOpenChange={setOsintDashOpen} />
+      <AdminPanel open={adminOpen} onOpenChange={setAdminOpen} />
+      <ActivateModal open={activateOpen} onOpenChange={setActivateOpen} />
 
       {godMode && (
         <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center">

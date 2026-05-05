@@ -8,6 +8,8 @@ import { NotificationsPanel } from "./NotificationsPanel";
 import { ThemePopover } from "./ThemePopover";
 import { TokensPopover } from "./TokensPopover";
 import { AI_MODELS, getModel } from "@/lib/ai-config";
+import { tierAtLeast } from "@/lib/subscription";
+import { Lock } from "lucide-react";
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -95,22 +97,31 @@ export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp,
                 <div className="p-1.5 space-y-0.5 max-h-[min(75vh,640px)] overflow-y-auto">
                   {filtered.map((m) => {
                     const Icon = m.icon;
+                    const isFreeModel = m.id === "CHAT-GPT Fast";
+                    const locked = !isFreeModel && !tierAtLeast(state.subscription.tier, "starter");
                     return (
                       <button
                         key={m.id}
                         onClick={() => {
+                          if (locked) {
+                            toast({ description: `${m.id} requires Starter plan. Upgrade to unlock all models.` });
+                            setOpen(false);
+                            onOpenPricing();
+                            return;
+                          }
                           dispatch({ type: "SET_MODEL", model: m.id });
                           setOpen(false);
                         }}
-                        className="w-full flex items-start gap-2.5 p-2 rounded-xl text-left hover:bg-accent transition-colors"
+                        className={`w-full flex items-start gap-2.5 p-2 rounded-xl text-left transition-colors ${locked ? "opacity-60 hover:bg-accent/50" : "hover:bg-accent"}`}
                       >
                         <span className={`w-7 h-7 rounded-md border border-border flex items-center justify-center flex-shrink-0 mt-0.5 ${m.color}`}>
-                          <Icon className="w-4 h-4" />
+                          {locked ? <Lock className="w-3.5 h-3.5 text-muted-foreground" /> : <Icon className="w-4 h-4" />}
                         </span>
                         <span className="flex-1 min-w-0">
                           <span className="flex items-center gap-1.5">
                             <span className="text-[13px] font-semibold text-foreground truncate">{m.id}</span>
-                            {m.badge && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">{m.badge}</span>}
+                            {m.badge && !locked && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">{m.badge}</span>}
+                            {locked && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">STARTER+</span>}
                           </span>
                           <span className="block text-[11px] text-muted-foreground leading-snug mt-0.5">{m.desc}</span>
                         </span>

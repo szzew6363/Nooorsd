@@ -8,6 +8,7 @@ import { useT } from "@/lib/i18n";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { UserMenu } from "./UserMenu";
+import { TIER_TOKENS, TIER_LABELS } from "@/lib/subscription";
 
 import type { UtilityTool } from "./modals/UtilityToolModal";
 
@@ -558,25 +559,42 @@ export function Sidebar({ isOpen, onClose, onOpenPricing, onOpenApi, onOpenTool,
           </div>
         </button>
 
-        <div className="bg-card border border-border rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
-              <Coins className="w-4 h-4 text-yellow-500" />
-              <span className="text-[13px] font-medium">Tokens</span>
+        {/* Subscription Status */}
+        {(() => {
+          const sub = state.subscription;
+          const tokenLimit = TIER_TOKENS[sub.tier];
+          const usedPct = Math.min(100, (sub.tokensUsed / tokenLimit) * 100);
+          const remaining = Math.max(0, tokenLimit - sub.tokensUsed);
+          const isExpired = sub.expiresAt !== null && Date.now() > sub.expiresAt;
+          return (
+            <div className="bg-card border border-border rounded-xl p-3">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Coins className="w-4 h-4 text-yellow-500" />
+                  <span className="text-[13px] font-medium">Tokens</span>
+                </div>
+                <span className="text-[11px] text-muted-foreground font-mono">
+                  {(remaining / 1000).toFixed(1)}K / {(tokenLimit / 1000).toFixed(0)}K
+                </span>
+              </div>
+              <div className="h-1.5 bg-background rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${usedPct > 80 ? "bg-red-500" : usedPct > 50 ? "bg-amber-500" : "bg-primary"}`}
+                  style={{ width: `${Math.max(2, 100 - usedPct)}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-2 text-[11px] text-muted-foreground">
+                <span className={isExpired ? "text-red-400" : ""}>
+                  Plan: <span className="font-semibold text-foreground">{TIER_LABELS[sub.tier]}</span>
+                  {isExpired && " (expired)"}
+                </span>
+                <button onClick={onOpenPricing} className="text-primary hover:underline font-semibold">
+                  {sub.tier === "free" ? "Upgrade" : "Manage"}
+                </button>
+              </div>
             </div>
-            <span className="text-[12px] text-muted-foreground font-mono">5.2K / 10K</span>
-          </div>
-          <div className="h-1.5 bg-background rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full transition-all" style={{ width: "52%" }} />
-          </div>
-          <div className="flex items-center justify-between mt-2 text-[11px] text-muted-foreground">
-            <span>Plan: Free</span>
-            <div className="space-x-2">
-              <button onClick={onOpenPricing} className="text-primary hover:underline font-semibold">Manage</button>
-              <button onClick={onOpenPricing} className="hover:text-foreground">Usage</button>
-            </div>
-          </div>
-        </div>
+          );
+        })()}
 
         <div className="flex items-center justify-between pt-1">
           <UserMenu onAccount={onOpenAccount} onSettings={onOpenSettings} onTheme={onOpenSettings} />
