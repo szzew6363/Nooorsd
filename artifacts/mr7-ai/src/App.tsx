@@ -30,6 +30,12 @@ import { AdminPanel } from "./components/modals/AdminPanel";
 import { ActivateModal } from "./components/modals/ActivateModal";
 import { AgentModal } from "./components/modals/AgentModal";
 import { NexusModal } from "./components/modals/NexusModal";
+import { ArsenalHubModal, type ArsenalModuleId } from "./components/modals/ArsenalHubModal";
+import { JarvisModal } from "./components/modals/JarvisModal";
+import { ParseltongueModal } from "./components/modals/ParseltongueModal";
+import { RagModal } from "./components/modals/RagModal";
+import { TeamAgentModal } from "./components/modals/TeamAgentModal";
+import { SkillsLibraryModal } from "./components/modals/SkillsLibraryModal";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +108,27 @@ function AppContent() {
   const [activateOpen, setActivateOpen] = useState(false);
   const [agentOpen, setAgentOpen] = useState(false);
   const [nexusOpen, setNexusOpen] = useState(false);
+  const [arsenalOpen, setArsenalOpen] = useState(false);
+  const [jarvisOpen, setJarvisOpen] = useState(false);
+  const [parseltongueOpen, setParseltongueOpen] = useState(false);
+  const [ragOpen, setRagOpen] = useState(false);
+  const [teamAgentOpen, setTeamAgentOpen] = useState(false);
+  const [skillsOpen, setSkillsOpen] = useState(false);
+
+  function handleArsenalLaunch(id: ArsenalModuleId) {
+    switch (id) {
+      case "kaliagent": setAgentOpen(true); break;
+      case "nexus": setNexusOpen(true); break;
+      case "jarvis": setJarvisOpen(true); break;
+      case "parseltongue": setParseltongueOpen(true); break;
+      case "ragflow": setRagOpen(true); break;
+      case "teamagent": setTeamAgentOpen(true); break;
+      case "skills": setSkillsOpen(true); break;
+      case "opengravity": setSkillsOpen(true); break;
+      case "agentOS": setTeamAgentOpen(true); break;
+      case "geminiCLI": setAgentOpen(true); break;
+    }
+  }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -212,6 +239,7 @@ function AppContent() {
           onOpenLocalModel={() => setLocalModelOpen(true)}
           onOpenAgent={() => setAgentOpen(true)}
           onOpenNexus={() => setNexusOpen(true)}
+          onOpenArsenal={() => setArsenalOpen(true)}
         />
         <ChatView onOpenOsintDash={() => setOsintDashOpen(true)} />
         {compareOpen && <CompareView onClose={() => setCompareOpen(false)} />}
@@ -248,6 +276,12 @@ function AppContent() {
       <ActivateModal open={activateOpen} onOpenChange={setActivateOpen} />
       <AgentModal open={agentOpen} onOpenChange={setAgentOpen} />
       <NexusModal open={nexusOpen} onOpenChange={setNexusOpen} />
+      <ArsenalHubModal open={arsenalOpen} onOpenChange={setArsenalOpen} onLaunch={handleArsenalLaunch} />
+      <JarvisModal open={jarvisOpen} onOpenChange={setJarvisOpen} />
+      <ParseltongueModal open={parseltongueOpen} onOpenChange={setParseltongueOpen} />
+      <RagModal open={ragOpen} onOpenChange={setRagOpen} />
+      <TeamAgentModal open={teamAgentOpen} onOpenChange={setTeamAgentOpen} />
+      <SkillsLibraryModal open={skillsOpen} onOpenChange={setSkillsOpen} />
 
       {godMode && (
         <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center">

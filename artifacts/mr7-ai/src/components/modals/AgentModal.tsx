@@ -78,7 +78,7 @@ function ClawIcon({ className }: { className?: string }) {
 
 export function AgentModal({ open, onOpenChange }: AgentModalProps) {
   const { state } = useStore();
-  const { language } = useT();
+  const { lang } = useT();
   const [mode, setMode] = useState<AgentMode>("brain");
   const [task, setTask] = useState("");
   const [running, setRunning] = useState(false);
@@ -144,7 +144,7 @@ export function AgentModal({ open, onOpenChange }: AgentModalProps) {
       await streamAgent(
         {
           messages: contextMessages,
-          language: (language as "en" | "ar") ?? "en",
+          language: (lang as "en" | "ar") ?? "en",
           maxSteps: 10,
           customSystemPrompt:
             "You are KaliAgent — a specialized cybersecurity AI agent with access to real security tools. You execute multi-step security research, reconnaissance, vulnerability analysis, and penetration testing tasks autonomously. Always explain your findings clearly.",
@@ -218,7 +218,7 @@ export function AgentModal({ open, onOpenChange }: AgentModalProps) {
                   className="w-9 h-9 rounded-xl flex items-center justify-center border"
                   style={{ background: "rgba(255,77,77,0.12)", borderColor: "rgba(255,77,77,0.4)" }}
                 >
-                  <ClawIcon className="w-5 h-5" style={{ color: "#ff4d4d" } as React.CSSProperties} />
+                  <span style={{ color: "#ff4d4d" }}><ClawIcon className="w-5 h-5" /></span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -469,7 +469,7 @@ export function AgentModal({ open, onOpenChange }: AgentModalProps) {
                   className="w-16 h-16 rounded-2xl flex items-center justify-center"
                   style={{ background: "rgba(255,77,77,0.08)", border: "1px solid rgba(255,77,77,0.2)" }}
                 >
-                  <ClawIcon className="w-9 h-9" style={{ color: "rgba(255,77,77,0.5)" } as React.CSSProperties} />
+                  <span style={{ color: "rgba(255,77,77,0.5)" }}><ClawIcon className="w-9 h-9" /></span>
                 </div>
                 <div className="text-center space-y-1">
                   <div className="text-sm font-bold" style={{ color: "#333" }}>

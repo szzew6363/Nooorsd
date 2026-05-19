@@ -124,7 +124,7 @@ function NexusIcon({ className, style }: { className?: string; style?: React.CSS
 
 export function NexusModal({ open, onOpenChange }: NexusModalProps) {
   const { state } = useStore();
-  const { language } = useT();
+  const { lang } = useT();
   const [tier, setTier] = useState<TierDef>(TIERS[0]);
   const [mode, setMode] = useState<AgentMode>("brain");
   const [task, setTask] = useState("");
@@ -186,7 +186,7 @@ export function NexusModal({ open, onOpenChange }: NexusModalProps) {
 
     try {
       await streamAgent(
-        { messages, language: (language as "en" | "ar") ?? "en", maxSteps: tier.steps, customSystemPrompt: sysPrompt, redteamMode: true },
+        { messages, language: (lang as "en" | "ar") ?? "en", maxSteps: tier.steps, customSystemPrompt: sysPrompt, redteamMode: true },
         (ev: AgentEvent) => {
           if (ev.type === "step_start") {
             setCurrentStep(ev.step);
@@ -219,7 +219,7 @@ export function NexusModal({ open, onOpenChange }: NexusModalProps) {
           },
         ];
         await streamCouncil(
-          { messages: councilMessages, language: (language as "en" | "ar") ?? "en", customInstructions: "", memory: [], autoSelect: true, maxBrains: 3, fusion: true, scoring: false },
+          { messages: councilMessages, language: (lang as "en" | "ar") ?? "en", customInstructions: "", memory: [], autoSelect: true, maxBrains: 3, fusion: true, scoring: false },
           (ev: CouncilEvent) => {
             if (ev.type === "brain_chunk") {
               councilRef.current += ev.content;

@@ -90,6 +90,64 @@ Full subscription and monetization system added:
 
 10 accent colors: crimson · midnight · emerald · amber · violet · cyan · rose · lime · orange · slate.
 
+## Arsenal Hub (May 2026)
+
+Unified module launcher integrating 11 open-source AI projects. Access via **Arsenal** button in TopBar.
+
+### Architecture
+- `ArsenalHubModal.tsx` — Central grid launcher with per-module enable/disable toggles, Select All, search. State persisted in localStorage (`mr7-arsenal-enabled`).
+- Each module card shows: icon, name, description, source project, status badge, toggle, Launch button.
+- Launch → closes hub and opens the target module's dedicated window.
+
+### Modules & Source Projects
+
+| Module | Modal | Source | Color |
+|--------|-------|--------|-------|
+| KaliAgent | `AgentModal.tsx` | OpenClaw | coral `#ff4d4d` |
+| NEXUS Agent | `NexusModal.tsx` | NEXUS | gold `#fbbf24` |
+| JARVIS | `JarvisModal.tsx` | Project JARVIS | cyan `#00e5ff` |
+| Parseltongue | `ParseltongueModal.tsx` | G0DM0D3 | matrix green `#00ff41` |
+| RAGFlow | `RagModal.tsx` | RAGFlow | blue `#3b82f6` |
+| OpenGravity IDE | → Skills Library | OpenGravity | violet `#a78bfa` |
+| Team Agent | `TeamAgentModal.tsx` | oh-my-openagent | orange `#f97316` |
+| Skills Library | `SkillsLibraryModal.tsx` | Antigravity + Ruflo | emerald `#10b981` |
+| Agent OS | → Team Agent | OpenFang | amber `#fb923c` |
+| Gemini CLI | → KaliAgent | Gemini CLI | indigo `#818cf8` |
+
+### Module Descriptions
+
+**JARVIS** (`JarvisModal.tsx`):
+- Iron Man HUD with animated arc reactor core
+- 5 live telemetry bars (neural load, cortex sync, threat index, memory, latency)
+- Streaming chat with J.A.R.V.I.S. persona using main AI
+- Full duplex conversation log with timestamps
+
+**Parseltongue** (`ParseltongueModal.tsx`):
+- 6 obfuscation techniques: Leetspeak, Unicode lookalikes, ZWJ injection, Mixed Case, Phonetic, Random Mix
+- 3 intensities: light (25%), medium (55%), heavy (90%) transform rate
+- All transforms run client-side — instant, no API needed
+- Copy output to clipboard, view char-count stats
+
+**RAGFlow** (`RagModal.tsx`):
+- Upload text/markdown/code/CSV/JSON/YAML files
+- Simple keyword-score retrieval (top-20 most relevant lines)
+- Chat with documents using AI + retrieved context as system prompt
+- Tab-based UI: Docs | Chat
+
+**Team Agent** (`TeamAgentModal.tsx`):
+- 2–5 specialist agents: RECON, EXPLOIT, ANALYST, STEALTH, STRIKE
+- All agents run simultaneously via `streamAgent` in parallel
+- Each agent has unique focus/specialty prompt
+- After completion → automatic FUSION COORDINATOR synthesis
+- Click any agent card to expand its full report
+
+**Skills Library** (`SkillsLibraryModal.tsx`):
+- 15+ curated security skill playbooks (extensible)
+- Categories: Offensive, OSINT, Malware, Forensics, Network, Web, Crypto, Social Eng, Defense, Code, AI Agent, Recon
+- Each skill has: name, tags, description, full system prompt preview
+- "Inject into AI" → sets customSystemPrompt for the active chat session
+- Sources: Antigravity Awesome Skills + Ruflo agent configs
+
 ## Important Files
 
 - `artifacts/mr7-ai/src/lib/subscription.ts` — tier definitions, prices, activation codes, admin password

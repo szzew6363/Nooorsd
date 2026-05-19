@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, Sparkles, Coins, LayoutGrid, HelpCircle, Search, Zap, Brain, Server, Bot, Hexagon } from "lucide-react";
+import { Menu, Sparkles, Coins, LayoutGrid, HelpCircle, Search, Zap, Brain, Server, Bot, Hexagon, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -20,9 +20,10 @@ interface TopBarProps {
   onOpenLocalModel: () => void;
   onOpenAgent: () => void;
   onOpenNexus: () => void;
+  onOpenArsenal: () => void;
 }
 
-export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp, onOpenPersonaEditor, onOpenLocalModel, onOpenAgent, onOpenNexus }: TopBarProps) {
+export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp, onOpenPersonaEditor, onOpenLocalModel, onOpenAgent, onOpenNexus, onOpenArsenal }: TopBarProps) {
   const { state, dispatch } = useStore();
   const { t } = useT();
   const { toast } = useToast();
@@ -222,6 +223,33 @@ export function TopBar({ onMenuClick, onOpenPricing, onOpenToolsHub, onOpenHelp,
           title="NEXUS Agent — 5-Tier Autonomous Super Agent"
         >
           <Hexagon className="w-4 h-4" />
+        </button>
+
+        {/* Arsenal Hub button */}
+        <button
+          onClick={onOpenArsenal}
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-black whitespace-nowrap tracking-wider transition-all hover:opacity-95"
+          style={{
+            background: "linear-gradient(135deg, rgba(226,18,39,0.12) 0%, rgba(180,0,20,0.06) 100%)",
+            borderColor: "rgba(226,18,39,0.4)",
+            color: "#e21227",
+            boxShadow: "0 0 14px rgba(226,18,39,0.15)",
+          }}
+          aria-label="Arsenal Hub — All AI Modules"
+          title="Arsenal Hub — Launch AI Modules"
+        >
+          <Shield className="w-3.5 h-3.5" />
+          <span>Arsenal</span>
+        </button>
+
+        <button
+          onClick={onOpenArsenal}
+          className="sm:hidden p-2 rounded-lg transition-colors"
+          style={{ color: "#e21227" }}
+          aria-label="Arsenal Hub"
+          title="Arsenal Hub — All AI Modules"
+        >
+          <Shield className="w-4 h-4" />
         </button>
 
         {/* Persona Editor button */}
