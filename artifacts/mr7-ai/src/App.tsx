@@ -41,7 +41,7 @@ import { AgentOSModal } from "./components/modals/AgentOSModal";
 import { GeminiCLIModal } from "./components/modals/GeminiCLIModal";
 import { PipelineHUD } from "./components/PipelineHUD";
 import type { PipelineItem } from "./lib/pipeline";
-// New Arsenal modules
+// New Arsenal modules — batch 1
 import { HermesModal } from "./components/modals/HermesModal";
 import { GraphifyModal } from "./components/modals/GraphifyModal";
 import { GetShitDoneModal } from "./components/modals/GetShitDoneModal";
@@ -50,6 +50,19 @@ import { UIUXProModal } from "./components/modals/UIUXProModal";
 import { CareerOpsModal } from "./components/modals/CareerOpsModal";
 import { ABTopModal } from "./components/modals/ABTopModal";
 import { AwesomeLLMModal } from "./components/modals/AwesomeLLMModal";
+// New Arsenal modules — batch 2 (from uploaded ZIPs)
+import { OsintScannerModal } from "./components/modals/OsintScannerModal";
+import { NanoBotModal } from "./components/modals/NanoBotModal";
+import { AgentKanbanModal } from "./components/modals/AgentKanbanModal";
+import { AutoBEModal } from "./components/modals/AutoBEModal";
+import { SuperpowersModal } from "./components/modals/SuperpowersModal";
+import { LerimCLIModal } from "./components/modals/LerimCLIModal";
+import { ClaudePromptsModal } from "./components/modals/ClaudePromptsModal";
+import { RunVSAgentModal } from "./components/modals/RunVSAgentModal";
+import { CodexMobileModal } from "./components/modals/CodexMobileModal";
+import { OpenACPModal } from "./components/modals/OpenACPModal";
+import { HandClawModal } from "./components/modals/HandClawModal";
+import { RalphAgentModal } from "./components/modals/RalphAgentModal";
 
 const queryClient = new QueryClient();
 
@@ -133,7 +146,7 @@ function AppContent() {
   const [openGravityOpen, setOpenGravityOpen] = useState(false);
   const [agentOSOpen, setAgentOSOpen] = useState(false);
   const [geminiCLIOpen, setGeminiCLIOpen] = useState(false);
-  // New modules
+  // New modules — batch 1
   const [hermesOpen, setHermesOpen] = useState(false);
   const [graphifyOpen, setGraphifyOpen] = useState(false);
   const [getShitDoneOpen, setGetShitDoneOpen] = useState(false);
@@ -142,6 +155,19 @@ function AppContent() {
   const [careerOpsOpen, setCareerOpsOpen] = useState(false);
   const [abTopOpen, setAbTopOpen] = useState(false);
   const [awesomeLLMOpen, setAwesomeLLMOpen] = useState(false);
+  // New modules — batch 2 (from uploaded ZIPs)
+  const [osintScannerOpen, setOsintScannerOpen] = useState(false);
+  const [nanoBotOpen, setNanoBotOpen] = useState(false);
+  const [agentKanbanOpen, setAgentKanbanOpen] = useState(false);
+  const [autoBEOpen, setAutoBEOpen] = useState(false);
+  const [superpowersOpen, setSuperpowersOpen] = useState(false);
+  const [lerimCLIOpen, setLerimCLIOpen] = useState(false);
+  const [claudePromptsOpen, setClaudePromptsOpen] = useState(false);
+  const [runVSAgentOpen, setRunVSAgentOpen] = useState(false);
+  const [codexMobileOpen, setCodexMobileOpen] = useState(false);
+  const [openACPOpen, setOpenACPOpen] = useState(false);
+  const [handClawOpen, setHandClawOpen] = useState(false);
+  const [ralphOpen, setRalphOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -180,7 +206,7 @@ function AppContent() {
       case "opengravity":  setOpenGravityOpen(true); break;
       case "agentOS":      setAgentOSOpen(true); break;
       case "geminiCLI":    setGeminiCLIOpen(true); break;
-      // New modules
+      // New modules — batch 1
       case "hermes":       setHermesOpen(true); break;
       case "graphify":     setGraphifyOpen(true); break;
       case "getshitdone":  setGetShitDoneOpen(true); break;
@@ -189,6 +215,19 @@ function AppContent() {
       case "careerops":    setCareerOpsOpen(true); break;
       case "abtop":        setAbTopOpen(true); break;
       case "awesomellm":   setAwesomeLLMOpen(true); break;
+      // New modules — batch 2
+      case "osintscanner": setOsintScannerOpen(true); break;
+      case "nanobot":      setNanoBotOpen(true); break;
+      case "agentkanban":  setAgentKanbanOpen(true); break;
+      case "autobe":       setAutoBEOpen(true); break;
+      case "superpowers":  setSuperpowersOpen(true); break;
+      case "lerimcli":     setLerimCLIOpen(true); break;
+      case "claudeprompts":setClaudePromptsOpen(true); break;
+      case "rvsagent":     setRunVSAgentOpen(true); break;
+      case "codexmobile":  setCodexMobileOpen(true); break;
+      case "openacp":      setOpenACPOpen(true); break;
+      case "handclaw":     setHandClawOpen(true); break;
+      case "ralph":        setRalphOpen(true); break;
     }
   }
 
@@ -332,7 +371,7 @@ function AppContent() {
       <OpenGravityModal open={openGravityOpen} onOpenChange={setOpenGravityOpen} pipelineCode={idePipelineCode} />
       <AgentOSModal open={agentOSOpen} onOpenChange={setAgentOSOpen} />
       <GeminiCLIModal open={geminiCLIOpen} onOpenChange={setGeminiCLIOpen} pipelineContext={cliPipelineContext} />
-      {/* New Arsenal modules */}
+      {/* New Arsenal modules — batch 1 */}
       <HermesModal open={hermesOpen} onOpenChange={setHermesOpen} />
       <GraphifyModal open={graphifyOpen} onOpenChange={setGraphifyOpen} />
       <GetShitDoneModal open={getShitDoneOpen} onOpenChange={setGetShitDoneOpen} />
@@ -341,6 +380,19 @@ function AppContent() {
       <CareerOpsModal open={careerOpsOpen} onOpenChange={setCareerOpsOpen} />
       <ABTopModal open={abTopOpen} onOpenChange={setAbTopOpen} />
       <AwesomeLLMModal open={awesomeLLMOpen} onOpenChange={setAwesomeLLMOpen} />
+      {/* New Arsenal modules — batch 2 (from uploaded ZIPs) */}
+      <OsintScannerModal open={osintScannerOpen} onOpenChange={setOsintScannerOpen} onChainToKali={(content) => { setAgentPipelineTask({ text: content, key: nextKey() }); setAgentOpen(true); }} />
+      <NanoBotModal open={nanoBotOpen} onOpenChange={setNanoBotOpen} />
+      <AgentKanbanModal open={agentKanbanOpen} onOpenChange={setAgentKanbanOpen} />
+      <AutoBEModal open={autoBEOpen} onOpenChange={setAutoBEOpen} />
+      <SuperpowersModal open={superpowersOpen} onOpenChange={setSuperpowersOpen} />
+      <LerimCLIModal open={lerimCLIOpen} onOpenChange={setLerimCLIOpen} />
+      <ClaudePromptsModal open={claudePromptsOpen} onOpenChange={setClaudePromptsOpen} />
+      <RunVSAgentModal open={runVSAgentOpen} onOpenChange={setRunVSAgentOpen} />
+      <CodexMobileModal open={codexMobileOpen} onOpenChange={setCodexMobileOpen} />
+      <OpenACPModal open={openACPOpen} onOpenChange={setOpenACPOpen} />
+      <HandClawModal open={handClawOpen} onOpenChange={setHandClawOpen} />
+      <RalphAgentModal open={ralphOpen} onOpenChange={setRalphOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

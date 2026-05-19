@@ -15,7 +15,10 @@ export type ArsenalModuleId =
   | "ragflow" | "opengravity" | "teamagent" | "skills"
   | "agentOS" | "geminiCLI"
   | "hermes" | "graphify" | "getshitdone" | "ccswitch"
-  | "uiuxpro" | "careerops" | "abtop" | "awesomellm";
+  | "uiuxpro" | "careerops" | "abtop" | "awesomellm"
+  | "osintscanner" | "nanobot" | "agentkanban" | "autobe"
+  | "superpowers" | "lerimcli" | "claudeprompts" | "rvsagent"
+  | "codexmobile" | "openacp" | "handclaw" | "ralph";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -140,6 +143,79 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "12 curated AI app templates (RAG, agents, code review, security, SQL, data science) — one-click inject into chat.",
     icon: Sparkles, color: "#fbbf24", border: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.07)", glow: "rgba(251,191,36,0.25)",
     source: "awesome-llm-apps", tag: "GALLERY",
+  },
+  // --- Second batch from uploaded ZIP projects ---
+  {
+    id: "osintscanner", name: "OSINT Scanner", subtitle: "Open-Source Intelligence Recon",
+    desc: "Domain/IP/email/username/hash scanner with 7 data sources. AI report auto-chains to KaliAgent for exploit discovery.",
+    icon: Layers, color: "#e21227", border: "rgba(226,18,39,0.35)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.25)",
+    source: "openclaw-android / handclaw", tag: "OSINT",
+  },
+  {
+    id: "nanobot", name: "NanoBot", subtitle: "Lightweight AI Assistant",
+    desc: "Zero-fluff AI chat with 8 quick-action presets. Instant answers, code, shell, SQL, regex — no filler.",
+    icon: Zap, color: "#00e5cc", border: "rgba(0,229,204,0.35)", bg: "rgba(0,229,204,0.07)", glow: "rgba(0,229,204,0.25)",
+    source: "nanobot-main", tag: "FAST",
+  },
+  {
+    id: "agentkanban", name: "Agent Kanban", subtitle: "AI Task Board",
+    desc: "Kanban board where each card is an AI agent task. Backlog → Running → Done. Run all tasks in parallel.",
+    icon: Layers, color: "#fbbf24", border: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.07)", glow: "rgba(251,191,36,0.25)",
+    source: "agent-kanban-main", tag: "KANBAN",
+  },
+  {
+    id: "autobe", name: "Auto-BE", subtitle: "Backend Generator",
+    desc: "Generate production-ready backends in Express/FastAPI/Django/Go/Rust/Spring. 6 frameworks × 6 templates.",
+    icon: Code2, color: "#22d3ee", border: "rgba(34,211,238,0.35)", bg: "rgba(34,211,238,0.07)", glow: "rgba(34,211,238,0.25)",
+    source: "autobe-main", tag: "BACKEND",
+  },
+  {
+    id: "superpowers", name: "Superpowers", subtitle: "AI Capability Injector",
+    desc: "12 elite superpowers (Adversarial Thinking, First Principles, Code Archaeologist, Master Negotiator…) inject into chat.",
+    icon: Sparkles, color: "#fbbf24", border: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.07)", glow: "rgba(251,191,36,0.25)",
+    source: "superpowers-optimized-main", tag: "INJECT",
+  },
+  {
+    id: "lerimcli", name: "Lerim CLI", subtitle: "AI Terminal Interface",
+    desc: "Full AI terminal with /ask /code /explain /fix /shell /scan /pipe commands, history navigation, Ctrl+L clear.",
+    icon: Terminal, color: "#818cf8", border: "rgba(129,140,248,0.35)", bg: "rgba(129,140,248,0.07)", glow: "rgba(129,140,248,0.25)",
+    source: "lerim-cli-main", tag: "CLI",
+  },
+  {
+    id: "claudeprompts", name: "Claude Prompts", subtitle: "Expert Prompt Library",
+    desc: "12 production-grade prompts (Security Auditor, System Design, API Designer, LLM Red Teamer…) inject instantly.",
+    icon: BookOpen, color: "#10b981", border: "rgba(16,185,129,0.35)", bg: "rgba(16,185,129,0.07)", glow: "rgba(16,185,129,0.25)",
+    source: "claude-code-prompts-master", tag: "PROMPTS",
+  },
+  {
+    id: "rvsagent", name: "Run VS Agent", subtitle: "AI Code Executor",
+    desc: "AI-simulated execution for Python/JS/TS/Bash/Go/Rust. Paste code, see output. AI Fix button auto-corrects bugs.",
+    icon: Code2, color: "#a78bfa", border: "rgba(167,139,250,0.35)", bg: "rgba(167,139,250,0.07)", glow: "rgba(167,139,250,0.25)",
+    source: "RunVSAgent-main", tag: "EXEC",
+  },
+  {
+    id: "codexmobile", name: "Codex Mobile", subtitle: "Mobile Code Assistant",
+    desc: "Compact mobile-style code assistant with 8 quick actions: Review PR, Write Tests, Refactor, Add Types, Gen Docs, Find Bugs.",
+    icon: Cpu, color: "#34d399", border: "rgba(52,211,153,0.35)", bg: "rgba(52,211,153,0.07)", glow: "rgba(52,211,153,0.25)",
+    source: "codex-mobile-main", tag: "CODE",
+  },
+  {
+    id: "openacp", name: "Open ACP", subtitle: "Agent Coordination Protocol",
+    desc: "Planner → Executor → Critic → Researcher run in parallel, Synthesizer combines all outputs into final solution.",
+    icon: GitMerge, color: "#a78bfa", border: "rgba(167,139,250,0.35)", bg: "rgba(167,139,250,0.07)", glow: "rgba(167,139,250,0.25)",
+    source: "OpenACP-main", tag: "MULTI-AGENT",
+  },
+  {
+    id: "handclaw", name: "HandClaw", subtitle: "Voice & Gesture AI",
+    desc: "Control AI with voice (Web Speech API) or 6 gesture triggers. Speak commands, tap gestures, instant results.",
+    icon: Brain, color: "#fb7185", border: "rgba(251,113,133,0.35)", bg: "rgba(251,113,133,0.07)", glow: "rgba(251,113,133,0.25)",
+    source: "handclaw-main", tag: "VOICE",
+  },
+  {
+    id: "ralph", name: "Ralph Agent", subtitle: "Desktop Autonomous Agent",
+    desc: "Methodical autonomous agent with 8 tools: Read File, Write Code, Test, Plan, Debug, Docs, Git, Deploy. Full conversation.",
+    icon: Bot, color: "#fb923c", border: "rgba(251,146,60,0.35)", bg: "rgba(251,146,60,0.07)", glow: "rgba(251,146,60,0.25)",
+    source: "ralph-desktop-main / ralph-starter", tag: "AGENT",
   },
 ];
 
