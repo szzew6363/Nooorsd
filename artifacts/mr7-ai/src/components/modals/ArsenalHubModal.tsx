@@ -2,16 +2,20 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Bot, Hexagon, Cpu, Zap, Brain, Terminal, Database,
-  Layers, Code2, Users, Sparkles, BookOpen, Settings2,
+  Layers, Code2, Users, Sparkles, BookOpen,
   CheckSquare, Square, ExternalLink, Shield, Swords,
   GitMerge, ArrowRight, RotateCcw, Trash2, Copy, CheckCheck,
+  Network, Briefcase, Palette, Activity, Link2, Plus,
+  ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
 } from "lucide-react";
-import { pipeline, type PipelineHistoryEntry } from "@/lib/pipeline";
+import { pipeline, type PipelineHistoryEntry, type ChainRule } from "@/lib/pipeline";
 
 export type ArsenalModuleId =
   | "kaliagent" | "nexus" | "jarvis" | "parseltongue"
   | "ragflow" | "opengravity" | "teamagent" | "skills"
-  | "agentOS" | "geminiCLI";
+  | "agentOS" | "geminiCLI"
+  | "hermes" | "graphify" | "getshitdone" | "ccswitch"
+  | "uiuxpro" | "careerops" | "abtop" | "awesomellm";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -48,31 +52,31 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
   },
   {
     id: "parseltongue", name: "Parseltongue", subtitle: "Red-Team Text Engine",
-    desc: "6 obfuscation techniques (leetspeak, unicode, ZWJ, mixedcase, phonetic, random) × 3 intensities for adversarial prompt research.",
+    desc: "6 obfuscation techniques × 3 intensities for adversarial prompt research and red team operations.",
     icon: Swords, color: "#00ff41", border: "rgba(0,255,65,0.3)", bg: "rgba(0,255,65,0.06)", glow: "rgba(0,255,65,0.2)",
     source: "G0DM0D3", tag: "RED TEAM",
   },
   {
     id: "ragflow", name: "RAGFlow", subtitle: "Knowledge Base Chat",
-    desc: "Upload documents (text/markdown/code) and chat with them using deep retrieval-augmented generation.",
+    desc: "Upload documents and chat with them using deep retrieval-augmented generation with keyword scoring.",
     icon: Database, color: "#3b82f6", border: "rgba(59,130,246,0.35)", bg: "rgba(59,130,246,0.07)", glow: "rgba(59,130,246,0.25)",
     source: "RAGFlow", tag: "RAG",
   },
   {
     id: "opengravity", name: "OpenGravity IDE", subtitle: "AI Code Editor",
-    desc: "Browser-based AI code editor with inline completions, refactor, explain, and debug powered by the main AI.",
+    desc: "Browser-based AI code editor with inline completions, refactor, explain, and debug.",
     icon: Code2, color: "#a78bfa", border: "rgba(167,139,250,0.35)", bg: "rgba(167,139,250,0.07)", glow: "rgba(167,139,250,0.25)",
     source: "OpenGravity", tag: "IDE",
   },
   {
     id: "teamagent", name: "Team Agent", subtitle: "Parallel Multi-Agent Mode",
-    desc: "Spawn 2–5 agents in parallel on the same task. Each produces independent analysis. Final fusion synthesis merges results.",
+    desc: "Spawn 2–5 agents in parallel on the same task. Fusion synthesis merges all results.",
     icon: Users, color: "#f97316", border: "rgba(249,115,22,0.35)", bg: "rgba(249,115,22,0.07)", glow: "rgba(249,115,22,0.25)",
     source: "oh-my-openagent", tag: "PARALLEL",
   },
   {
     id: "skills", name: "Skills Library", subtitle: "1,460+ Agentic Skills",
-    desc: "Browse, search, and inject curated SKILL.md playbooks from Antigravity / Ruflo into the active AI context.",
+    desc: "Browse and inject curated SKILL.md playbooks from Antigravity / Ruflo into the active AI context.",
     icon: BookOpen, color: "#10b981", border: "rgba(16,185,129,0.35)", bg: "rgba(16,185,129,0.07)", glow: "rgba(16,185,129,0.25)",
     source: "Antigravity + Ruflo", tag: "SKILLS",
   },
@@ -88,6 +92,55 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     icon: Terminal, color: "#818cf8", border: "rgba(129,140,248,0.35)", bg: "rgba(129,140,248,0.07)", glow: "rgba(129,140,248,0.25)",
     source: "Gemini CLI", tag: "CLI",
   },
+  // --- New modules from uploaded projects ---
+  {
+    id: "hermes", name: "Hermes Agent", subtitle: "Multi-Step Reasoning Chain",
+    desc: "Think → Plan → Act → Reflect → Answer. Structured 5-phase reasoning agent for deep analytical problem solving.",
+    icon: Zap, color: "#fbbf24", border: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.07)", glow: "rgba(251,191,36,0.25)",
+    source: "hermes-agent", tag: "REASONING",
+  },
+  {
+    id: "graphify", name: "Graphify", subtitle: "Knowledge Graph Generator",
+    desc: "Convert any text into an interactive SVG knowledge graph with draggable nodes, colored by type.",
+    icon: Network, color: "#a78bfa", border: "rgba(167,139,250,0.35)", bg: "rgba(167,139,250,0.07)", glow: "rgba(167,139,250,0.25)",
+    source: "graphify-8", tag: "GRAPH",
+  },
+  {
+    id: "getshitdone", name: "Get Shit Done", subtitle: "AI GTD Task Engine",
+    desc: "Enter a goal → AI breaks it into prioritized tasks with micro-steps. Track progress, expand tasks, pipe output.",
+    icon: CheckSquare, color: "#f97316", border: "rgba(249,115,22,0.35)", bg: "rgba(249,115,22,0.07)", glow: "rgba(249,115,22,0.25)",
+    source: "get-shit-done", tag: "PRODUCTIVITY",
+  },
+  {
+    id: "ccswitch", name: "CC Switch", subtitle: "Multi-Model Comparison",
+    desc: "Send the same prompt to multiple AI models simultaneously. Compare responses side-by-side in real time.",
+    icon: Layers, color: "#6366f1", border: "rgba(99,102,241,0.35)", bg: "rgba(99,102,241,0.07)", glow: "rgba(99,102,241,0.25)",
+    source: "cc-switch", tag: "COMPARE",
+  },
+  {
+    id: "uiuxpro", name: "UI/UX Pro Max", subtitle: "Design Intelligence Suite",
+    desc: "Wireframes, UI critique, component generation, UX flows, color systems, and microcopy — 6 specialist modes.",
+    icon: Palette, color: "#ec4899", border: "rgba(236,72,153,0.35)", bg: "rgba(236,72,153,0.07)", glow: "rgba(236,72,153,0.25)",
+    source: "ui-ux-pro-max-skill", tag: "DESIGN",
+  },
+  {
+    id: "careerops", name: "Career Ops", subtitle: "AI Career Intelligence",
+    desc: "Resume optimizer, cover letters, interview prep, salary negotiation, LinkedIn optimizer, career roadmap.",
+    icon: Briefcase, color: "#0ea5e9", border: "rgba(14,165,233,0.35)", bg: "rgba(14,165,233,0.07)", glow: "rgba(14,165,233,0.25)",
+    source: "career-ops", tag: "CAREER",
+  },
+  {
+    id: "abtop", name: "ABTop", subtitle: "AI Threat Monitor",
+    desc: "Live security threat dashboard — real-time IOC detection, CVSS metrics, and AI-powered SOC analysis.",
+    icon: Activity, color: "#e21227", border: "rgba(226,18,39,0.35)", bg: "rgba(226,18,39,0.07)", glow: "rgba(226,18,39,0.25)",
+    source: "abtop", tag: "MONITOR",
+  },
+  {
+    id: "awesomellm", name: "Awesome LLM Apps", subtitle: "AI App Gallery",
+    desc: "12 curated AI app templates (RAG, agents, code review, security, SQL, data science) — one-click inject into chat.",
+    icon: Sparkles, color: "#fbbf24", border: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.07)", glow: "rgba(251,191,36,0.25)",
+    source: "awesome-llm-apps", tag: "GALLERY",
+  },
 ];
 
 const STORAGE_KEY = "mr7-arsenal-enabled";
@@ -98,8 +151,235 @@ interface ArsenalHubModalProps {
   onLaunch: (id: ArsenalModuleId) => void;
 }
 
-type Tab = "modules" | "history";
+type Tab = "modules" | "chain" | "history";
 
+// ─── Chain Builder ────────────────────────────────────────────────────────────
+
+const ALL_SOURCES = [
+  "*",
+  ...ARSENAL_MODULES.map((m) => m.name.toUpperCase().replace(/\s/g, "")),
+  "CHAT",
+];
+
+const ALL_DESTINATIONS = [
+  ...ARSENAL_MODULES.map((m) => ({ label: m.name, value: m.name.toUpperCase().replace(/\s/g, ""), color: m.color })),
+  { label: "Chat", value: "CHAT", color: "#e21227" },
+];
+
+function ChainBuilderTab() {
+  const [rules, setRules] = useState<ChainRule[]>(() => pipeline.getRules());
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    sourceModule: "*",
+    destinationModule: "KALIAGENT",
+    destinationColor: "#ff4d4d",
+    triggerKeyword: "",
+    enabled: true,
+  });
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    return pipeline.subscribeRules(() => setRules(pipeline.getRules()));
+  }, []);
+
+  function saveRule() {
+    if (!form.name.trim()) return;
+    pipeline.addRule(form);
+    setShowForm(false);
+    setForm({ name: "", sourceModule: "*", destinationModule: "KALIAGENT", destinationColor: "#ff4d4d", triggerKeyword: "", enabled: true });
+  }
+
+  function deleteRule(id: string) { pipeline.deleteRule(id); }
+  function toggleRule(id: string, enabled: boolean) { pipeline.updateRule(id, { enabled }); }
+
+  return (
+    <div className="p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[12px] font-bold" style={{ color: "#00e5cc" }}>Automation Rules</div>
+          <div className="text-[10px] mt-0.5" style={{ color: "#444" }}>
+            When a module produces output matching your rule, it automatically routes to the destination module.
+          </div>
+        </div>
+        <button
+          onClick={() => setShowForm((v) => !v)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border flex-shrink-0 transition-all"
+          style={{ background: showForm ? "rgba(226,18,39,0.1)" : "rgba(0,229,204,0.08)", borderColor: showForm ? "rgba(226,18,39,0.3)" : "rgba(0,229,204,0.3)", color: showForm ? "#e21227" : "#00e5cc" }}
+        >
+          {showForm ? <><X className="w-3 h-3" /> Cancel</> : <><Plus className="w-3 h-3" /> New Rule</>}
+        </button>
+      </div>
+
+      {/* New rule form */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="rounded-xl p-4 space-y-3" style={{ background: "rgba(0,229,204,0.04)", border: "1px solid rgba(0,229,204,0.15)" }}>
+              <div className="text-[10px] font-bold font-mono" style={{ color: "#00e5cc" }}>NEW CHAIN RULE</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[9px] font-mono mb-1 block" style={{ color: "#444" }}>Rule Name</label>
+                  <input
+                    type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="e.g. Parseltongue → KaliAgent"
+                    className="w-full bg-transparent border rounded-lg px-2.5 py-1.5 text-[11px] outline-none"
+                    style={{ borderColor: "rgba(255,255,255,0.1)", color: "#ccc" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] font-mono mb-1 block" style={{ color: "#444" }}>Trigger Keyword (optional)</label>
+                  <input
+                    type="text" value={form.triggerKeyword} onChange={(e) => setForm((f) => ({ ...f, triggerKeyword: e.target.value }))}
+                    placeholder="e.g. exploit, CVE, payload…"
+                    className="w-full bg-transparent border rounded-lg px-2.5 py-1.5 text-[11px] outline-none"
+                    style={{ borderColor: "rgba(255,255,255,0.1)", color: "#ccc" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] font-mono mb-1 block" style={{ color: "#444" }}>Source Module</label>
+                  <select
+                    value={form.sourceModule}
+                    onChange={(e) => setForm((f) => ({ ...f, sourceModule: e.target.value }))}
+                    className="w-full border rounded-lg px-2.5 py-1.5 text-[11px] outline-none"
+                    style={{ background: "#0d0d0d", borderColor: "rgba(255,255,255,0.1)", color: "#ccc" }}
+                  >
+                    <option value="*">Any Module</option>
+                    {ALL_SOURCES.filter((s) => s !== "*").map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[9px] font-mono mb-1 block" style={{ color: "#444" }}>Destination Module</label>
+                  <select
+                    value={form.destinationModule}
+                    onChange={(e) => {
+                      const dest = ALL_DESTINATIONS.find((d) => d.value === e.target.value);
+                      setForm((f) => ({ ...f, destinationModule: e.target.value, destinationColor: dest?.color ?? "#00e5cc" }));
+                    }}
+                    className="w-full border rounded-lg px-2.5 py-1.5 text-[11px] outline-none"
+                    style={{ background: "#0d0d0d", borderColor: "rgba(255,255,255,0.1)", color: "#ccc" }}
+                  >
+                    {ALL_DESTINATIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="text-[10px] font-mono" style={{ color: "#555" }}>
+                    {form.sourceModule === "*" ? "Any output" : form.sourceModule}
+                    {form.triggerKeyword ? ` containing "${form.triggerKeyword}"` : ""}
+                    {" → "}
+                    <span style={{ color: form.destinationColor }}>{form.destinationModule}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={saveRule}
+                  disabled={!form.name.trim()}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[10px] font-bold border disabled:opacity-30"
+                  style={{ background: "rgba(0,229,204,0.1)", borderColor: "rgba(0,229,204,0.3)", color: "#00e5cc" }}
+                >
+                  Save Rule
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Rules list */}
+      {rules.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center border" style={{ background: "rgba(0,229,204,0.04)", borderColor: "rgba(0,229,204,0.12)" }}>
+            <Link2 className="w-6 h-6" style={{ color: "#1a3a38" }} />
+          </div>
+          <div className="text-[11px] font-mono" style={{ color: "#333" }}>No chain rules defined yet</div>
+          <div className="text-[10px] text-center max-w-xs" style={{ color: "#222" }}>
+            Create rules to automatically route module outputs to other modules in the pipeline
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {rules.map((rule) => {
+            const isExpanded = expandedId === rule.id;
+            return (
+              <motion.div key={rule.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl overflow-hidden" style={{ border: `1px solid ${rule.enabled ? "rgba(0,229,204,0.2)" : "rgba(255,255,255,0.06)"}`, background: rule.enabled ? "rgba(0,229,204,0.04)" : "#0a0a0a" }}>
+                <div className="flex items-center gap-2 p-3">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="text-[11px] font-bold truncate" style={{ color: rule.enabled ? "#ccc" : "#444" }}>{rule.name}</div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#444" }}>
+                        {rule.sourceModule === "*" ? "ANY" : rule.sourceModule}
+                      </span>
+                      <ArrowRight className="w-3 h-3" style={{ color: "#333" }} />
+                      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${rule.destinationColor}15`, color: rule.destinationColor }}>
+                        {rule.destinationModule}
+                      </span>
+                    </div>
+                    {rule.execCount > 0 && (
+                      <span className="text-[8px] font-mono" style={{ color: "#00e5cc" }}>{rule.execCount}x fired</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button onClick={() => toggleRule(rule.id, !rule.enabled)}>
+                      {rule.enabled
+                        ? <ToggleRight className="w-4 h-4" style={{ color: "#00e5cc" }} />
+                        : <ToggleLeft className="w-4 h-4" style={{ color: "#333" }} />
+                      }
+                    </button>
+                    <button onClick={() => setExpandedId(isExpanded ? null : rule.id)}>
+                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5" style={{ color: "#444" }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: "#444" }} />}
+                    </button>
+                    <button onClick={() => deleteRule(rule.id)}>
+                      <Trash2 className="w-3.5 h-3.5" style={{ color: "#333" }} />
+                    </button>
+                  </div>
+                </div>
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                      <div className="px-3 py-2.5 grid grid-cols-2 gap-2 text-[9px] font-mono" style={{ color: "#444" }}>
+                        <div>Source: <span style={{ color: "#666" }}>{rule.sourceModule === "*" ? "Any Module" : rule.sourceModule}</span></div>
+                        <div>Destination: <span style={{ color: rule.destinationColor }}>{rule.destinationModule}</span></div>
+                        <div>Keyword: <span style={{ color: "#666" }}>{rule.triggerKeyword || "none"}</span></div>
+                        <div>Created: <span style={{ color: "#666" }}>{new Date(rule.createdAt).toLocaleDateString()}</span></div>
+                        <div>Exec count: <span style={{ color: "#00e5cc" }}>{rule.execCount}</span></div>
+                        <div>Status: <span style={{ color: rule.enabled ? "#10b981" : "#e21227" }}>{rule.enabled ? "active" : "disabled"}</span></div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tab button ───────────────────────────────────────────────────────────────
+function TabBtn({ active, onClick, label, count, countColor = "#555" }: { active: boolean; onClick: () => void; label: string; count?: number; countColor?: string; }) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative px-4 py-3 text-[10px] font-bold tracking-widest transition-colors"
+      style={{ color: active ? "#e21227" : "#444", borderBottom: active ? "2px solid #e21227" : "2px solid transparent" }}
+    >
+      {label}
+      {count !== undefined && count > 0 && (
+        <span className="ml-1.5 text-[8px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: countColor }}>
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModalProps) {
   const [tab, setTab] = useState<Tab>("modules");
   const [enabled, setEnabled] = useState<Set<ArsenalModuleId>>(() => {
@@ -113,15 +393,14 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
   const [history, setHistory] = useState<PipelineHistoryEntry[]>(() => pipeline.getHistory());
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [replayedId, setReplayedId] = useState<string | null>(null);
+  const [chainRules] = useState(() => pipeline.getRules());
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...enabled]));
   }, [enabled]);
 
   useEffect(() => {
-    const unsub = pipeline.subscribeHistory(() => {
-      setHistory(pipeline.getHistory());
-    });
+    const unsub = pipeline.subscribeHistory(() => setHistory(pipeline.getHistory()));
     return unsub;
   }, []);
 
@@ -140,12 +419,7 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
   }
 
   function replay(entry: PipelineHistoryEntry) {
-    pipeline.push({
-      source: entry.source,
-      sourceColor: entry.sourceColor,
-      label: entry.label,
-      content: entry.content,
-    });
+    pipeline.push({ source: entry.source, sourceColor: entry.sourceColor, label: entry.label, content: entry.content });
     setReplayedId(entry.id);
     setTimeout(() => setReplayedId(null), 1800);
   }
@@ -160,10 +434,12 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
     (m) =>
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.desc.toLowerCase().includes(search.toLowerCase()) ||
-      m.source.toLowerCase().includes(search.toLowerCase()),
+      m.source.toLowerCase().includes(search.toLowerCase()) ||
+      m.tag.toLowerCase().includes(search.toLowerCase()),
   );
 
   const allOn = enabled.size === ARSENAL_MODULES.length;
+  const rulesCount = chainRules.length;
 
   if (!open) return null;
 
@@ -171,16 +447,12 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
           style={{ backdropFilter: "blur(10px)", background: "rgba(0,0,0,0.82)" }}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             className="w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl overflow-hidden"
             style={{ background: "#080808", border: "1px solid rgba(226,18,39,0.25)", boxShadow: "0 0 80px rgba(226,18,39,0.12), 0 30px 60px rgba(0,0,0,0.9)" }}
@@ -232,23 +504,16 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
             {/* Tab Bar */}
             <div className="flex items-center gap-0 px-5 border-b" style={{ borderColor: "rgba(255,255,255,0.06)", background: "#0a0a0a" }}>
               <TabBtn active={tab === "modules"} onClick={() => setTab("modules")} label="MODULES" count={ARSENAL_MODULES.length} />
-              <TabBtn
-                active={tab === "history"}
-                onClick={() => setTab("history")}
-                label="PIPELINE HISTORY"
-                count={history.length}
-                countColor="#00e5cc"
-              />
+              <TabBtn active={tab === "chain"} onClick={() => setTab("chain")} label="CHAIN BUILDER" count={rulesCount} countColor="#00e5cc" />
+              <TabBtn active={tab === "history"} onClick={() => setTab("history")} label="PIPELINE HISTORY" count={history.length} countColor="#00e5cc" />
             </div>
 
             {/* Search (modules tab only) */}
             {tab === "modules" && (
               <div className="px-5 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
                 <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search modules…"
+                  type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search modules by name, tag, or source…"
                   className="w-full bg-transparent border rounded-lg px-3 py-2 text-[12px] outline-none font-mono"
                   style={{ borderColor: "rgba(255,255,255,0.1)", color: "#ccc" }}
                 />
@@ -258,36 +523,20 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
               <AnimatePresence mode="wait">
-                {tab === "modules" ? (
-                  <motion.div
-                    key="modules"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.15 }}
-                    className="p-4"
-                  >
+                {tab === "modules" && (
+                  <motion.div key="modules" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.15 }} className="p-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {filtered.map((mod) => {
                         const Icon = mod.icon;
                         const isEnabled = enabled.has(mod.id);
                         return (
-                          <motion.div
-                            key={mod.id}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
+                          <motion.div key={mod.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                             className="rounded-xl p-3.5 flex flex-col gap-3 transition-all"
-                            style={{
-                              background: isEnabled ? mod.bg : "#0d0d0d",
-                              border: `1px solid ${isEnabled ? mod.border : "rgba(255,255,255,0.06)"}`,
-                              boxShadow: isEnabled ? `0 0 20px ${mod.glow}` : "none",
-                              opacity: isEnabled ? 1 : 0.55,
-                            }}
-                          >
+                            style={{ background: isEnabled ? mod.bg : "#0d0d0d", border: `1px solid ${isEnabled ? mod.border : "rgba(255,255,255,0.06)"}`, boxShadow: isEnabled ? `0 0 20px ${mod.glow}` : "none", opacity: isEnabled ? 1 : 0.55 }}>
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex items-center gap-2.5">
                                 <div className="w-9 h-9 rounded-xl flex items-center justify-center border flex-shrink-0" style={{ background: isEnabled ? mod.bg : "#111", borderColor: isEnabled ? mod.border : "rgba(255,255,255,0.08)" }}>
-                                  <Icon className="w-4.5 h-4.5" style={{ color: isEnabled ? mod.color : "#444", width: 18, height: 18 }} />
+                                  <Icon style={{ color: isEnabled ? mod.color : "#444", width: 18, height: 18 }} />
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1.5">
@@ -297,20 +546,11 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
                                   <div className="text-[10px] mt-0.5" style={{ color: isEnabled ? "#888" : "#444" }}>{mod.subtitle}</div>
                                 </div>
                               </div>
-
-                              <button
-                                onClick={() => toggle(mod.id)}
-                                className="relative w-10 h-5 rounded-full transition-all flex-shrink-0 mt-1"
-                                style={{ background: isEnabled ? mod.color : "#222", boxShadow: isEnabled ? `0 0 10px ${mod.glow}` : "none" }}
-                              >
+                              <button onClick={() => toggle(mod.id)} className="relative w-10 h-5 rounded-full transition-all flex-shrink-0 mt-1" style={{ background: isEnabled ? mod.color : "#222", boxShadow: isEnabled ? `0 0 10px ${mod.glow}` : "none" }}>
                                 <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all" style={{ left: isEnabled ? "calc(100% - 18px)" : 2 }} />
                               </button>
                             </div>
-
-                            <p className="text-[10px] leading-relaxed" style={{ color: isEnabled ? "#666" : "#3a3a3a" }}>
-                              {mod.desc}
-                            </p>
-
+                            <p className="text-[10px] leading-relaxed" style={{ color: isEnabled ? "#666" : "#3a3a3a" }}>{mod.desc}</p>
                             <div className="flex items-center justify-between">
                               <span className="text-[9px] font-mono" style={{ color: "#333" }}>src: {mod.source}</span>
                               <button
@@ -319,8 +559,7 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
                                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all disabled:opacity-30"
                                 style={{ background: mod.bg, border: `1px solid ${mod.border}`, color: mod.color }}
                               >
-                                <ExternalLink className="w-3 h-3" />
-                                Launch
+                                <ExternalLink className="w-3 h-3" /> Launch
                               </button>
                             </div>
                           </motion.div>
@@ -328,136 +567,71 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
                       })}
                     </div>
                   </motion.div>
-                ) : (
-                  <motion.div
-                    key="history"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
-                    transition={{ duration: 0.15 }}
-                    className="p-4"
-                  >
+                )}
+
+                {tab === "chain" && (
+                  <motion.div key="chain" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.15 }}>
+                    <ChainBuilderTab />
+                  </motion.div>
+                )}
+
+                {tab === "history" && (
+                  <motion.div key="history" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.15 }} className="p-4">
                     {history.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-20 gap-3">
                         <div className="w-14 h-14 rounded-2xl flex items-center justify-center border" style={{ background: "rgba(0,229,204,0.04)", borderColor: "rgba(0,229,204,0.12)" }}>
                           <GitMerge className="w-6 h-6" style={{ color: "#1a3a38" }} />
                         </div>
                         <div className="text-[11px] font-mono" style={{ color: "#333" }}>No pipeline events yet</div>
-                        <div className="text-[10px]" style={{ color: "#222" }}>
-                          Use "Pipe" buttons in any module to route output between modules
-                        </div>
+                        <div className="text-[10px]" style={{ color: "#222" }}>Use Pipe buttons in any module to route output between modules</div>
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2">
                         {history.map((entry, idx) => (
-                          <motion.div
-                            key={entry.id}
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.02 }}
-                            className="rounded-xl p-3.5"
-                            style={{
-                              background: "#0d0d0d",
-                              border: "1px solid rgba(255,255,255,0.06)",
-                            }}
-                          >
-                            {/* Route header: source → destination */}
+                          <motion.div key={entry.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.02 }}
+                            className="rounded-xl p-3.5" style={{ background: "#0d0d0d", border: "1px solid rgba(255,255,255,0.06)" }}>
                             <div className="flex items-center gap-2 mb-2.5">
-                              {/* Source */}
-                              <div
-                                className="flex items-center gap-1.5 px-2 py-1 rounded-lg border"
-                                style={{ background: `${entry.sourceColor}10`, borderColor: `${entry.sourceColor}30` }}
-                              >
+                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border" style={{ background: `${entry.sourceColor}10`, borderColor: `${entry.sourceColor}30` }}>
                                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: entry.sourceColor }} />
-                                <span className="text-[9px] font-bold font-mono" style={{ color: entry.sourceColor }}>
-                                  {entry.source}
-                                </span>
+                                <span className="text-[9px] font-bold font-mono" style={{ color: entry.sourceColor }}>{entry.source}</span>
                               </div>
-
                               <ArrowRight className="w-3 h-3 flex-shrink-0" style={{ color: entry.destination ? "#00e5cc" : "#2a2a2a" }} />
-
-                              {/* Destination */}
                               {entry.destination ? (
-                                <div
-                                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border"
-                                  style={{
-                                    background: `${entry.destinationColor}10`,
-                                    borderColor: `${entry.destinationColor}30`,
-                                  }}
-                                >
+                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border" style={{ background: `${entry.destinationColor}10`, borderColor: `${entry.destinationColor}30` }}>
                                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: entry.destinationColor ?? "#555" }} />
-                                  <span className="text-[9px] font-bold font-mono" style={{ color: entry.destinationColor ?? "#555" }}>
-                                    {entry.destination}
-                                  </span>
+                                  <span className="text-[9px] font-bold font-mono" style={{ color: entry.destinationColor ?? "#555" }}>{entry.destination}</span>
                                 </div>
                               ) : (
-                                <div
-                                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border"
-                                  style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)" }}
-                                >
+                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border" style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)" }}>
                                   <span className="text-[9px] font-mono" style={{ color: "#333" }}>pending</span>
                                 </div>
                               )}
-
-                              <div className="ml-auto flex items-center gap-1">
-                                {/* Timestamps */}
-                                <div className="flex flex-col items-end gap-0.5">
-                                  <span className="text-[8px] font-mono" style={{ color: "#333" }}>
-                                    pushed {entry.timestamp}
-                                  </span>
-                                  {entry.routedAt && (
-                                    <span className="text-[8px] font-mono" style={{ color: "#1a3a38" }}>
-                                      routed {entry.routedAt}
-                                    </span>
-                                  )}
-                                </div>
+                              <div className="ml-auto flex flex-col items-end gap-0.5">
+                                <span className="text-[8px] font-mono" style={{ color: "#333" }}>pushed {entry.timestamp}</span>
+                                {entry.routedAt && <span className="text-[8px] font-mono" style={{ color: "#1a3a38" }}>routed {entry.routedAt}</span>}
                               </div>
                             </div>
-
-                            {/* Label */}
                             <div className="mb-2">
-                              <span
-                                className="text-[8px] font-bold font-mono px-1.5 py-0.5 rounded"
-                                style={{ background: "rgba(255,255,255,0.04)", color: "#555" }}
-                              >
-                                {entry.label}
-                              </span>
+                              <span className="text-[8px] font-bold font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#555" }}>{entry.label}</span>
                             </div>
-
-                            {/* Content preview */}
-                            <div
-                              className="text-[10px] font-mono leading-relaxed mb-3 line-clamp-3"
-                              style={{ color: "#555", whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-                            >
+                            <div className="text-[10px] font-mono leading-relaxed mb-3 line-clamp-3" style={{ color: "#555", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                               {entry.content.slice(0, 200)}{entry.content.length > 200 ? "…" : ""}
                             </div>
-
-                            {/* Actions */}
                             <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => replay(entry)}
+                              <button onClick={() => replay(entry)}
                                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold border transition-all"
-                                style={{
-                                  background: replayedId === entry.id ? "rgba(0,229,204,0.15)" : "rgba(0,229,204,0.06)",
-                                  borderColor: replayedId === entry.id ? "rgba(0,229,204,0.5)" : "rgba(0,229,204,0.2)",
-                                  color: replayedId === entry.id ? "#00e5cc" : "#1a7a70",
-                                }}
-                              >
-                                <RotateCcw className="w-3 h-3" style={{ width: 10, height: 10 }} />
-                                {replayedId === entry.id ? "Pushed to Pipeline" : "Replay"}
+                                style={{ background: replayedId === entry.id ? "rgba(0,229,204,0.15)" : "rgba(0,229,204,0.06)", borderColor: replayedId === entry.id ? "rgba(0,229,204,0.5)" : "rgba(0,229,204,0.2)", color: replayedId === entry.id ? "#00e5cc" : "#1a7a70" }}>
+                                <RotateCcw style={{ width: 10, height: 10 }} />
+                                {replayedId === entry.id ? "Pushed" : "Replay"}
                               </button>
-                              <button
-                                onClick={() => copyEntry(entry)}
+                              <button onClick={() => copyEntry(entry)}
                                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold border transition-all"
-                                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)", color: "#444" }}
-                              >
+                                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)", color: "#444" }}>
                                 {copiedId === entry.id
-                                  ? <><CheckCheck className="w-3 h-3" style={{ width: 10, height: 10, color: "#4ade80" }} /> Copied</>
-                                  : <><Copy className="w-3 h-3" style={{ width: 10, height: 10 }} /> Copy</>}
+                                  ? <><CheckCheck style={{ width: 10, height: 10, color: "#4ade80" }} /> Copied</>
+                                  : <><Copy style={{ width: 10, height: 10 }} /> Copy</>}
                               </button>
-                              <div className="ml-auto text-[8px] font-mono" style={{ color: "#222" }}>
-                                {entry.content.length} chars
-                              </div>
+                              <div className="ml-auto text-[8px] font-mono" style={{ color: "#222" }}>{entry.content.length} chars</div>
                             </div>
                           </motion.div>
                         ))}
@@ -469,56 +643,19 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-3 border-t flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              <span className="text-[10px] font-mono" style={{ color: "#333" }}>
-                Sources: OpenClaw · G0DM0D3 · JARVIS · RAGFlow · OpenFang · OpenGravity · oh-my-openagent · Antigravity · Ruflo · Gemini CLI
-              </span>
-              <span className="text-[10px] font-mono" style={{ color: "#444" }}>
-                All modules powered by main AI brain
-              </span>
+            <div className="px-5 py-3 border-t flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.06)", background: "#060606" }}>
+              <div className="flex items-center gap-3 text-[9px] font-mono" style={{ color: "#2a2a2a" }}>
+                <span>{ARSENAL_MODULES.length} modules</span>
+                <span>·</span>
+                <span>{pipeline.getRules().length} chain rules</span>
+                <span>·</span>
+                <span>{history.length} pipeline events</span>
+              </div>
+              <Brain className="w-3.5 h-3.5" style={{ color: "#1a1a1a" }} />
             </div>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function TabBtn({
-  active,
-  onClick,
-  label,
-  count,
-  countColor = "#555",
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  count: number;
-  countColor?: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="relative flex items-center gap-1.5 px-4 py-2.5 text-[10px] font-bold tracking-wider transition-colors"
-      style={{ color: active ? "#e21227" : "#444" }}
-    >
-      {label}
-      {count > 0 && (
-        <span
-          className="text-[8px] font-mono px-1 py-0.5 rounded"
-          style={{ background: active ? "rgba(226,18,39,0.12)" : "rgba(255,255,255,0.05)", color: active ? countColor === "#555" ? "#e21227" : countColor : "#333" }}
-        >
-          {count}
-        </span>
-      )}
-      {active && (
-        <motion.div
-          layoutId="arsenal-tab-underline"
-          className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-          style={{ background: "#e21227" }}
-        />
-      )}
-    </button>
   );
 }

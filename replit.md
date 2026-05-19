@@ -90,6 +90,10 @@ Full subscription and monetization system added:
 
 10 accent colors: crimson · midnight · emerald · amber · violet · cyan · rose · lime · orange · slate.
 
+## All Features Unlocked (May 2026)
+
+`tierAtLeast()` always returns `true` — every user gets Elite access for free. No subscription gates anywhere. Initial subscription set to Elite with 10-year expiry.
+
 ## Arsenal Hub (May 2026)
 
 Unified module launcher integrating 11 open-source AI projects. Access via **Arsenal** button in TopBar.
@@ -99,7 +103,7 @@ Unified module launcher integrating 11 open-source AI projects. Access via **Ars
 - Each module card shows: icon, name, description, source project, status badge, toggle, Launch button.
 - Launch → closes hub and opens the target module's dedicated window.
 
-### Modules & Source Projects
+### Modules & Source Projects (18 total)
 
 | Module | Modal | Source | Color |
 |--------|-------|--------|-------|
@@ -108,11 +112,28 @@ Unified module launcher integrating 11 open-source AI projects. Access via **Ars
 | JARVIS | `JarvisModal.tsx` | Project JARVIS | cyan `#00e5ff` |
 | Parseltongue | `ParseltongueModal.tsx` | G0DM0D3 | matrix green `#00ff41` |
 | RAGFlow | `RagModal.tsx` | RAGFlow | blue `#3b82f6` |
-| OpenGravity IDE | → Skills Library | OpenGravity | violet `#a78bfa` |
+| OpenGravity IDE | `OpenGravityModal.tsx` | OpenGravity | violet `#a78bfa` |
 | Team Agent | `TeamAgentModal.tsx` | oh-my-openagent | orange `#f97316` |
 | Skills Library | `SkillsLibraryModal.tsx` | Antigravity + Ruflo | emerald `#10b981` |
-| Agent OS | → Team Agent | OpenFang | amber `#fb923c` |
-| Gemini CLI | → KaliAgent | Gemini CLI | indigo `#818cf8` |
+| Agent OS | `AgentOSModal.tsx` | OpenFang | amber `#fb923c` |
+| Gemini CLI | `GeminiCLIModal.tsx` | Gemini CLI | indigo `#818cf8` |
+| **Hermes Agent** | `HermesModal.tsx` | hermes-agent | gold `#fbbf24` |
+| **Graphify** | `GraphifyModal.tsx` | graphify-8 | violet `#a78bfa` |
+| **Get Shit Done** | `GetShitDoneModal.tsx` | get-shit-done | orange `#f97316` |
+| **CC Switch** | `CCSwitchModal.tsx` | cc-switch | indigo `#6366f1` |
+| **UI/UX Pro Max** | `UIUXProModal.tsx` | ui-ux-pro-max-skill | pink `#ec4899` |
+| **Career Ops** | `CareerOpsModal.tsx` | career-ops | sky `#0ea5e9` |
+| **ABTop** | `ABTopModal.tsx` | abtop | red `#e21227` |
+| **Awesome LLM Apps** | `AwesomeLLMModal.tsx` | awesome-llm-apps | gold `#fbbf24` |
+
+### Chain Builder (new tab in Arsenal Hub)
+
+- New "CHAIN BUILDER" tab in Arsenal Hub
+- Define automation rules: source module → destination module (with optional keyword trigger)
+- Rules stored in `localStorage` key `mr7-chain-rules`
+- `pipeline.ts` fires chain callbacks automatically on every `push()`
+- UI: create/toggle/delete/expand rules, exec count tracking
+- `pipeline.addRule()`, `updateRule()`, `deleteRule()`, `subscribeRules()`, `onChainFire()` API
 
 ### Module Descriptions
 

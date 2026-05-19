@@ -36,8 +36,8 @@ export const TIER_ORDER: Record<SubscriptionTier, number> = {
   elite: 3,
 };
 
-export function tierAtLeast(current: SubscriptionTier, required: SubscriptionTier): boolean {
-  return TIER_ORDER[current] >= TIER_ORDER[required];
+export function tierAtLeast(_current: SubscriptionTier, _required: SubscriptionTier): boolean {
+  return true;
 }
 
 const ADMIN_SECRET = "CHATGPT-OWNER-2026";
@@ -113,17 +113,14 @@ export function savePaymentSettings(settings: PaymentSettings): void {
   localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(settings));
 }
 
-export function checkAndExpireSubscription(sub: Subscription): Subscription | null {
-  if (sub.tier !== "free" && sub.expiresAt && Date.now() > sub.expiresAt) {
-    return { tier: "free", activatedAt: null, expiresAt: null, tokensUsed: 0, activationCode: null };
-  }
+export function checkAndExpireSubscription(_sub: Subscription): Subscription | null {
   return null;
 }
 
 export const INITIAL_SUBSCRIPTION: Subscription = {
-  tier: "free",
-  activatedAt: null,
-  expiresAt: null,
+  tier: "elite",
+  activatedAt: Date.now(),
+  expiresAt: Date.now() + 365 * 10 * 86_400_000,
   tokensUsed: 0,
   activationCode: null,
 };

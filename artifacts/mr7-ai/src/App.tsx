@@ -41,6 +41,15 @@ import { AgentOSModal } from "./components/modals/AgentOSModal";
 import { GeminiCLIModal } from "./components/modals/GeminiCLIModal";
 import { PipelineHUD } from "./components/PipelineHUD";
 import type { PipelineItem } from "./lib/pipeline";
+// New Arsenal modules
+import { HermesModal } from "./components/modals/HermesModal";
+import { GraphifyModal } from "./components/modals/GraphifyModal";
+import { GetShitDoneModal } from "./components/modals/GetShitDoneModal";
+import { CCSwitchModal } from "./components/modals/CCSwitchModal";
+import { UIUXProModal } from "./components/modals/UIUXProModal";
+import { CareerOpsModal } from "./components/modals/CareerOpsModal";
+import { ABTopModal } from "./components/modals/ABTopModal";
+import { AwesomeLLMModal } from "./components/modals/AwesomeLLMModal";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +101,8 @@ function AppContent() {
     document.addEventListener("keydown", onKonami);
     return () => document.removeEventListener("keydown", onKonami);
   }, [toast, t]);
+
+  // ── Modal state ─────────────────────────────────────────────────────────────
   const [personaEditorOpen, setPersonaEditorOpen] = useState(false);
   const [localModelOpen, setLocalModelOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -122,6 +133,16 @@ function AppContent() {
   const [openGravityOpen, setOpenGravityOpen] = useState(false);
   const [agentOSOpen, setAgentOSOpen] = useState(false);
   const [geminiCLIOpen, setGeminiCLIOpen] = useState(false);
+  // New modules
+  const [hermesOpen, setHermesOpen] = useState(false);
+  const [graphifyOpen, setGraphifyOpen] = useState(false);
+  const [getShitDoneOpen, setGetShitDoneOpen] = useState(false);
+  const [ccswitchOpen, setCcswitchOpen] = useState(false);
+  const [uiuxproOpen, setUiuxproOpen] = useState(false);
+  const [careerOpsOpen, setCareerOpsOpen] = useState(false);
+  const [abTopOpen, setAbTopOpen] = useState(false);
+  const [awesomeLLMOpen, setAwesomeLLMOpen] = useState(false);
+
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
   const [agentPipelineTask, setAgentPipelineTask] = useState<{ text: string; key: number } | undefined>();
@@ -149,16 +170,25 @@ function AppContent() {
 
   function handleArsenalLaunch(id: ArsenalModuleId) {
     switch (id) {
-      case "kaliagent": setAgentOpen(true); break;
-      case "nexus": setNexusOpen(true); break;
-      case "jarvis": setJarvisOpen(true); break;
+      case "kaliagent":    setAgentOpen(true); break;
+      case "nexus":        setNexusOpen(true); break;
+      case "jarvis":       setJarvisOpen(true); break;
       case "parseltongue": setParseltongueOpen(true); break;
-      case "ragflow": setRagOpen(true); break;
-      case "teamagent": setTeamAgentOpen(true); break;
-      case "skills": setSkillsOpen(true); break;
-      case "opengravity": setOpenGravityOpen(true); break;
-      case "agentOS": setAgentOSOpen(true); break;
-      case "geminiCLI": setGeminiCLIOpen(true); break;
+      case "ragflow":      setRagOpen(true); break;
+      case "teamagent":    setTeamAgentOpen(true); break;
+      case "skills":       setSkillsOpen(true); break;
+      case "opengravity":  setOpenGravityOpen(true); break;
+      case "agentOS":      setAgentOSOpen(true); break;
+      case "geminiCLI":    setGeminiCLIOpen(true); break;
+      // New modules
+      case "hermes":       setHermesOpen(true); break;
+      case "graphify":     setGraphifyOpen(true); break;
+      case "getshitdone":  setGetShitDoneOpen(true); break;
+      case "ccswitch":     setCcswitchOpen(true); break;
+      case "uiuxpro":      setUiuxproOpen(true); break;
+      case "careerops":    setCareerOpsOpen(true); break;
+      case "abtop":        setAbTopOpen(true); break;
+      case "awesomellm":   setAwesomeLLMOpen(true); break;
     }
   }
 
@@ -213,35 +243,20 @@ function AppContent() {
   function handlePaletteAction(action: string, payload?: string) {
     setPaletteOpen(false);
     switch (action) {
-      case "new-chat":
-        dispatch({ type: "NEW_CHAT" });
-        break;
-      case "open-pricing":
-        setPricingOpen(true);
-        break;
-      case "open-api":
-        setApiOpen(true);
-        break;
-      case "open-settings":
-        setSettingsOpen(true);
-        break;
-      case "open-shortcuts":
-        setShortcutsOpen(true);
-        break;
-      case "set-model":
-        if (payload) dispatch({ type: "SET_MODEL", model: payload });
-        break;
-      case "set-persona":
-        dispatch({ type: "SET_PERSONA", persona: payload || null });
-        break;
-      case "open-tools":
-        setToolsHubOpen(true);
-        break;
-      case "select-chat":
-        if (payload) dispatch({ type: "SELECT_CHAT", id: payload });
-        break;
+      case "new-chat":       dispatch({ type: "NEW_CHAT" }); break;
+      case "open-pricing":   setPricingOpen(true); break;
+      case "open-api":       setApiOpen(true); break;
+      case "open-settings":  setSettingsOpen(true); break;
+      case "open-shortcuts": setShortcutsOpen(true); break;
+      case "set-model":      if (payload) dispatch({ type: "SET_MODEL", model: payload }); break;
+      case "set-persona":    dispatch({ type: "SET_PERSONA", persona: payload || null }); break;
+      case "open-tools":     setToolsHubOpen(true); break;
+      case "select-chat":    if (payload) dispatch({ type: "SELECT_CHAT", id: payload }); break;
     }
   }
+
+  // suppress unused state warning
+  void state;
 
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden text-foreground selection:bg-primary/30 dark">
@@ -317,6 +332,15 @@ function AppContent() {
       <OpenGravityModal open={openGravityOpen} onOpenChange={setOpenGravityOpen} pipelineCode={idePipelineCode} />
       <AgentOSModal open={agentOSOpen} onOpenChange={setAgentOSOpen} />
       <GeminiCLIModal open={geminiCLIOpen} onOpenChange={setGeminiCLIOpen} pipelineContext={cliPipelineContext} />
+      {/* New Arsenal modules */}
+      <HermesModal open={hermesOpen} onOpenChange={setHermesOpen} />
+      <GraphifyModal open={graphifyOpen} onOpenChange={setGraphifyOpen} />
+      <GetShitDoneModal open={getShitDoneOpen} onOpenChange={setGetShitDoneOpen} />
+      <CCSwitchModal open={ccswitchOpen} onOpenChange={setCcswitchOpen} />
+      <UIUXProModal open={uiuxproOpen} onOpenChange={setUiuxproOpen} />
+      <CareerOpsModal open={careerOpsOpen} onOpenChange={setCareerOpsOpen} />
+      <ABTopModal open={abTopOpen} onOpenChange={setAbTopOpen} />
+      <AwesomeLLMModal open={awesomeLLMOpen} onOpenChange={setAwesomeLLMOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}
