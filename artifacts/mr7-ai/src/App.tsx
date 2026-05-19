@@ -36,6 +36,9 @@ import { ParseltongueModal } from "./components/modals/ParseltongueModal";
 import { RagModal } from "./components/modals/RagModal";
 import { TeamAgentModal } from "./components/modals/TeamAgentModal";
 import { SkillsLibraryModal } from "./components/modals/SkillsLibraryModal";
+import { OpenGravityModal } from "./components/modals/OpenGravityModal";
+import { AgentOSModal } from "./components/modals/AgentOSModal";
+import { GeminiCLIModal } from "./components/modals/GeminiCLIModal";
 
 const queryClient = new QueryClient();
 
@@ -114,6 +117,9 @@ function AppContent() {
   const [ragOpen, setRagOpen] = useState(false);
   const [teamAgentOpen, setTeamAgentOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
+  const [openGravityOpen, setOpenGravityOpen] = useState(false);
+  const [agentOSOpen, setAgentOSOpen] = useState(false);
+  const [geminiCLIOpen, setGeminiCLIOpen] = useState(false);
 
   function handleArsenalLaunch(id: ArsenalModuleId) {
     switch (id) {
@@ -124,9 +130,9 @@ function AppContent() {
       case "ragflow": setRagOpen(true); break;
       case "teamagent": setTeamAgentOpen(true); break;
       case "skills": setSkillsOpen(true); break;
-      case "opengravity": setSkillsOpen(true); break;
-      case "agentOS": setTeamAgentOpen(true); break;
-      case "geminiCLI": setAgentOpen(true); break;
+      case "opengravity": setOpenGravityOpen(true); break;
+      case "agentOS": setAgentOSOpen(true); break;
+      case "geminiCLI": setGeminiCLIOpen(true); break;
     }
   }
 
@@ -282,6 +288,9 @@ function AppContent() {
       <RagModal open={ragOpen} onOpenChange={setRagOpen} />
       <TeamAgentModal open={teamAgentOpen} onOpenChange={setTeamAgentOpen} />
       <SkillsLibraryModal open={skillsOpen} onOpenChange={setSkillsOpen} />
+      <OpenGravityModal open={openGravityOpen} onOpenChange={setOpenGravityOpen} />
+      <AgentOSModal open={agentOSOpen} onOpenChange={setAgentOSOpen} />
+      <GeminiCLIModal open={geminiCLIOpen} onOpenChange={setGeminiCLIOpen} />
 
       {godMode && (
         <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center">
