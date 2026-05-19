@@ -37,6 +37,12 @@ export function PipelineHUD({ onSendToRag, onSendToCLI, onSendToAgent, onSendToI
     setTimeout(() => setCopiedId(null), 2000);
   }
 
+  function route(item: PipelineItem, destination: string, destColor: string, cb: (i: PipelineItem) => void) {
+    pipeline.recordRoute(item.id, destination, destColor);
+    cb(item);
+    pipeline.remove(item.id);
+  }
+
   if (items.length === 0) return null;
 
   return (
@@ -115,14 +121,8 @@ export function PipelineHUD({ onSendToRag, onSendToCLI, onSendToAgent, onSendToI
                   {/* Source badge + time */}
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-1.5">
-                      <div
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{ background: item.sourceColor }}
-                      />
-                      <span
-                        className="text-[9px] font-bold font-mono"
-                        style={{ color: item.sourceColor }}
-                      >
+                      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.sourceColor }} />
+                      <span className="text-[9px] font-bold font-mono" style={{ color: item.sourceColor }}>
                         {item.source}
                       </span>
                       <span className="text-[9px] font-mono" style={{ color: "#333" }}>
@@ -130,9 +130,7 @@ export function PipelineHUD({ onSendToRag, onSendToCLI, onSendToAgent, onSendToI
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-[8px] font-mono" style={{ color: "#333" }}>
-                        {item.timestamp}
-                      </span>
+                      <span className="text-[8px] font-mono" style={{ color: "#333" }}>{item.timestamp}</span>
                       <button
                         onClick={() => pipeline.remove(item.id)}
                         className="p-0.5 rounded transition-colors"
@@ -146,46 +144,25 @@ export function PipelineHUD({ onSendToRag, onSendToCLI, onSendToAgent, onSendToI
                   </div>
 
                   {/* Content preview */}
-                  <div
-                    className="text-[10px] font-mono leading-relaxed mb-2 line-clamp-2"
-                    style={{ color: "#666", whiteSpace: "pre-wrap" }}
-                  >
+                  <div className="text-[10px] font-mono leading-relaxed mb-2 line-clamp-2" style={{ color: "#666", whiteSpace: "pre-wrap" }}>
                     {item.content.slice(0, 140)}{item.content.length > 140 ? "…" : ""}
                   </div>
 
                   {/* Route buttons */}
                   <div className="flex items-center gap-1 flex-wrap">
-                    <span className="text-[8px] font-mono" style={{ color: "#333" }}>
-                      SEND TO:
-                    </span>
-                    <RouteButton
-                      icon={Database}
-                      label="RAG"
-                      color="#3b82f6"
-                      onClick={() => { onSendToRag(item); pipeline.remove(item.id); }}
-                      title="Open in RAGFlow as document"
-                    />
-                    <RouteButton
-                      icon={Terminal}
-                      label="CLI"
-                      color="#818cf8"
-                      onClick={() => { onSendToCLI(item); pipeline.remove(item.id); }}
-                      title="Inject into Gemini CLI context"
-                    />
-                    <RouteButton
-                      icon={Bot}
-                      label="Agent"
-                      color="#ff4d4d"
-                      onClick={() => { onSendToAgent(item); pipeline.remove(item.id); }}
-                      title="Pre-fill KaliAgent task"
-                    />
-                    <RouteButton
-                      icon={Code2}
-                      label="IDE"
-                      color="#a78bfa"
-                      onClick={() => { onSendToIDE(item); pipeline.remove(item.id); }}
-                      title="Inject into OpenGravity IDE"
-                    />
+                    <span className="text-[8px] font-mono" style={{ color: "#333" }}>SEND TO:</span>
+                    <RouteButton icon={Database} label="RAG" color="#3b82f6"
+                      onClick={() => route(item, "RAGFlow", "#3b82f6", onSendToRag)}
+                      title="Open in RAGFlow as document" />
+                    <RouteButton icon={Terminal} label="CLI" color="#818cf8"
+                      onClick={() => route(item, "Gemini CLI", "#818cf8", onSendToCLI)}
+                      title="Inject into Gemini CLI context" />
+                    <RouteButton icon={Bot} label="Agent" color="#ff4d4d"
+                      onClick={() => route(item, "KaliAgent", "#ff4d4d", onSendToAgent)}
+                      title="Pre-fill KaliAgent task" />
+                    <RouteButton icon={Code2} label="IDE" color="#a78bfa"
+                      onClick={() => route(item, "OpenGravity IDE", "#a78bfa", onSendToIDE)}
+                      title="Inject into OpenGravity IDE" />
                     <button
                       onClick={() => copy(item)}
                       className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold border transition-all"
