@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Terminal, ChevronRight, Copy, CheckCheck, Trash2 } from "lucide-react";
+import { X, Terminal, ChevronRight, Copy, CheckCheck, Trash2, GitMerge } from "lucide-react";
 import { streamChat } from "@/lib/chat-client";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { pipeline } from "@/lib/pipeline";
 
 interface GeminiCLIModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  pipelineContext?: { text: string; key: number };
 }
 
 type Line =
@@ -41,7 +43,7 @@ const MOTD = [
   "  ─────────────────────────────────────────────────────────────────",
 ];
 
-export function GeminiCLIModal({ open, onOpenChange }: GeminiCLIModalProps) {
+export function GeminiCLIModal({ open, onOpenChange, pipelineContext }: GeminiCLIModalProps) {
   const { state } = useStore();
   const { lang } = useT();
   const [lines, setLines] = useState<Line[]>(() =>
@@ -63,6 +65,16 @@ export function GeminiCLIModal({ open, onOpenChange }: GeminiCLIModalProps) {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
+
+  useEffect(() => {
+    if (!pipelineContext?.text) return;
+    const preview = pipelineContext.text.slice(0, 200).replace(/\n/g, " ");
+    addLine({ kind: "system", text: `  [Pipeline] Context injected: "${preview}${pipelineContext.text.length > 200 ? "…" : ""}"` });
+    addLine({ kind: "system", text: "  Use this context in your next question." });
+    setInput(`Based on this context: ${pipelineContext.text.slice(0, 300)}`);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pipelineContext?.key]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

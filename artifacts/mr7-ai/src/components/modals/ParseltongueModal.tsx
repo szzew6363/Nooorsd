@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Copy, CheckCheck, Swords, RefreshCw } from "lucide-react";
+import { X, Copy, CheckCheck, Swords, RefreshCw, GitMerge } from "lucide-react";
+import { pipeline } from "@/lib/pipeline";
 
 interface ParseltongueModalProps {
   open: boolean;
@@ -233,14 +234,23 @@ export function ParseltongueModal({ open, onOpenChange }: ParseltongueModalProps
                 <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-[10px] font-mono font-bold" style={{ color: "#00ff41" }}>OUTPUT</div>
-                    <button
-                      onClick={copy}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
-                      style={{ background: "rgba(0,255,65,0.08)", border: "1px solid rgba(0,255,65,0.3)", color: "#00ff41" }}
-                    >
-                      {copied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                      {copied ? "Copied" : "Copy"}
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => pipeline.push({ source: "Parseltongue", sourceColor: "#00ff41", label: `${technique}/${intensity}`, content: output })}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
+                        style={{ background: "rgba(0,229,204,0.06)", border: "1px solid rgba(0,229,204,0.25)", color: "#00e5cc" }}
+                      >
+                        <GitMerge className="w-3 h-3" /> Pipe
+                      </button>
+                      <button
+                        onClick={copy}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
+                        style={{ background: "rgba(0,255,65,0.08)", border: "1px solid rgba(0,255,65,0.3)", color: "#00ff41" }}
+                      >
+                        {copied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        {copied ? "Copied" : "Copy"}
+                      </button>
+                    </div>
                   </div>
                   <div
                     className="w-full rounded-xl px-3 py-2.5 text-[12px] font-mono leading-relaxed"

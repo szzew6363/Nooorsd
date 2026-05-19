@@ -4,15 +4,17 @@ import {
   X, Zap, Brain, Play, Square, ChevronDown, ChevronUp,
   Globe, Calculator, Code, Search, Network, FileSearch,
   Shield, Terminal, Wifi, Server, CheckCircle2, XCircle,
-  AlertTriangle, RefreshCw, Clock, Layers,
+  AlertTriangle, RefreshCw, Clock, Layers, GitMerge,
 } from "lucide-react";
 import { streamAgent, type AgentEvent } from "@/lib/chat-client";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { pipeline } from "@/lib/pipeline";
 
 interface AgentModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  pipelineTask?: { text: string; key: number };
 }
 
 type AgentMode = "brain" | "standalone";
@@ -76,11 +78,15 @@ function ClawIcon({ className }: { className?: string }) {
   );
 }
 
-export function AgentModal({ open, onOpenChange }: AgentModalProps) {
+export function AgentModal({ open, onOpenChange, pipelineTask }: AgentModalProps) {
   const { state } = useStore();
   const { lang } = useT();
   const [mode, setMode] = useState<AgentMode>("brain");
   const [task, setTask] = useState("");
+
+  useEffect(() => {
+    if (pipelineTask?.text) setTask(pipelineTask.text);
+  }, [pipelineTask?.key]);
   const [running, setRunning] = useState(false);
   const [logs, setLogs] = useState<TaskLog[]>([]);
   const [answer, setAnswer] = useState("");
@@ -452,6 +458,15 @@ export function AgentModal({ open, onOpenChange }: AgentModalProps) {
                           className="inline-block w-1.5 h-3 rounded-sm ml-0.5 animate-pulse"
                           style={{ background: "#00e5cc" }}
                         />
+                      )}
+                      {!running && answer && (
+                        <button
+                          onClick={() => pipeline.push({ source: "KaliAgent", sourceColor: "#ff4d4d", label: "agent answer", content: answer })}
+                          className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
+                          style={{ background: "rgba(0,229,204,0.08)", borderColor: "rgba(0,229,204,0.25)", color: "#00e5cc" }}
+                        >
+                          <GitMerge className="w-2.5 h-2.5" /> Pipe
+                        </button>
                       )}
                     </div>
                     {answer}

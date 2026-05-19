@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Square, Users, CheckCircle2, XCircle, Crown, Loader2 } from "lucide-react";
+import { X, Play, Square, Users, CheckCircle2, XCircle, Crown, Loader2, GitMerge } from "lucide-react";
+import { pipeline } from "@/lib/pipeline";
 import { streamAgent, type AgentEvent } from "@/lib/chat-client";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -305,6 +306,15 @@ Your job: synthesize all perspectives into one unified, structured threat intell
                     <Crown className="w-3.5 h-3.5" style={{ color: "#fbbf24" }} />
                     <span className="text-[10px] font-black font-mono" style={{ color: "#fbbf24" }}>FUSION SYNTHESIS</span>
                     {synthesizing && <Loader2 className="w-3 h-3 animate-spin ml-1" style={{ color: "#fbbf24" }} />}
+                    {!synthesizing && synthesis && (
+                      <button
+                        onClick={() => pipeline.push({ source: "TeamAgent", sourceColor: "#f97316", label: "fusion synthesis", content: synthesis })}
+                        className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
+                        style={{ background: "rgba(0,229,204,0.08)", borderColor: "rgba(0,229,204,0.25)", color: "#00e5cc" }}
+                      >
+                        <GitMerge className="w-2.5 h-2.5" /> Pipe
+                      </button>
+                    )}
                   </div>
                   <pre className="text-[11px] font-mono leading-relaxed text-gray-200 whitespace-pre-wrap">{synthesis}</pre>
                 </motion.div>

@@ -1,16 +1,18 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Code2, Play, Wand2, Bug, MessageSquare, Layers,
-  Copy, CheckCheck, ChevronDown, RotateCcw, Sparkles,
+  Copy, CheckCheck, ChevronDown, RotateCcw, Sparkles, GitMerge,
 } from "lucide-react";
 import { streamChat } from "@/lib/chat-client";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { pipeline } from "@/lib/pipeline";
 
 interface OpenGravityModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  pipelineCode?: { text: string; key: number };
 }
 
 type AIAction = "complete" | "explain" | "refactor" | "debug" | "comment" | "test";
@@ -57,7 +59,7 @@ Rules:
 
 Always wrap final code in a code block with the language identifier.`;
 
-export function OpenGravityModal({ open, onOpenChange }: OpenGravityModalProps) {
+export function OpenGravityModal({ open, onOpenChange, pipelineCode }: OpenGravityModalProps) {
   const { state } = useStore();
   const { lang } = useT();
   const [code, setCode] = useState("");
@@ -69,6 +71,11 @@ export function OpenGravityModal({ open, onOpenChange }: OpenGravityModalProps) 
   const [langOpen, setLangOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const outputRef = useRef("");
+
+  useEffect(() => {
+    if (pipelineCode?.text) setCode(pipelineCode.text);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pipelineCode?.key]);
 
   function stop() {
     abortRef.current?.abort();
@@ -370,14 +377,25 @@ export function OpenGravityModal({ open, onOpenChange }: OpenGravityModalProps) 
                         <span className="text-[9px] font-mono font-bold" style={{ color: "#a78bfa" }}>
                           AI OUTPUT — {ACTIONS.find((a) => a.id === action)?.label?.toUpperCase()}
                         </span>
-                        <button
-                          onClick={copyOutput}
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold transition-all"
-                          style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.25)", color: "#a78bfa" }}
-                        >
-                          {copied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                          {copied ? "Copied" : "Copy"}
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          {!running && output && (
+                            <button
+                              onClick={() => pipeline.push({ source: "OpenGravity", sourceColor: "#a78bfa", label: `${action}/${language}`, content: output })}
+                              className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold transition-all"
+                              style={{ background: "rgba(0,229,204,0.06)", border: "1px solid rgba(0,229,204,0.2)", color: "#00e5cc" }}
+                            >
+                              <GitMerge className="w-2.5 h-2.5" style={{ width: 10, height: 10 }} /> Pipe
+                            </button>
+                          )}
+                          <button
+                            onClick={copyOutput}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold transition-all"
+                            style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.25)", color: "#a78bfa" }}
+                          >
+                            {copied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            {copied ? "Copied" : "Copy"}
+                          </button>
+                        </div>
                       </div>
                       <pre
                         className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-words"

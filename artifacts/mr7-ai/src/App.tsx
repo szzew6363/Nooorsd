@@ -39,6 +39,8 @@ import { SkillsLibraryModal } from "./components/modals/SkillsLibraryModal";
 import { OpenGravityModal } from "./components/modals/OpenGravityModal";
 import { AgentOSModal } from "./components/modals/AgentOSModal";
 import { GeminiCLIModal } from "./components/modals/GeminiCLIModal";
+import { PipelineHUD } from "./components/PipelineHUD";
+import type { PipelineItem } from "./lib/pipeline";
 
 const queryClient = new QueryClient();
 
@@ -120,6 +122,30 @@ function AppContent() {
   const [openGravityOpen, setOpenGravityOpen] = useState(false);
   const [agentOSOpen, setAgentOSOpen] = useState(false);
   const [geminiCLIOpen, setGeminiCLIOpen] = useState(false);
+  const [pipelineKeyRef] = useState(() => ({ n: 0 }));
+  const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
+  const [agentPipelineTask, setAgentPipelineTask] = useState<{ text: string; key: number } | undefined>();
+  const [cliPipelineContext, setCliPipelineContext] = useState<{ text: string; key: number } | undefined>();
+  const [idePipelineCode, setIdePipelineCode] = useState<{ text: string; key: number } | undefined>();
+
+  function nextKey() { return ++pipelineKeyRef.n; }
+
+  function handlePipeToRag(item: PipelineItem) {
+    setRagPipelineDoc({ text: item.content, name: `[${item.source}] ${item.label}`, key: nextKey() });
+    setRagOpen(true);
+  }
+  function handlePipeToCLI(item: PipelineItem) {
+    setCliPipelineContext({ text: item.content, key: nextKey() });
+    setGeminiCLIOpen(true);
+  }
+  function handlePipeToAgent(item: PipelineItem) {
+    setAgentPipelineTask({ text: item.content, key: nextKey() });
+    setAgentOpen(true);
+  }
+  function handlePipeToIDE(item: PipelineItem) {
+    setIdePipelineCode({ text: item.content, key: nextKey() });
+    setOpenGravityOpen(true);
+  }
 
   function handleArsenalLaunch(id: ArsenalModuleId) {
     switch (id) {
@@ -280,17 +306,23 @@ function AppContent() {
       <OsintDashboard open={osintDashOpen} onOpenChange={setOsintDashOpen} />
       <AdminPanel open={adminOpen} onOpenChange={setAdminOpen} />
       <ActivateModal open={activateOpen} onOpenChange={setActivateOpen} />
-      <AgentModal open={agentOpen} onOpenChange={setAgentOpen} />
+      <AgentModal open={agentOpen} onOpenChange={setAgentOpen} pipelineTask={agentPipelineTask} />
       <NexusModal open={nexusOpen} onOpenChange={setNexusOpen} />
       <ArsenalHubModal open={arsenalOpen} onOpenChange={setArsenalOpen} onLaunch={handleArsenalLaunch} />
       <JarvisModal open={jarvisOpen} onOpenChange={setJarvisOpen} />
       <ParseltongueModal open={parseltongueOpen} onOpenChange={setParseltongueOpen} />
-      <RagModal open={ragOpen} onOpenChange={setRagOpen} />
+      <RagModal open={ragOpen} onOpenChange={setRagOpen} pipelineDoc={ragPipelineDoc} />
       <TeamAgentModal open={teamAgentOpen} onOpenChange={setTeamAgentOpen} />
       <SkillsLibraryModal open={skillsOpen} onOpenChange={setSkillsOpen} />
-      <OpenGravityModal open={openGravityOpen} onOpenChange={setOpenGravityOpen} />
+      <OpenGravityModal open={openGravityOpen} onOpenChange={setOpenGravityOpen} pipelineCode={idePipelineCode} />
       <AgentOSModal open={agentOSOpen} onOpenChange={setAgentOSOpen} />
-      <GeminiCLIModal open={geminiCLIOpen} onOpenChange={setGeminiCLIOpen} />
+      <GeminiCLIModal open={geminiCLIOpen} onOpenChange={setGeminiCLIOpen} pipelineContext={cliPipelineContext} />
+      <PipelineHUD
+        onSendToRag={handlePipeToRag}
+        onSendToCLI={handlePipeToCLI}
+        onSendToAgent={handlePipeToAgent}
+        onSendToIDE={handlePipeToIDE}
+      />
 
       {godMode && (
         <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center">

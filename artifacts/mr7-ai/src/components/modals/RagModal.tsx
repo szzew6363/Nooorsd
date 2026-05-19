@@ -1,13 +1,15 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Upload, Trash2, Send, Database, FileText, Plus } from "lucide-react";
+import { X, Upload, Trash2, Send, Database, FileText, Plus, GitMerge } from "lucide-react";
 import { streamChat } from "@/lib/chat-client";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { pipeline } from "@/lib/pipeline";
 
 interface RagModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  pipelineDoc?: { text: string; name: string; key: number };
 }
 
 type Doc = { id: string; name: string; content: string; words: number; addedAt: string };
@@ -15,7 +17,7 @@ type ChatMsg = { role: "user" | "ai"; text: string };
 
 const MAX_CONTEXT_CHARS = 12_000;
 
-export function RagModal({ open, onOpenChange }: RagModalProps) {
+export function RagModal({ open, onOpenChange, pipelineDoc }: RagModalProps) {
   const { state } = useStore();
   const { lang } = useT();
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -27,6 +29,20 @@ export function RagModal({ open, onOpenChange }: RagModalProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const answerRef = useRef("");
+
+  useEffect(() => {
+    if (!pipelineDoc?.text) return;
+    const doc: Doc = {
+      id: Math.random().toString(36).slice(2),
+      name: pipelineDoc.name,
+      content: pipelineDoc.text.slice(0, 100_000),
+      words: pipelineDoc.text.split(/\s+/).length,
+      addedAt: new Date().toLocaleTimeString(),
+    };
+    setDocs((p) => [...p, doc]);
+    setTab("chat");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pipelineDoc?.key]);
 
   function handleFiles(files: FileList | null) {
     if (!files) return;
@@ -230,7 +246,7 @@ Language: ${lang === "ar" ? "Arabic" : "English"}`;
                         </div>
                       )}
                       {chat.map((m, i) => (
-                        <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                        <div key={i} className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
                           <div
                             className="max-w-[80%] px-3 py-2 rounded-xl text-[11px] leading-relaxed"
                             style={{
@@ -243,6 +259,15 @@ Language: ${lang === "ar" ? "Arabic" : "English"}`;
                           >
                             {m.text || (running && i === chat.length - 1 && <span className="inline-block w-1.5 h-3 rounded-sm animate-pulse" style={{ background: "#3b82f6" }} />)}
                           </div>
+                          {m.role === "ai" && m.text && !running && (
+                            <button
+                              onClick={() => pipeline.push({ source: "RAGFlow", sourceColor: "#3b82f6", label: "doc answer", content: m.text })}
+                              className="mt-1 flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
+                              style={{ background: "rgba(0,229,204,0.06)", borderColor: "rgba(0,229,204,0.2)", color: "#00e5cc" }}
+                            >
+                              <GitMerge className="w-2.5 h-2.5" /> Pipe
+                            </button>
+                          )}
                         </div>
                       ))}
                       <div ref={chatEndRef} />
