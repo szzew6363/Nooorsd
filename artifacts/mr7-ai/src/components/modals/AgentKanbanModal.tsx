@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, Trash2, Play, RotateCcw, GitMerge, Columns, Zap } from "lucide-react";
+import { X, Plus, Trash2, Play, RotateCcw, GitMerge, Users, Shield, ChevronDown } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,183 +9,323 @@ interface AgentKanbanModalProps {
   onOpenChange: (v: boolean) => void;
 }
 
-type CardStatus = "backlog" | "running" | "done" | "failed";
-type Card = { id: string; title: string; prompt: string; status: CardStatus; output: string; running: boolean };
+type Role = "PLANNER" | "CODER" | "REVIEWER" | "TESTER" | "DEPLOYER";
+type CardStatus = "backlog" | "running" | "review" | "done" | "failed";
+type Agent = { id: string; name: string; role: Role; identity: string; color: string };
+type Card = {
+  id: string;
+  title: string;
+  prompt: string;
+  status: CardStatus;
+  assignedTo: string | null;
+  output: string;
+  running: boolean;
+  subtasks: string[];
+  priority: "HIGH" | "MEDIUM" | "LOW";
+};
 
-const COLS: { id: CardStatus; label: string; color: string }[] = [
-  { id: "backlog", label: "BACKLOG", color: "#444" },
-  { id: "running", label: "IN PROGRESS", color: "#fbbf24" },
-  { id: "done",    label: "DONE",        color: "#10b981" },
-  { id: "failed",  label: "FAILED",      color: "#e21227" },
+const ROLE_COLORS: Record<Role, string> = {
+  PLANNER:  "#a78bfa",
+  CODER:    "#3b82f6",
+  REVIEWER: "#fbbf24",
+  TESTER:   "#10b981",
+  DEPLOYER: "#fb923c",
+};
+
+const AGENTS: Agent[] = [
+  { id: "a1", name: "Aria",   role: "PLANNER",  identity: "0x4A72...F3a1", color: "#a78bfa" },
+  { id: "a2", name: "Bruno",  role: "CODER",    identity: "0x2B93...88d4", color: "#3b82f6" },
+  { id: "a3", name: "Cleo",   role: "REVIEWER", identity: "0x7C14...2f90", color: "#fbbf24" },
+  { id: "a4", name: "Dex",    role: "TESTER",   identity: "0x1D85...cc72", color: "#10b981" },
+  { id: "a5", name: "Echo",   role: "DEPLOYER", identity: "0x9E26...5b3e", color: "#fb923c" },
 ];
 
+const COLS: { id: CardStatus; label: string; color: string }[] = [
+  { id: "backlog", label: "BACKLOG",   color: "#555"    },
+  { id: "running", label: "IN PROGRESS", color: "#fbbf24" },
+  { id: "review",  label: "REVIEW",    color: "#a78bfa" },
+  { id: "done",    label: "DONE",      color: "#10b981" },
+  { id: "failed",  label: "FAILED",    color: "#e21227" },
+];
+
+const INITIAL_CARDS: Card[] = [
+  {
+    id: "c1", title: "Design authentication flow",
+    prompt: "Design a secure JWT + refresh-token authentication system with role-based access control",
+    status: "done", assignedTo: "a1", output: "Auth flow designed: JWT (15min) + refresh tokens (7d), RBAC with user/admin/superadmin roles. Schema: users, roles, permissions, refresh_tokens tables.",
+    running: false, subtasks: ["Define user roles", "Design JWT payload", "Plan refresh token rotation"], priority: "HIGH",
+  },
+  {
+    id: "c2", title: "Implement auth middleware",
+    prompt: "Implement the authentication middleware in TypeScript using the designed auth flow",
+    status: "running", assignedTo: "a2", output: "",
+    running: true, subtasks: ["Write JWT validation", "Implement refresh endpoint", "Add role middleware"], priority: "HIGH",
+  },
+  {
+    id: "c3", title: "Write auth unit tests",
+    prompt: "Write comprehensive unit tests for the authentication middleware covering edge cases",
+    status: "backlog", assignedTo: "a4", output: "",
+    running: false, subtasks: ["Test token expiry", "Test invalid tokens", "Test role enforcement"], priority: "MEDIUM",
+  },
+  {
+    id: "c4", title: "Code review auth PR",
+    prompt: "Review the auth middleware PR for security vulnerabilities and code quality",
+    status: "backlog", assignedTo: "a3", output: "",
+    running: false, subtasks: ["Check for timing attacks", "Validate input sanitization", "Review error handling"], priority: "HIGH",
+  },
+];
+
+const PRIORITY_COLORS = { HIGH: "#e21227", MEDIUM: "#fbbf24", LOW: "#10b981" };
+
 export function AgentKanbanModal({ open, onOpenChange }: AgentKanbanModalProps) {
-  const [cards, setCards] = useState<Card[]>([
-    { id: "1", title: "Recon target.com", prompt: "Perform passive OSINT recon on target.com — subdomains, WHOIS, certificates", status: "backlog", output: "", running: false },
-    { id: "2", title: "Write exploit PoC", prompt: "Write a proof-of-concept for CVE-2024-1234 buffer overflow", status: "backlog", output: "", running: false },
-    { id: "3", title: "Generate phishing email", prompt: "Write a convincing spear phishing email template for red team exercise", status: "backlog", output: "", running: false },
-  ]);
+  const { toast } = useToast();
+  const [cards, setCards] = useState<Card[]>(INITIAL_CARDS);
+  const [showForm, setShowForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newPrompt, setNewPrompt] = useState("");
-  const [showForm, setShowForm] = useState(false);
+  const [newAssignee, setNewAssignee] = useState("a2");
+  const [newPriority, setNewPriority] = useState<"HIGH"|"MEDIUM"|"LOW">("MEDIUM");
   const [expanded, setExpanded] = useState<string | null>(null);
-  const { toast } = useToast();
+  const [showAgents, setShowAgents] = useState(false);
 
   function addCard() {
     if (!newTitle.trim() || !newPrompt.trim()) return;
-    setCards((prev) => [...prev, { id: Date.now().toString(), title: newTitle.trim(), prompt: newPrompt.trim(), status: "backlog", output: "", running: false }]);
+    const sub = newPrompt.split(".").filter(Boolean).slice(0, 3).map(s => s.trim().slice(0, 50));
+    setCards(prev => [...prev, {
+      id: `c${Date.now()}`, title: newTitle, prompt: newPrompt,
+      status: "backlog", assignedTo: newAssignee, output: "", running: false,
+      subtasks: sub, priority: newPriority,
+    }]);
     setNewTitle(""); setNewPrompt(""); setShowForm(false);
   }
 
-  function deleteCard(id: string) { setCards((prev) => prev.filter((c) => c.id !== id)); }
-
   async function runCard(id: string) {
-    const card = cards.find((c) => c.id === id);
-    if (!card || card.running) return;
-    setCards((prev) => prev.map((c) => c.id === id ? { ...c, running: true, status: "running", output: "" } : c));
+    setCards(prev => prev.map(c => c.id === id ? { ...c, status: "running", running: true, output: "" } : c));
     try {
-      const res = await fetch("/api/chat", {
+      const card = cards.find(c => c.id === id)!;
+      const agent = AGENTS.find(a => a.id === card.assignedTo)!;
+      const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [
-            { role: "system", content: "You are an elite AI agent executing a security task. Provide detailed, actionable output." },
-            { role: "user", content: card.prompt },
-          ],
+          messages: [{ role: "user", content: card.prompt }],
           model: "gpt-5.4",
+          systemPrompt: `You are ${agent.name}, an AI agent with role ${agent.role} (identity: ${agent.identity}). ${agent.role === "PLANNER" ? "Break down tasks and create subtasks." : agent.role === "CODER" ? "Write clean, production-ready code." : agent.role === "REVIEWER" ? "Review code for security and quality." : agent.role === "TESTER" ? "Write comprehensive tests." : "Handle deployment and infrastructure."} Be concise and produce actionable output.`,
           stream: false,
         }),
       });
-      const data = await res.json();
-      const output = data.choices?.[0]?.message?.content ?? "";
-      setCards((prev) => prev.map((c) => c.id === id ? { ...c, running: false, status: "done", output } : c));
-      pipeline.push({ source: "KANBAN", sourceColor: "#10b981", label: card.title, content: output });
+      const data = await r.json();
+      const output = data.content || data.choices?.[0]?.message?.content || "Task completed.";
+      setCards(prev => prev.map(c => c.id === id ? { ...c, status: "review", running: false, output } : c));
+      pipeline.push({ source: "AgentKanban", sourceColor: "#00e5cc", label: card.title, content: output });
+      toast({ description: `${agent.name} completed: ${card.title}` });
     } catch {
-      setCards((prev) => prev.map((c) => c.id === id ? { ...c, running: false, status: "failed", output: "Agent execution failed." } : c));
+      setCards(prev => prev.map(c => c.id === id ? { ...c, status: "failed", running: false, output: "API error" } : c));
     }
   }
 
-  async function runAll() {
-    const backlog = cards.filter((c) => c.status === "backlog");
-    if (!backlog.length) { toast({ description: "No backlog tasks to run" }); return; }
-    for (const c of backlog) { await runCard(c.id); }
+  function approveCard(id: string) {
+    setCards(prev => prev.map(c => c.id === id ? { ...c, status: "done" } : c));
+    toast({ description: "Card approved and moved to Done" });
+  }
+
+  function resetCard(id: string) {
+    setCards(prev => prev.map(c => c.id === id ? { ...c, status: "backlog", output: "", running: false } : c));
+  }
+
+  function selfOrganize() {
+    setCards(prev => prev.map(c => {
+      if (c.status !== "backlog") return c;
+      const role: Role = c.title.toLowerCase().includes("design") || c.title.toLowerCase().includes("plan") ? "PLANNER"
+        : c.title.toLowerCase().includes("test") ? "TESTER"
+        : c.title.toLowerCase().includes("review") ? "REVIEWER"
+        : c.title.toLowerCase().includes("deploy") ? "DEPLOYER"
+        : "CODER";
+      const agent = AGENTS.find(a => a.role === role) || AGENTS[1];
+      return { ...c, assignedTo: agent.id };
+    }));
+    toast({ description: "Agents self-organized based on task types" });
   }
 
   if (!open) return null;
+
   return (
     <AnimatePresence>
-      {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
-          style={{ backdropFilter: "blur(10px)", background: "rgba(0,0,0,0.85)" }}>
-          <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="w-full max-w-5xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
-            style={{ background: "#080808", border: "1px solid rgba(251,191,36,0.2)", boxShadow: "0 0 60px rgba(251,191,36,0.08)" }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.03)" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center border" style={{ background: "rgba(251,191,36,0.1)", borderColor: "rgba(251,191,36,0.4)" }}>
-                  <Columns className="w-4 h-4" style={{ color: "#fbbf24" }} />
-                </div>
-                <div>
-                  <div className="text-sm font-black tracking-widest" style={{ color: "#fbbf24" }}>AGENT KANBAN</div>
-                  <div className="text-[10px] mt-0.5" style={{ color: "#555" }}>AI agent task board — run tasks in parallel</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button onClick={runAll} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border"
-                  style={{ background: "rgba(16,185,129,0.1)", borderColor: "rgba(16,185,129,0.4)", color: "#10b981" }}>
-                  <Zap className="w-3 h-3" /> Run All
-                </button>
-                <button onClick={() => setShowForm((v) => !v)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border"
-                  style={{ background: showForm ? "rgba(226,18,39,0.08)" : "rgba(251,191,36,0.08)", borderColor: showForm ? "rgba(226,18,39,0.3)" : "rgba(251,191,36,0.3)", color: showForm ? "#e21227" : "#fbbf24" }}>
-                  {showForm ? <><X className="w-3 h-3" /> Cancel</> : <><Plus className="w-3 h-3" /> Add Task</>}
-                </button>
-                <button onClick={() => onOpenChange(false)} className="p-1.5 text-gray-600 hover:text-white"><X className="w-4 h-4" /></button>
-              </div>
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: "rgba(0,0,0,0.85)" }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={e => { if (e.target === e.currentTarget) onOpenChange(false); }}
+      >
+        <motion.div
+          className="relative w-full max-w-5xl rounded-xl border overflow-hidden flex flex-col"
+          style={{ background: "#0d0d0d", borderColor: "rgba(251,191,36,0.35)", maxHeight: "92vh" }}
+          initial={{ scale: 0.92, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 30 }}
+        >
+          {/* Header */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: "rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.04)" }}>
+            <GitMerge size={20} color="#fbbf24" />
+            <div>
+              <div className="font-bold text-sm tracking-widest text-white">AGENT KANBAN</div>
+              <div className="text-xs" style={{ color: "#666" }}>Mission control for your AI workforce — agents create tasks, assign teammates, self-organize</div>
             </div>
+            <div className="ml-auto flex items-center gap-2">
+              <button onClick={() => setShowAgents(v => !v)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs transition-all hover:bg-white/5"
+                style={{ borderColor: "rgba(251,191,36,0.3)", color: "#fbbf24" }}
+              ><Users size={11} /> TEAM ({AGENTS.length})</button>
+              <button onClick={selfOrganize}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs transition-all hover:bg-white/5"
+                style={{ borderColor: "rgba(167,139,250,0.3)", color: "#a78bfa" }}
+              ><Shield size={11} /> SELF-ORGANIZE</button>
+              <button onClick={() => setShowForm(v => !v)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs transition-all hover:bg-white/5"
+                style={{ borderColor: "rgba(255,255,255,0.2)", color: "#ccc" }}
+              ><Plus size={11} /> ADD TASK</button>
+              <button onClick={() => onOpenChange(false)} className="p-1 rounded hover:bg-white/10 transition-colors ml-1"><X size={16} color="#666" /></button>
+            </div>
+          </div>
 
-            {/* New task form */}
-            <AnimatePresence>
-              {showForm && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                  <div className="px-5 py-3 grid grid-cols-2 gap-2">
-                    <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Task title…"
-                      className="border rounded-lg px-3 py-2 text-[12px] outline-none bg-transparent"
-                      style={{ borderColor: "rgba(251,191,36,0.2)", color: "#ccc" }} />
-                    <input value={newPrompt} onChange={(e) => setNewPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addCard(); }}
-                      placeholder="Agent prompt…"
-                      className="border rounded-lg px-3 py-2 text-[12px] outline-none bg-transparent"
-                      style={{ borderColor: "rgba(251,191,36,0.2)", color: "#ccc" }} />
-                    <button onClick={addCard} disabled={!newTitle.trim() || !newPrompt.trim()}
-                      className="col-span-2 py-1.5 rounded-lg text-[11px] font-bold border disabled:opacity-30"
-                      style={{ background: "rgba(251,191,36,0.1)", borderColor: "rgba(251,191,36,0.3)", color: "#fbbf24" }}>
-                      Add to Backlog
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Board */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden">
-              <div className="flex gap-3 p-4 h-full min-w-max">
-                {COLS.map((col) => {
-                  const colCards = cards.filter((c) => c.status === col.id);
-                  return (
-                    <div key={col.id} className="w-64 flex flex-col gap-2 flex-shrink-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-bold font-mono" style={{ color: col.color }}>{col.label}</span>
-                        <span className="text-[8px] font-mono" style={{ color: "#333" }}>{colCards.length}</span>
-                      </div>
-                      <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-                        {colCards.map((card) => (
-                          <motion.div key={card.id} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                            className="rounded-xl p-3 cursor-pointer"
-                            onClick={() => setExpanded(expanded === card.id ? null : card.id)}
-                            style={{ background: "#0d0d0d", border: `1px solid ${col.id === "running" && card.running ? col.color + "60" : "rgba(255,255,255,0.06)"}`, boxShadow: card.running ? `0 0 15px ${col.color}20` : "none" }}>
-                            <div className="flex items-start justify-between gap-1 mb-1">
-                              <div className="text-[11px] font-bold" style={{ color: col.color }}>{card.title}</div>
-                              <div className="flex gap-1 flex-shrink-0">
-                                {card.status === "backlog" && (
-                                  <button onClick={(e) => { e.stopPropagation(); runCard(card.id); }}
-                                    className="p-0.5" style={{ color: "#10b981" }}>
-                                    <Play className="w-3 h-3" />
-                                  </button>
-                                )}
-                                <button onClick={(e) => { e.stopPropagation(); deleteCard(card.id); }}
-                                  className="p-0.5" style={{ color: "#333" }}>
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="text-[9px] line-clamp-2" style={{ color: "#444" }}>{card.prompt}</div>
-                            {card.running && <div className="text-[8px] animate-pulse mt-1" style={{ color: "#fbbf24" }}>agent running…</div>}
-                            <AnimatePresence>
-                              {expanded === card.id && card.output && (
-                                <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden mt-2">
-                                  <div className="text-[9px] max-h-32 overflow-y-auto whitespace-pre-wrap" style={{ color: "#666" }}>{card.output}</div>
-                                  <button onClick={(e) => { e.stopPropagation(); pipeline.push({ source: "KANBAN", sourceColor: "#fbbf24", label: card.title, content: card.output }); }}
-                                    className="mt-1.5 flex items-center gap-1 text-[8px] font-bold" style={{ color: "#00e5cc" }}>
-                                    <GitMerge className="w-2.5 h-2.5" /> Pipe output
-                                  </button>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </motion.div>
-                        ))}
-                        {colCards.length === 0 && (
-                          <div className="text-[9px] font-mono text-center py-6" style={{ color: "#222" }}>empty</div>
-                        )}
-                      </div>
+          {/* Agents row */}
+          <AnimatePresence>
+            {showAgents && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                className="flex gap-3 px-5 py-3 border-b overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
+              >
+                {AGENTS.map(a => (
+                  <div key={a.id} className="flex items-center gap-2 px-3 py-2 rounded-lg border flex-shrink-0" style={{ borderColor: a.color + "40", background: a.color + "10" }}>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: a.color + "30", color: a.color }}>{a.name[0]}</div>
+                    <div>
+                      <div className="text-xs font-bold" style={{ color: a.color }}>{a.name}</div>
+                      <div className="text-xs" style={{ color: "#555" }}>{a.role}</div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="text-xs font-mono ml-2" style={{ color: "#333" }}>{a.identity}</div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Add task form */}
+          <AnimatePresence>
+            {showForm && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                className="px-5 py-3 border-b overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
+              >
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Task title"
+                    className="px-3 py-2 rounded border text-sm col-span-2" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)", color: "#fff" }} />
+                  <div className="flex gap-2">
+                    <select value={newPriority} onChange={e => setNewPriority(e.target.value as any)}
+                      className="flex-1 px-2 py-2 rounded border text-xs" style={{ background: "#1a1a1a", borderColor: "rgba(255,255,255,0.1)", color: "#ccc" }}>
+                      <option value="HIGH">HIGH</option>
+                      <option value="MEDIUM">MEDIUM</option>
+                      <option value="LOW">LOW</option>
+                    </select>
+                    <select value={newAssignee} onChange={e => setNewAssignee(e.target.value)}
+                      className="flex-1 px-2 py-2 rounded border text-xs" style={{ background: "#1a1a1a", borderColor: "rgba(255,255,255,0.1)", color: "#ccc" }}>
+                      {AGENTS.map(a => <option key={a.id} value={a.id}>{a.name} ({a.role})</option>)}
+                    </select>
+                  </div>
+                </div>
+                <textarea value={newPrompt} onChange={e => setNewPrompt(e.target.value)} placeholder="Task description / prompt for the agent…"
+                  rows={2} className="w-full px-3 py-2 rounded border text-sm resize-none mb-3"
+                  style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#fff" }} />
+                <div className="flex gap-2">
+                  <button onClick={addCard} className="px-4 py-1.5 rounded text-xs font-bold border transition-all hover:bg-white/5"
+                    style={{ borderColor: "rgba(251,191,36,0.5)", color: "#fbbf24" }}>ADD TASK</button>
+                  <button onClick={() => setShowForm(false)} className="px-4 py-1.5 rounded text-xs border transition-all hover:bg-white/5"
+                    style={{ borderColor: "rgba(255,255,255,0.1)", color: "#666" }}>CANCEL</button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Kanban board */}
+          <div className="flex-1 overflow-x-auto overflow-y-hidden">
+            <div className="flex gap-3 p-4 h-full min-w-max">
+              {COLS.map(col => {
+                const colCards = cards.filter(c => c.status === col.id);
+                return (
+                  <div key={col.id} className="flex flex-col rounded-lg border w-56 flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                    <div className="flex items-center gap-2 px-3 py-2.5 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                      <div className="w-2 h-2 rounded-full" style={{ background: col.color }} />
+                      <span className="text-xs font-bold tracking-widest" style={{ color: col.color }}>{col.label}</span>
+                      <span className="ml-auto text-xs font-mono" style={{ color: "#444" }}>{colCards.length}</span>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                      {colCards.map(card => {
+                        const agent = AGENTS.find(a => a.id === card.assignedTo);
+                        const isExpanded = expanded === card.id;
+                        return (
+                          <div key={card.id} className="rounded border p-2.5" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
+                            <div className="flex items-start justify-between gap-1 mb-1.5">
+                              <span className="text-xs font-medium text-white leading-tight">{card.title}</span>
+                              <span className="text-xs px-1 rounded flex-shrink-0" style={{ background: PRIORITY_COLORS[card.priority] + "20", color: PRIORITY_COLORS[card.priority] }}>{card.priority[0]}</span>
+                            </div>
+                            {agent && (
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <div className="w-4 h-4 rounded-full flex items-center justify-center text-xs" style={{ background: agent.color + "30", color: agent.color }}>{agent.name[0]}</div>
+                                <span className="text-xs" style={{ color: "#555" }}>{agent.name} · {agent.role}</span>
+                              </div>
+                            )}
+                            {card.running && (
+                              <motion.div className="text-xs mb-2" style={{ color: "#fbbf24" }} animate={{ opacity: [1,0.4,1] }} transition={{ repeat: Infinity, duration: 1 }}>processing…</motion.div>
+                            )}
+                            {card.subtasks.length > 0 && (
+                              <div className="mb-2">
+                                {card.subtasks.map((st, i) => (
+                                  <div key={i} className="flex items-center gap-1.5 text-xs" style={{ color: "#555" }}>
+                                    <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: card.status === "done" ? "#10b981" : "#333" }} />
+                                    <span className="truncate">{st}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {isExpanded && card.output && (
+                              <div className="text-xs p-2 rounded mb-2 max-h-24 overflow-y-auto" style={{ background: "rgba(255,255,255,0.04)", color: "#888" }}>{card.output}</div>
+                            )}
+                            <div className="flex items-center gap-1 mt-2">
+                              {card.status === "backlog" && (
+                                <button onClick={() => runCard(card.id)}
+                                  className="flex items-center gap-1 px-2 py-1 rounded text-xs border transition-all hover:bg-white/5"
+                                  style={{ borderColor: "rgba(251,191,36,0.4)", color: "#fbbf24" }}
+                                ><Play size={9} /> RUN</button>
+                              )}
+                              {card.status === "review" && (
+                                <button onClick={() => approveCard(card.id)}
+                                  className="flex items-center gap-1 px-2 py-1 rounded text-xs border transition-all hover:bg-white/5"
+                                  style={{ borderColor: "rgba(16,185,129,0.4)", color: "#10b981" }}
+                                ><GitMerge size={9} /> APPROVE</button>
+                              )}
+                              {card.output && (
+                                <button onClick={() => setExpanded(isExpanded ? null : card.id)}
+                                  className="px-1.5 py-1 rounded text-xs border transition-all hover:bg-white/5 ml-auto"
+                                  style={{ borderColor: "rgba(255,255,255,0.1)", color: "#555" }}
+                                ><ChevronDown size={9} /></button>
+                              )}
+                              {(card.status === "done" || card.status === "failed") && (
+                                <button onClick={() => resetCard(card.id)}
+                                  className="px-1.5 py-1 rounded text-xs border transition-all hover:bg-white/5"
+                                  style={{ borderColor: "rgba(255,255,255,0.1)", color: "#555" }}
+                                ><RotateCcw size={9} /></button>
+                              )}
+                              <button onClick={() => setCards(prev => prev.filter(c => c.id !== card.id))}
+                                className="px-1.5 py-1 rounded text-xs border transition-all hover:bg-white/5 ml-auto"
+                                style={{ borderColor: "rgba(255,255,255,0.06)", color: "#444" }}
+                              ><Trash2 size={9} /></button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </motion.div>
+          </div>
         </motion.div>
-      )}
+      </motion.div>
     </AnimatePresence>
   );
 }

@@ -1,187 +1,284 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Server, Copy, CheckCheck, GitMerge, RotateCcw, Code2 } from "lucide-react";
+import { X, Code2, Database, FileText, TestTube, Play, Download, CheckCircle2, Loader2, ChevronDown } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
+import { useToast } from "@/hooks/use-toast";
 
 interface AutoBEModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }
 
-type Framework = "express" | "fastapi" | "django" | "go-gin" | "rust-axum" | "spring";
-const FRAMEWORKS: { id: Framework; label: string; lang: string }[] = [
-  { id: "express",   label: "Express.js", lang: "TypeScript" },
-  { id: "fastapi",   label: "FastAPI",    lang: "Python" },
-  { id: "django",    label: "Django REST",lang: "Python" },
-  { id: "go-gin",    label: "Go + Gin",   lang: "Go" },
-  { id: "rust-axum", label: "Rust Axum",  lang: "Rust" },
-  { id: "spring",    label: "Spring Boot",lang: "Java" },
+type Phase = "idle" | "schema" | "api" | "tests" | "implementation" | "done";
+type Framework = "fastapi" | "express" | "nestjs" | "gin" | "rails" | "laravel";
+type DbType = "postgresql" | "mysql" | "mongodb" | "sqlite";
+
+const FRAMEWORKS: { id: Framework; label: string; lang: string; color: string }[] = [
+  { id: "fastapi",  label: "FastAPI",    lang: "Python",     color: "#10b981" },
+  { id: "express",  label: "Express.js", lang: "TypeScript", color: "#f59e0b" },
+  { id: "nestjs",   label: "NestJS",     lang: "TypeScript", color: "#e21227" },
+  { id: "gin",      label: "Gin",        lang: "Go",         color: "#00e5ff" },
+  { id: "rails",    label: "Rails",      lang: "Ruby",       color: "#ff4d4d" },
+  { id: "laravel",  label: "Laravel",    lang: "PHP",        color: "#a78bfa" },
 ];
 
-const TEMPLATES = [
-  { label: "User Auth API", desc: "JWT auth with register/login/refresh/logout endpoints" },
-  { label: "CRUD REST API", desc: "Full resource CRUD with pagination, filtering, validation" },
-  { label: "File Upload API", desc: "Multipart upload with storage, resize, CDN integration" },
-  { label: "WebSocket Server", desc: "Real-time bidirectional events with rooms and auth" },
-  { label: "GraphQL API",    desc: "Schema, resolvers, auth middleware, DataLoader" },
-  { label: "Microservice",   desc: "Event-driven service with message queue integration" },
+const DB_TYPES: { id: DbType; label: string }[] = [
+  { id: "postgresql", label: "PostgreSQL" },
+  { id: "mysql",      label: "MySQL"      },
+  { id: "mongodb",    label: "MongoDB"    },
+  { id: "sqlite",     label: "SQLite"     },
 ];
+
+type Output = { phase: Phase; content: string };
+
+const PHASE_LABELS: Record<Phase, string> = {
+  idle: "", schema: "DATABASE SCHEMA", api: "API DOCS",
+  tests: "TEST COVERAGE", implementation: "IMPLEMENTATION", done: "COMPLETE",
+};
+
+const EXAMPLES = [
+  "A task management SaaS with user auth, projects, tasks, comments, and file attachments",
+  "An e-commerce backend with products, inventory, orders, payments, and shipping tracking",
+  "A real-time chat application with rooms, messages, users, reactions, and read receipts",
+  "A blog platform with posts, categories, tags, authors, comments, and SEO metadata",
+];
+
+const PHASE_ORDER: Phase[] = ["schema", "api", "tests", "implementation"];
 
 export function AutoBEModal({ open, onOpenChange }: AutoBEModalProps) {
-  const [framework, setFramework] = useState<Framework>("express");
-  const [desc, setDesc] = useState("");
-  const [output, setOutput] = useState("");
-  const [running, setRunning] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+  const [requirement, setRequirement] = useState("");
+  const [framework, setFramework] = useState<Framework>("fastapi");
+  const [db, setDb] = useState<DbType>("postgresql");
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [outputs, setOutputs] = useState<Output[]>([]);
+  const [tab, setTab] = useState<Phase>("schema");
+  const [fwOpen, setFwOpen] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const fw = FRAMEWORKS.find(f => f.id === framework)!;
 
-  async function generate(overrideDesc?: string) {
-    const d = (overrideDesc ?? desc).trim();
-    if (!d || running) return;
-    setRunning(true);
-    setOutput("");
-    const fw = FRAMEWORKS.find((f) => f.id === framework)!;
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{
-            role: "user",
-            content: `You are a senior backend engineer. Generate a complete, production-ready ${fw.label} (${fw.lang}) backend implementation.
+  const PROMPTS: Record<Phase, string> = {
+    idle: "", done: "",
+    schema: `You are AutoBE, an AI backend builder (prototype to production). Given: "${requirement}". Framework: ${fw.label} (${fw.lang}), Database: ${db}.\n\nGenerate a complete DATABASE SCHEMA:\n1. All tables/collections with columns, types, constraints\n2. Relationships and foreign keys\n3. Performance indexes\n4. Migration SQL or ORM model code\n\nBe specific and production-ready.`,
+    api: `You are AutoBE. Given: "${requirement}" with ${fw.label}/${db}.\n\nGenerate complete REST API DOCUMENTATION:\n1. All endpoints: HTTP method, path, request/response schemas\n2. Authentication and authorization requirements\n3. Error codes and messages\n4. Rate limiting recommendations\n5. Sample OpenAPI 3.0 YAML for key endpoints`,
+    tests: `You are AutoBE. Given: "${requirement}" with ${fw.label}/${db}.\n\nGenerate TEST COVERAGE PLAN:\n1. Unit tests for each service layer\n2. Integration tests for critical user flows\n3. E2E test scenarios\n4. Edge cases and failure scenarios\n5. Sample test code in ${fw.lang} (>80% coverage target)`,
+    implementation: `You are AutoBE. Given: "${requirement}" with ${fw.label}/${db}.\n\nGenerate IMPLEMENTATION:\n1. Project file structure\n2. Core business logic (key services)\n3. Middleware stack configuration\n4. Environment variables (.env.example)\n5. README with setup and run instructions\n\nProvide clean, production-ready ${fw.lang} code.`,
+  };
 
-Requirements: ${d}
+  async function generate() {
+    if (!requirement.trim() || phase !== "idle") return;
+    setOutputs([]);
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    const collected: Output[] = [];
 
-Include:
-1. Complete working code with all imports
-2. Proper error handling and validation
-3. Authentication/authorization where appropriate
-4. Database models/schemas
-5. Request/response types
-6. Environment configuration
-7. A brief README with setup commands
-
-Format as clean ${fw.lang} code with clear comments. Make it production-ready, not a tutorial.`,
-          }],
-          model: "gpt-5.4",
-          stream: true,
-        }),
-      });
-      const reader = res.body?.getReader();
-      const dec = new TextDecoder();
-      let buf = "", full = "";
-      while (reader) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += dec.decode(value, { stream: true });
-        const lines = buf.split("\n");
-        buf = lines.pop() ?? "";
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const raw = line.slice(6);
-          if (raw === "[DONE]") continue;
-          try { const chunk = JSON.parse(raw); const delta = chunk.choices?.[0]?.delta?.content ?? ""; full += delta; setOutput(full); } catch { /* ignore */ }
-        }
+    for (const p of PHASE_ORDER) {
+      if (ctrl.signal.aborted) break;
+      setPhase(p);
+      setTab(p);
+      try {
+        const r = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: [{ role: "user", content: PROMPTS[p] }], model: "gpt-5.4", stream: false }),
+          signal: ctrl.signal,
+        });
+        const data = await r.json();
+        const content = data.content || data.choices?.[0]?.message?.content || "";
+        collected.push({ phase: p, content });
+        setOutputs([...collected]);
+      } catch (e: any) {
+        if (e.name === "AbortError") break;
+        collected.push({ phase: p, content: "Error generating content." });
+        setOutputs([...collected]);
       }
-      pipeline.push({ source: "AUTOBE", sourceColor: "#22d3ee", label: `${fw.label}: ${d.slice(0, 40)}`, content: full });
-    } catch { /* ignore */ }
-    setRunning(false);
+    }
+
+    if (!ctrl.signal.aborted) {
+      setPhase("done");
+      const text = collected.map(o => `## ${PHASE_LABELS[o.phase]}\n\n${o.content}`).join("\n\n---\n\n");
+      pipeline.push({ source: "AutoBE", sourceColor: "#3b82f6", label: requirement.slice(0, 50), content: text });
+      toast({ description: "AutoBE generation complete" });
+    }
   }
 
+  function stop() { abortRef.current?.abort(); setPhase("idle"); }
+  function reset() { abortRef.current?.abort(); setPhase("idle"); setOutputs([]); setRequirement(""); }
+
+  const currentOutput = outputs.find(o => o.phase === tab);
+  const isDone = (p: Phase) => outputs.some(o => o.phase === p);
+
   if (!open) return null;
+
   return (
     <AnimatePresence>
-      {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
-          style={{ backdropFilter: "blur(10px)", background: "rgba(0,0,0,0.85)" }}>
-          <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
-            style={{ background: "#080808", border: "1px solid rgba(34,211,238,0.25)", boxShadow: "0 0 60px rgba(34,211,238,0.1)" }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "rgba(34,211,238,0.2)", background: "rgba(34,211,238,0.04)" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center border" style={{ background: "rgba(34,211,238,0.1)", borderColor: "rgba(34,211,238,0.4)" }}>
-                  <Server className="w-4 h-4" style={{ color: "#22d3ee" }} />
+      <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: "rgba(0,0,0,0.85)" }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={e => { if (e.target === e.currentTarget) onOpenChange(false); }}
+      >
+        <motion.div className="relative w-full max-w-3xl rounded-xl border overflow-hidden flex flex-col"
+          style={{ background: "#0d0d0d", borderColor: "rgba(16,185,129,0.35)", maxHeight: "92vh" }}
+          initial={{ scale: 0.92, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 30 }}
+        >
+          <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: "rgba(16,185,129,0.2)", background: "rgba(16,185,129,0.04)" }}>
+            <Code2 size={20} color="#10b981" />
+            <div>
+              <div className="font-bold text-sm tracking-widest text-white">AUTO-BE</div>
+              <div className="text-xs" style={{ color: "#666" }}>AI backend builder — natural language → schema + API docs + tests + code</div>
+            </div>
+            <button onClick={() => onOpenChange(false)} className="ml-auto p-1 rounded hover:bg-white/10"><X size={16} color="#666" /></button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto flex flex-col">
+            <div className="p-5 space-y-4 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+              <div>
+                <label className="text-xs font-bold tracking-widest mb-2 block" style={{ color: "#555" }}>DESCRIBE YOUR BACKEND (natural language)</label>
+                <textarea value={requirement} onChange={e => setRequirement(e.target.value)} disabled={phase !== "idle"}
+                  placeholder="E.g.: A SaaS with user authentication, projects, tasks, comments, file uploads, and email notifications"
+                  rows={3} className="w-full px-3 py-2 rounded-lg border text-sm resize-none"
+                  style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#fff" }}
+                />
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {EXAMPLES.map((ex, i) => (
+                    <button key={i} onClick={() => setRequirement(ex)} disabled={phase !== "idle"}
+                      className="text-xs px-2 py-1 rounded border hover:bg-white/5 transition-all"
+                      style={{ borderColor: "rgba(255,255,255,0.08)", color: "#555" }}>Example {i+1}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold tracking-widest mb-2 block" style={{ color: "#555" }}>FRAMEWORK</label>
+                  <div className="relative">
+                    <button onClick={() => setFwOpen(v => !v)} disabled={phase !== "idle"}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg border text-sm"
+                      style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#fff" }}>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full" style={{ background: fw.color }} />
+                        {fw.label} <span className="text-xs ml-1" style={{ color: "#555" }}>({fw.lang})</span>
+                      </div>
+                      <ChevronDown size={14} color="#555" />
+                    </button>
+                    <AnimatePresence>
+                      {fwOpen && (
+                        <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                          className="absolute top-full left-0 right-0 z-20 rounded border mt-1 overflow-hidden"
+                          style={{ background: "#161616", borderColor: "rgba(255,255,255,0.1)" }}>
+                          {FRAMEWORKS.map(f => (
+                            <button key={f.id} onClick={() => { setFramework(f.id); setFwOpen(false); }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-white/5 transition-colors"
+                              style={{ color: framework === f.id ? f.color : "#ccc" }}>
+                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: f.color }} />
+                              {f.label}<span className="text-xs ml-auto" style={{ color: "#555" }}>{f.lang}</span>
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
                 <div>
-                  <div className="text-sm font-black tracking-widest" style={{ color: "#22d3ee" }}>AUTO-BE</div>
-                  <div className="text-[10px] mt-0.5" style={{ color: "#555" }}>Auto Backend Generator — production-ready APIs in seconds</div>
+                  <label className="text-xs font-bold tracking-widest mb-2 block" style={{ color: "#555" }}>DATABASE</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DB_TYPES.map(d => (
+                      <button key={d.id} onClick={() => setDb(d.id)} disabled={phase !== "idle"}
+                        className="px-3 py-2 rounded-lg border text-xs font-bold transition-all"
+                        style={{ background: db === d.id ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.03)", borderColor: db === d.id ? "rgba(16,185,129,0.5)" : "rgba(255,255,255,0.08)", color: db === d.id ? "#10b981" : "#666" }}>
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => { setOutput(""); setDesc(""); }} className="p-1.5 text-gray-600 hover:text-cyan-400"><RotateCcw className="w-4 h-4" /></button>
-                <button onClick={() => onOpenChange(false)} className="p-1.5 text-gray-600 hover:text-white"><X className="w-4 h-4" /></button>
+
+              {/* Phase pipeline indicator */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {PHASE_ORDER.map((p, i) => {
+                  const done = isDone(p);
+                  const current = phase === p;
+                  const icons: Record<string, typeof Code2> = { schema: Database, api: FileText, tests: TestTube, implementation: Code2 };
+                  const Icon = icons[p] || Code2;
+                  return (
+                    <div key={p} className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs"
+                        style={{ background: done ? "rgba(16,185,129,0.15)" : current ? "rgba(251,191,36,0.12)" : "rgba(255,255,255,0.04)", color: done ? "#10b981" : current ? "#fbbf24" : "#555" }}>
+                        {current ? <Loader2 size={11} className="animate-spin" /> : done ? <CheckCircle2 size={11} /> : <Icon size={11} />}
+                        {PHASE_LABELS[p]}
+                      </div>
+                      {i < PHASE_ORDER.length - 1 && <div className="w-4 h-px" style={{ background: "rgba(255,255,255,0.08)" }} />}
+                    </div>
+                  );
+                })}
+                {phase === "done" && <span className="text-xs ml-2" style={{ color: "#10b981" }}>ALL DONE</span>}
+              </div>
+
+              <div className="flex gap-3">
+                {phase === "idle" ? (
+                  <button onClick={generate} disabled={!requirement.trim()}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all disabled:opacity-40"
+                    style={{ background: "linear-gradient(135deg,#10b981,#059669)", color: "#fff" }}>
+                    <Play size={14} /> GENERATE BACKEND
+                  </button>
+                ) : phase !== "done" ? (
+                  <button onClick={stop} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm border"
+                    style={{ borderColor: "#e21227", color: "#e21227" }}>STOP</button>
+                ) : null}
+                {outputs.length > 0 && (
+                  <button onClick={reset} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm border hover:bg-white/5"
+                    style={{ borderColor: "rgba(255,255,255,0.1)", color: "#888" }}>RESET</button>
+                )}
               </div>
             </div>
 
-            {/* Framework selector */}
-            <div className="flex gap-1.5 p-3 border-b flex-wrap" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              {FRAMEWORKS.map((f) => (
-                <button key={f.id} onClick={() => setFramework(f.id)}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all"
-                  style={{ background: framework === f.id ? "rgba(34,211,238,0.15)" : "transparent", borderColor: framework === f.id ? "rgba(34,211,238,0.5)" : "rgba(255,255,255,0.08)", color: framework === f.id ? "#22d3ee" : "#444" }}>
-                  {f.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Templates */}
-            <div className="flex gap-1.5 px-3 py-2 border-b flex-wrap" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              {TEMPLATES.map((t) => (
-                <button key={t.label} onClick={() => { setDesc(t.desc); generate(t.desc); }}
-                  className="flex flex-col items-start px-2.5 py-1.5 rounded-lg border transition-all text-left"
-                  style={{ background: "rgba(34,211,238,0.04)", borderColor: "rgba(34,211,238,0.1)" }}>
-                  <span className="text-[9px] font-bold" style={{ color: "#22d3ee" }}>{t.label}</span>
-                  <span className="text-[8px]" style={{ color: "#444" }}>{t.desc.slice(0, 35)}…</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Output */}
-            <div className="flex-1 overflow-y-auto p-3">
-              {!output && !running ? (
-                <div className="flex flex-col items-center justify-center py-14 gap-3">
-                  <Code2 className="w-10 h-10" style={{ color: "#0a2a2e" }} />
-                  <div className="text-[11px] font-mono" style={{ color: "#333" }}>Describe your API or click a template above</div>
+            {outputs.length > 0 && (
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="flex border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  {PHASE_ORDER.map(p => {
+                    const done = isDone(p);
+                    const icons: Record<string, typeof Code2> = { schema: Database, api: FileText, tests: TestTube, implementation: Code2 };
+                    const Icon = icons[p] || Code2;
+                    return (
+                      <button key={p} onClick={() => setTab(p)} disabled={!done}
+                        className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold tracking-widest transition-colors disabled:opacity-30"
+                        style={{ color: tab === p ? "#10b981" : "#555", borderBottom: tab === p ? "2px solid #10b981" : "2px solid transparent" }}>
+                        <Icon size={11} />{PHASE_LABELS[p]}
+                      </button>
+                    );
+                  })}
+                  {phase === "done" && (
+                    <button onClick={() => {
+                      const text = outputs.map(o => `## ${PHASE_LABELS[o.phase]}\n\n${o.content}`).join("\n\n---\n\n");
+                      pipeline.push({ source: "AutoBE", sourceColor: "#3b82f6", label: requirement.slice(0, 50), content: text });
+                      toast({ description: "Exported to pipeline" });
+                    }} className="ml-auto flex items-center gap-1.5 px-4 py-2 text-xs border-b-2 border-transparent hover:bg-white/5" style={{ color: "#10b981" }}>
+                      <Download size={11} /> EXPORT
+                    </button>
+                  )}
                 </div>
-              ) : (
-                <pre className="text-[10px] leading-relaxed font-mono whitespace-pre-wrap" style={{ color: "#777" }}>
-                  {output}{running && <span className="animate-pulse">▊</span>}
-                </pre>
-              )}
-            </div>
-
-            {output && !running && (
-              <div className="px-4 py-2 border-t flex items-center gap-2" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                <button onClick={() => { navigator.clipboard.writeText(output); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border"
-                  style={{ background: "rgba(34,211,238,0.06)", borderColor: "rgba(34,211,238,0.2)", color: "#22d3ee" }}>
-                  {copied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? "Copied" : "Copy"}
-                </button>
-                <button onClick={() => pipeline.push({ source: "AUTOBE", sourceColor: "#22d3ee", label: "Backend code", content: output })}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border"
-                  style={{ background: "rgba(0,229,204,0.06)", borderColor: "rgba(0,229,204,0.2)", color: "#00e5cc" }}>
-                  <GitMerge className="w-3 h-3" /> Pipe
-                </button>
+                <div className="flex-1 overflow-y-auto p-5">
+                  {currentOutput ? (
+                    <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed" style={{ color: "#ccc" }}>{currentOutput.content}</pre>
+                  ) : (
+                    <div className="flex items-center justify-center h-32" style={{ color: "#444" }}>
+                      {phase === tab ? <div className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /><span>Generating {PHASE_LABELS[tab]}…</span></div> : <span>Waiting…</span>}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
-            <div className="p-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              <div className="flex gap-2">
-                <input type="text" value={desc} onChange={(e) => setDesc(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") generate(); }}
-                  placeholder="Describe your backend API requirements…"
-                  disabled={running}
-                  className="flex-1 border rounded-xl px-3 py-2.5 text-[12px] outline-none bg-transparent"
-                  style={{ borderColor: "rgba(34,211,238,0.2)", color: "#ccc" }} />
-                <button onClick={() => generate()} disabled={running || !desc.trim()}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center disabled:opacity-30"
-                  style={{ background: "rgba(34,211,238,0.2)", border: "1px solid rgba(34,211,238,0.4)" }}>
-                  <Send className="w-4 h-4" style={{ color: "#22d3ee" }} />
-                </button>
+            {outputs.length === 0 && phase === "idle" && (
+              <div className="flex-1 flex flex-col items-center justify-center p-8" style={{ color: "#444" }}>
+                <Code2 size={40} className="mb-4" />
+                <div className="text-sm text-center">Describe your backend requirements in natural language<br /><span style={{ color: "#333" }}>AutoBE generates schema · API docs · tests · implementation code</span></div>
+                <div className="mt-4 text-xs" style={{ color: "#333" }}>Based on the AutoBE open-source project by wrtnlabs</div>
               </div>
-            </div>
-          </motion.div>
+            )}
+          </div>
         </motion.div>
-      )}
+      </motion.div>
     </AnimatePresence>
   );
 }

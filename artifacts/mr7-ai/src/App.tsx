@@ -63,6 +63,9 @@ import { CodexMobileModal } from "./components/modals/CodexMobileModal";
 import { OpenACPModal } from "./components/modals/OpenACPModal";
 import { HandClawModal } from "./components/modals/HandClawModal";
 import { RalphAgentModal } from "./components/modals/RalphAgentModal";
+import { BurnBabyBurnModal } from "./components/modals/BurnBabyBurnModal";
+import { CrushModal } from "./components/modals/CrushModal";
+import { RTKModal } from "./components/modals/RTKModal";
 
 const queryClient = new QueryClient();
 
@@ -168,6 +171,9 @@ function AppContent() {
   const [openACPOpen, setOpenACPOpen] = useState(false);
   const [handClawOpen, setHandClawOpen] = useState(false);
   const [ralphOpen, setRalphOpen] = useState(false);
+  const [burnbabyOpen, setBurnbabyOpen] = useState(false);
+  const [crushOpen, setCrushOpen] = useState(false);
+  const [rtkOpen, setRtkOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -228,6 +234,9 @@ function AppContent() {
       case "openacp":      setOpenACPOpen(true); break;
       case "handclaw":     setHandClawOpen(true); break;
       case "ralph":        setRalphOpen(true); break;
+      case "burnbaby":     setBurnbabyOpen(true); break;
+      case "crush":        setCrushOpen(true); break;
+      case "rtk":          setRtkOpen(true); break;
     }
   }
 
@@ -393,6 +402,9 @@ function AppContent() {
       <OpenACPModal open={openACPOpen} onOpenChange={setOpenACPOpen} />
       <HandClawModal open={handClawOpen} onOpenChange={setHandClawOpen} />
       <RalphAgentModal open={ralphOpen} onOpenChange={setRalphOpen} />
+      <BurnBabyBurnModal open={burnbabyOpen} onOpenChange={setBurnbabyOpen} />
+      <CrushModal open={crushOpen} onOpenChange={setCrushOpen} />
+      <RTKModal open={rtkOpen} onOpenChange={setRtkOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

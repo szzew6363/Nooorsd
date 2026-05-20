@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Bot, Hexagon, Cpu, Zap, Brain, Terminal, Database,
   Layers, Code2, Users, Sparkles, BookOpen,
-  CheckSquare, Square, ExternalLink, Shield, Swords,
+  CheckSquare, Square, Shield, Swords, ExternalLink,
   GitMerge, ArrowRight, RotateCcw, Trash2, Copy, CheckCheck,
   Network, Briefcase, Palette, Activity, Link2, Plus,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
+  Flame, TrendingDown, Monitor, BarChart2,
 } from "lucide-react";
 import { pipeline, type PipelineHistoryEntry, type ChainRule } from "@/lib/pipeline";
 
@@ -18,7 +19,8 @@ export type ArsenalModuleId =
   | "uiuxpro" | "careerops" | "abtop" | "awesomellm"
   | "osintscanner" | "nanobot" | "agentkanban" | "autobe"
   | "superpowers" | "lerimcli" | "claudeprompts" | "rvsagent"
-  | "codexmobile" | "openacp" | "handclaw" | "ralph";
+  | "codexmobile" | "openacp" | "handclaw" | "ralph"
+  | "burnbaby" | "crush" | "rtk";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -212,10 +214,28 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     source: "handclaw-main", tag: "VOICE",
   },
   {
-    id: "ralph", name: "Ralph Agent", subtitle: "Desktop Autonomous Agent",
-    desc: "Methodical autonomous agent with 8 tools: Read File, Write Code, Test, Plan, Debug, Docs, Git, Deploy. Full conversation.",
+    id: "ralph", name: "Ralph Agent", subtitle: "AI Brainstorm + Autonomous Loop",
+    desc: "Start vague → AI interviews you → builds refined prompt → iterates autonomously until perfect. Ralph Loop methodology.",
     icon: Bot, color: "#fb923c", border: "rgba(251,146,60,0.35)", bg: "rgba(251,146,60,0.07)", glow: "rgba(251,146,60,0.25)",
-    source: "ralph-desktop-main / ralph-starter", tag: "AGENT",
+    source: "ralph-desktop-main", tag: "LOOP",
+  },
+  {
+    id: "burnbaby", name: "Burn Baby Burn", subtitle: "Intentional Token Burner",
+    desc: "Burn tokens on purpose with real model pricing (Haiku/Sonnet/GPT-5.x). Target token count, cost tracking, per-call log.",
+    icon: Flame, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
+    source: "burn-baby-burn", tag: "TOKENS",
+  },
+  {
+    id: "crush", name: "Crush", subtitle: "Terminal AI Coding Assistant",
+    desc: "Your coding bestie by Charmbracelet — multi-provider (Anthropic/OpenAI/Gemini/Bedrock), sessions, LSP, MCP, PreToolUse hooks.",
+    icon: Terminal, color: "#a78bfa", border: "rgba(167,139,250,0.4)", bg: "rgba(167,139,250,0.08)", glow: "rgba(167,139,250,0.3)",
+    source: "crush", tag: "CODING",
+  },
+  {
+    id: "rtk", name: "RTK", subtitle: "Rust Token Killer",
+    desc: "CLI proxy that reduces LLM token consumption 60-90%. Single Rust binary, 100+ commands, <10ms overhead. Saves ~80% in 30-min sessions.",
+    icon: TrendingDown, color: "#e21227", border: "rgba(226,18,39,0.35)", bg: "rgba(226,18,39,0.07)", glow: "rgba(226,18,39,0.25)",
+    source: "rtk-develop", tag: "COMPRESS",
   },
 ];
 
@@ -227,7 +247,7 @@ interface ArsenalHubModalProps {
   onLaunch: (id: ArsenalModuleId) => void;
 }
 
-type Tab = "modules" | "chain" | "history";
+type Tab = "modules" | "chain" | "history" | "mission";
 
 // ─── Chain Builder ────────────────────────────────────────────────────────────
 
@@ -582,6 +602,7 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
               <TabBtn active={tab === "modules"} onClick={() => setTab("modules")} label="MODULES" count={ARSENAL_MODULES.length} />
               <TabBtn active={tab === "chain"} onClick={() => setTab("chain")} label="CHAIN BUILDER" count={rulesCount} countColor="#00e5cc" />
               <TabBtn active={tab === "history"} onClick={() => setTab("history")} label="PIPELINE HISTORY" count={history.length} countColor="#00e5cc" />
+              <TabBtn active={tab === "mission"} onClick={() => setTab("mission")} label="MISSION CONTROL" />
             </div>
 
             {/* Search (modules tab only) */}
@@ -648,6 +669,87 @@ export function ArsenalHubModal({ open, onOpenChange, onLaunch }: ArsenalHubModa
                 {tab === "chain" && (
                   <motion.div key="chain" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.15 }}>
                     <ChainBuilderTab />
+                  </motion.div>
+                )}
+
+                {tab === "mission" && (
+                  <motion.div key="mission" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.15 }} className="p-4 space-y-4">
+                    {/* Status grid */}
+                    <div className="grid grid-cols-4 gap-3">
+                      {[
+                        { label: "TOTAL MODULES", value: ARSENAL_MODULES.length, color: "#fff", icon: <Layers style={{ width: 14, height: 14 }} /> },
+                        { label: "ACTIVE",         value: enabled.size,           color: "#10b981", icon: <Activity style={{ width: 14, height: 14 }} /> },
+                        { label: "CHAIN RULES",    value: rulesCount,             color: "#00e5cc", icon: <GitMerge style={{ width: 14, height: 14 }} /> },
+                        { label: "PIPELINE EVENTS",value: history.length,         color: "#fbbf24", icon: <BarChart2 style={{ width: 14, height: 14 }} /> },
+                      ].map(s => (
+                        <div key={s.label} className="rounded-lg p-3 border" style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.07)" }}>
+                          <div className="flex items-center gap-1.5 mb-1" style={{ color: s.color }}>{s.icon}<span className="text-[9px] font-bold tracking-widest">{s.label}</span></div>
+                          <div className="text-2xl font-mono font-bold" style={{ color: s.color }}>{s.value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Module status grid */}
+                    <div>
+                      <div className="text-[10px] font-bold tracking-widest mb-2" style={{ color: "#444" }}>MODULE STATUS</div>
+                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                        {ARSENAL_MODULES.map(mod => {
+                          const Icon = mod.icon;
+                          const isOn = enabled.has(mod.id);
+                          const lastEvent = history.find(h => h.source === mod.name || h.source.toUpperCase() === mod.name.toUpperCase());
+                          return (
+                            <div key={mod.id} className="flex items-center gap-2.5 p-2.5 rounded-lg border transition-all"
+                              style={{ borderColor: isOn ? mod.border : "rgba(255,255,255,0.05)", background: isOn ? mod.bg : "rgba(255,255,255,0.01)" }}>
+                              <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: isOn ? mod.bg : "#111" }}>
+                                <Icon style={{ width: 12, height: 12, color: isOn ? mod.color : "#333" }} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[10px] font-bold truncate" style={{ color: isOn ? mod.color : "#444" }}>{mod.name}</div>
+                                <div className="text-[8px] font-mono" style={{ color: "#333" }}>{lastEvent ? `last: ${lastEvent.label.slice(0,20)}` : "no activity"}</div>
+                              </div>
+                              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: isOn ? "#10b981" : "#222" }} />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Recent pipeline events */}
+                    <div>
+                      <div className="text-[10px] font-bold tracking-widest mb-2" style={{ color: "#444" }}>RECENT PIPELINE EVENTS</div>
+                      {history.length === 0 ? (
+                        <div className="text-center py-6 text-[10px]" style={{ color: "#333" }}>No pipeline events yet — use modules to generate output</div>
+                      ) : (
+                        <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                          {history.slice(0, 10).map(entry => (
+                            <div key={entry.id} className="flex items-center gap-2 p-2 rounded border" style={{ borderColor: "rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.02)" }}>
+                              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: entry.sourceColor }} />
+                              <span className="text-[9px] font-bold font-mono" style={{ color: entry.sourceColor }}>{entry.source}</span>
+                              <ArrowRight style={{ width: 10, height: 10, color: "#333", flexShrink: 0 }} />
+                              <span className="text-[9px] truncate flex-1" style={{ color: "#666" }}>{entry.label}</span>
+                              <span className="text-[8px] font-mono flex-shrink-0" style={{ color: "#333" }}>{new Date(entry.timestamp).toLocaleTimeString("en-US", { hour12: false })}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Module categories */}
+                    <div>
+                      <div className="text-[10px] font-bold tracking-widest mb-2" style={{ color: "#444" }}>MODULE CATEGORIES</div>
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from(new Set(ARSENAL_MODULES.map(m => m.tag))).map(tag => {
+                          const count = ARSENAL_MODULES.filter(m => m.tag === tag && enabled.has(m.id)).length;
+                          const total = ARSENAL_MODULES.filter(m => m.tag === tag).length;
+                          return (
+                            <div key={tag} className="px-2.5 py-1.5 rounded border text-[9px] font-bold tracking-widest"
+                              style={{ borderColor: count > 0 ? "rgba(0,229,204,0.3)" : "rgba(255,255,255,0.07)", background: count > 0 ? "rgba(0,229,204,0.06)" : "rgba(255,255,255,0.02)", color: count > 0 ? "#00e5cc" : "#444" }}>
+                              {tag} <span style={{ opacity: 0.6 }}>{count}/{total}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </motion.div>
                 )}
 

@@ -1,178 +1,269 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Search, Play, CheckCheck, RotateCcw, GitMerge, Star } from "lucide-react";
-import { useStore } from "@/lib/store";
-import { useToast } from "@/hooks/use-toast";
+import { X, Zap, Shield, Brain, Play, CheckCircle2, GitMerge, RefreshCw, Search, Star, ChevronDown } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
+import { useToast } from "@/hooks/use-toast";
 
 interface SuperpowersModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }
 
-type Power = {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  desc: string;
-  systemPrompt: string;
-  tags: string[];
-  level: "basic" | "advanced" | "elite";
-};
+type Tier = "micro" | "lightweight" | "full";
+type WorkflowId = string;
 
-const POWERS: Power[] = [
-  { id: "adversarial", name: "Adversarial Thinking", category: "Security", icon: "🎯", level: "elite", tags: ["red team","adversarial","attack"],
-    desc: "Think like an attacker. Find the weaknesses in any system, plan, or argument.",
-    systemPrompt: "You are a master adversarial thinker. For every system, plan, or argument presented: identify the 10 weakest points, map attack vectors, predict failure modes, and provide specific exploitation paths. Think like an advanced threat actor." },
-  { id: "first-principles", name: "First Principles", category: "Reasoning", icon: "🧠", level: "elite", tags: ["logic","reasoning","Musk"],
-    desc: "Break any problem down to its fundamental truths. Think like Elon Musk / Feynman.",
-    systemPrompt: "You are a first-principles reasoning engine. For any problem: (1) Question every assumption, (2) Break down to fundamental physical/logical truths, (3) Rebuild solutions from the ground up without analogy. Think like Richard Feynman and Elon Musk combined." },
-  { id: "code-archaeologist", name: "Code Archaeologist", category: "Code", icon: "🏺", level: "advanced", tags: ["code","debug","legacy"],
-    desc: "Reverse-engineer and explain any codebase, no matter how complex or legacy.",
-    systemPrompt: "You are a code archaeologist. For any codebase: map the architecture, trace data flows, identify technical debt, document undocumented functions, find hidden bugs, and explain complex logic in plain English. Handle any language, any complexity." },
-  { id: "negotiation", name: "Master Negotiator", category: "Persuasion", icon: "🤝", level: "advanced", tags: ["negotiation","persuasion","FBI"],
-    desc: "FBI-level negotiation tactics. Win any negotiation, defuse any conflict.",
-    systemPrompt: "You are a master negotiator trained by the FBI. Apply: Tactical Empathy, Mirroring, Labeling, Calibrated Questions, Loss Aversion anchoring. For any negotiation scenario, provide the exact script, counter-scripts, and psychological levers to use." },
-  { id: "market-intel", name: "Market Intelligence", category: "Business", icon: "📈", level: "advanced", tags: ["market","competitive","analysis"],
-    desc: "Deep market analysis, competitive intelligence, and strategic positioning.",
-    systemPrompt: "You are a McKinsey-level strategic intelligence analyst. For any market or business context: map competitive landscape, identify disruption vectors, calculate market sizing, find strategic moats, and provide actionable positioning recommendations with evidence." },
-  { id: "memory-palace", name: "Memory Palace Builder", category: "Learning", icon: "🏛️", level: "basic", tags: ["memory","learning","mnemonics"],
-    desc: "Build memory palaces and mnemonic systems for any subject.",
-    systemPrompt: "You are a memory champion and cognitive coach. For any information to memorize: create a detailed memory palace with vivid spatial associations, generate mnemonic acronyms, design spaced repetition schedules, and build story-based memory chains." },
-  { id: "prompt-engineer", name: "Prompt Engineer Pro", category: "AI", icon: "⚡", level: "advanced", tags: ["prompts","LLM","optimization"],
-    desc: "Optimize any prompt for maximum AI performance.",
-    systemPrompt: "You are a world-class prompt engineer. For any task: design optimal prompts with chain-of-thought, few-shot examples, role definitions, output constraints, and evaluation criteria. Test multiple prompt variations and rank them by effectiveness." },
-  { id: "data-detective", name: "Data Detective", category: "Analysis", icon: "🔍", level: "advanced", tags: ["data","analysis","statistics"],
-    desc: "Find hidden patterns, anomalies, and insights in any dataset.",
-    systemPrompt: "You are a data detective. For any dataset or data description: identify statistical anomalies, find hidden correlations, detect data quality issues, suggest visualization approaches, apply appropriate statistical tests, and uncover the real story the data tells." },
-  { id: "legal-strategist", name: "Legal Strategist", category: "Legal", icon: "⚖️", level: "elite", tags: ["legal","contracts","risk"],
-    desc: "Analyze contracts, identify legal risks, draft clauses.",
-    systemPrompt: "You are a senior legal strategist. Analyze contracts and legal documents: identify risky clauses, missing protections, jurisdiction issues, and liability exposure. Draft improved clauses and suggest negotiation positions. Note: for reference only, not legal advice." },
-  { id: "scientific-writer", name: "Scientific Writer", category: "Writing", icon: "📜", level: "basic", tags: ["writing","scientific","academic"],
-    desc: "Write in peer-review scientific style for any topic.",
-    systemPrompt: "You are a scientific writer for Nature/Science-level publications. Write with: precise technical language, proper citation format, clear hypothesis → methods → results → discussion structure, statistical rigor, and balanced interpretation of findings." },
-  { id: "cto-advisor", name: "CTO Advisor", category: "Tech Leadership", icon: "🏗️", level: "elite", tags: ["CTO","architecture","scaling"],
-    desc: "Get CTO-level technical architecture and engineering leadership advice.",
-    systemPrompt: "You are a CTO with 20+ years experience scaling startups to billions. Advise on: system architecture decisions, build vs buy, technical debt management, team structure, hiring, technology stack choices, scaling strategies, and engineering culture." },
-  { id: "financial-analyst", name: "Financial Analyst", category: "Finance", icon: "💹", level: "advanced", tags: ["finance","valuation","DCF"],
-    desc: "DCF valuation, financial modeling, investment analysis.",
-    systemPrompt: "You are a Goldman Sachs-level financial analyst. Build financial models: DCF valuations with sensitivity analysis, comparable company analysis, LBO models, revenue projections, unit economics analysis. Show all assumptions and calculations." },
+const TIERS: { id: Tier; label: string; desc: string; color: string; icon: typeof Zap; threshold: string }[] = [
+  { id: "micro",       label: "MICRO",       desc: "Simple tasks — direct answer or tiny edit. Zero overhead.",         color: "#10b981", icon: Zap,     threshold: "1-2 steps" },
+  { id: "lightweight", label: "LIGHTWEIGHT",  desc: "Moderate tasks — structured output, basic TDD, no full pipeline.", color: "#fbbf24", icon: Shield,  threshold: "3-7 steps" },
+  { id: "full",        label: "FULL",         desc: "Complex tasks — complete pipeline: plan → TDD → safety → review.", color: "#a78bfa", icon: Brain,   threshold: "8+ steps"  },
 ];
 
-const CATEGORIES = ["All", "Security", "Code", "Reasoning", "Persuasion", "Business", "AI", "Analysis", "Legal", "Writing", "Tech Leadership", "Finance", "Learning"];
-const LEVELS = { basic: "#60a5fa", advanced: "#fbbf24", elite: "#e21227" };
+const WORKFLOWS = [
+  { id: "tdd",          label: "TDD Enforcement",         tier: "lightweight" as Tier, desc: "RED → GREEN → REFACTOR cycle with test-first mandate",              tag: "TESTING"    },
+  { id: "debug",        label: "Systematic Debugging",    tier: "lightweight" as Tier, desc: "Reproduce → Isolate → Hypothesize → Verify → Fix → Confirm",        tag: "DEBUG"      },
+  { id: "code-review",  label: "5-Axis Code Review",      tier: "lightweight" as Tier, desc: "Correctness · Readability · Architecture · Security · Performance",  tag: "REVIEW"     },
+  { id: "red-team",     label: "Adversarial Red Team",    tier: "full" as Tier,        desc: "Attack your own code — logic bugs, adversarial inputs, race conditions", tag: "RED TEAM" },
+  { id: "safety",       label: "Safety Hooks",            tier: "lightweight" as Tier, desc: "10 proactive hooks: no git push -f, no secret leaks, no destructive ops", tag: "SAFETY"  },
+  { id: "memory",       label: "Cross-Session Memory",    tier: "full" as Tier,        desc: "Project map, known issues, and architecture decisions persist across sessions", tag: "MEMORY" },
+  { id: "plan",         label: "Task Breakdown",          tier: "lightweight" as Tier, desc: "Decompose work into vertical slices with acceptance criteria",        tag: "PLANNING"   },
+  { id: "ship",         label: "Ship Workflow",           tier: "full" as Tier,        desc: "spec → plan → build → test → review → commit pipeline",              tag: "FULL CI"    },
+  { id: "spec",         label: "Spec Writing",            tier: "lightweight" as Tier, desc: "Requirements → acceptance criteria → test plan",                     tag: "SPEC"       },
+  { id: "brainstorm",   label: "Brainstorm",              tier: "micro" as Tier,       desc: "Rapid ideation with self-consistency verification",                   tag: "IDEAS"      },
+  { id: "simplify",     label: "Code Simplification",     tier: "micro" as Tier,       desc: "Reduce complexity without changing behavior — guard clauses, extract helpers", tag: "REFACTOR" },
+  { id: "consistency",  label: "Self-Consistency Check",  tier: "lightweight" as Tier, desc: "Multi-path verification at critical decision points",                 tag: "VERIFY"     },
+];
+
+const TIER_COLORS: Record<Tier, string> = { micro: "#10b981", lightweight: "#fbbf24", full: "#a78bfa" };
 
 export function SuperpowersModal({ open, onOpenChange }: SuperpowersModalProps) {
-  const [cat, setCat] = useState("All");
-  const [search, setSearch] = useState("");
-  const [active, setActive] = useState<string | null>(null);
-  const { dispatch } = useStore();
   const { toast } = useToast();
+  const [activeTier, setActiveTier] = useState<Tier | null>(null);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowId | null>(null);
+  const [task, setTask] = useState("");
+  const [running, setRunning] = useState(false);
+  const [output, setOutput] = useState("");
+  const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  const [autoRouted, setAutoRouted] = useState<Tier | null>(null);
 
-  function inject(power: Power) {
-    dispatch({ type: "SET_SETTINGS", patch: { customSystemPrompt: power.systemPrompt } });
-    setActive(power.id);
-    toast({ description: `${power.icon} ${power.name} superpower activated` });
+  const filtered = WORKFLOWS.filter(w =>
+    (!search || w.label.toLowerCase().includes(search.toLowerCase()) || w.desc.toLowerCase().includes(search.toLowerCase()) || w.tag.toLowerCase().includes(search.toLowerCase())) &&
+    (!activeTier || w.tier === activeTier)
+  );
+
+  function autoRoute(input: string) {
+    const words = input.trim().split(/\s+/).length;
+    const hasKeywords = (kws: string[]) => kws.some(k => input.toLowerCase().includes(k));
+    let tier: Tier;
+    if (words <= 8 || hasKeywords(["simple", "quick", "fix typo", "rename", "what is"])) {
+      tier = "micro";
+    } else if (hasKeywords(["implement", "feature", "build", "create", "add", "refactor", "test", "debug", "review", "write"])) {
+      tier = words > 30 ? "full" : "lightweight";
+    } else {
+      tier = "full";
+    }
+    setAutoRouted(tier);
+    setActiveTier(tier);
+    return tier;
   }
 
-  const filtered = POWERS.filter((p) => {
-    const matchCat = cat === "All" || p.category === cat;
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.desc.toLowerCase().includes(search.toLowerCase()) || p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
-    return matchCat && matchSearch;
-  });
+  async function runWorkflow() {
+    if (!task.trim() || running) return;
+    const tier = autoRouted || autoRoute(task);
+    const wf = selectedWorkflow ? WORKFLOWS.find(w => w.id === selectedWorkflow) : null;
+    setRunning(true);
+    setOutput("");
+
+    const systemPrompt = `You are Superpowers Optimized — an agentic development framework (fork of obra/superpowers).
+
+Current routing tier: ${tier.toUpperCase()} (${TIERS.find(t=>t.id===tier)?.threshold})
+${wf ? `Active workflow: ${wf.label} — ${wf.desc}` : "Auto-selected workflow based on task complexity"}
+
+Tier rules:
+- MICRO: Direct answer, minimal overhead, no elaborate pipeline
+- LIGHTWEIGHT: Structured output, basic TDD/debug/review, key safety checks
+- FULL: Complete pipeline — spec → plan → TDD (RED/GREEN/REFACTOR) → safety hooks → adversarial red-team → 5-axis review
+
+Safety hooks always active (all tiers):
+- No git push --force
+- No secret/credential leaks in code
+- No destructive operations without explicit confirmation
+- Self-consistency check before final answer
+
+${tier === "full" ? `Full pipeline for this task:
+1. SPEC: Define acceptance criteria
+2. PLAN: Break into vertical slices  
+3. BUILD: Implement with TDD (RED→GREEN→REFACTOR)
+4. SAFETY: Run 10 safety hooks
+5. RED TEAM: Adversarial attack the implementation
+6. REVIEW: 5-axis code review (correctness/readability/architecture/security/performance)` : ""}
+
+Respond with structured, professional output appropriate to the tier.`;
+
+    try {
+      const r = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: task }],
+          model: "gpt-5.4",
+          systemPrompt,
+          stream: false,
+        }),
+      });
+      const data = await r.json();
+      const content = data.content || data.choices?.[0]?.message?.content || "";
+      setOutput(content);
+      pipeline.push({ source: "Superpowers", sourceColor: "#10b981", label: task.slice(0, 50), content });
+      toast({ description: `${tier.toUpperCase()} workflow complete` });
+    } catch {
+      toast({ description: "API error", variant: "destructive" });
+    }
+    setRunning(false);
+  }
 
   if (!open) return null;
+
   return (
     <AnimatePresence>
-      {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
-          style={{ backdropFilter: "blur(10px)", background: "rgba(0,0,0,0.85)" }}>
-          <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
-            style={{ background: "#080808", border: "1px solid rgba(251,191,36,0.2)", boxShadow: "0 0 60px rgba(251,191,36,0.1)" }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.03)" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center border" style={{ background: "rgba(251,191,36,0.1)", borderColor: "rgba(251,191,36,0.4)" }}>
-                  <Star className="w-4 h-4" style={{ color: "#fbbf24" }} />
-                </div>
-                <div>
-                  <div className="text-sm font-black tracking-widest" style={{ color: "#fbbf24" }}>SUPERPOWERS</div>
-                  <div className="text-[10px] mt-0.5" style={{ color: "#555" }}>Inject elite AI capabilities into your chat — {POWERS.length} superpowers</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {active && <button onClick={() => { dispatch({ type: "SET_SETTINGS", patch: { customSystemPrompt: "" } }); setActive(null); toast({ description: "Superpower deactivated" }); }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border"
-                  style={{ background: "rgba(226,18,39,0.08)", borderColor: "rgba(226,18,39,0.3)", color: "#e21227" }}>
-                  <RotateCcw className="w-3 h-3" /> Deactivate
-                </button>}
-                <button onClick={() => onOpenChange(false)} className="p-1.5 text-gray-600 hover:text-white"><X className="w-4 h-4" /></button>
-              </div>
-            </div>
+      <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: "rgba(0,0,0,0.85)" }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={e => { if (e.target === e.currentTarget) onOpenChange(false); }}>
+        <motion.div className="relative w-full max-w-3xl rounded-xl border overflow-hidden flex flex-col"
+          style={{ background: "#0d0d0d", borderColor: "rgba(167,139,250,0.35)", maxHeight: "92vh" }}
+          initial={{ scale: 0.92, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 30 }}>
 
-            <div className="px-4 py-2.5 border-b space-y-2" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              <div className="flex items-center gap-2 border rounded-xl px-3 py-1.5" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#444" }} />
-                <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search superpowers…"
-                  className="flex-1 bg-transparent text-[12px] outline-none" style={{ color: "#ccc" }} />
+          <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: "rgba(167,139,250,0.2)", background: "rgba(167,139,250,0.04)" }}>
+            <Star size={20} color="#a78bfa" />
+            <div>
+              <div className="font-bold text-sm tracking-widest text-white">SUPERPOWERS OPTIMIZED</div>
+              <div className="text-xs" style={{ color: "#666" }}>Agentic dev framework v6.6.1 — auto 3-tier routing · TDD · safety hooks · red-team · cross-session memory</div>
+            </div>
+            <button onClick={() => onOpenChange(false)} className="ml-auto p-1 rounded hover:bg-white/10"><X size={16} color="#666" /></button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {/* 3-tier routing */}
+            <div className="p-5 border-b space-y-4" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+              <div className="text-xs font-bold tracking-widest mb-3" style={{ color: "#555" }}>AUTOMATIC 3-TIER WORKFLOW ROUTING</div>
+              <div className="grid grid-cols-3 gap-3">
+                {TIERS.map(t => {
+                  const Icon = t.icon;
+                  const isActive = activeTier === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setActiveTier(isActive ? null : t.id)}
+                      className="p-3 rounded-lg border text-left transition-all"
+                      style={{ borderColor: isActive ? t.color + "60" : "rgba(255,255,255,0.08)", background: isActive ? t.color + "10" : "rgba(255,255,255,0.02)" }}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon size={14} color={t.color} />
+                        <span className="text-xs font-bold" style={{ color: t.color }}>{t.label}</span>
+                        {autoRouted === t.id && <span className="text-xs px-1 rounded" style={{ background: t.color + "20", color: t.color }}>AUTO</span>}
+                      </div>
+                      <div className="text-xs" style={{ color: "#666" }}>{t.desc}</div>
+                      <div className="text-xs mt-1 font-mono" style={{ color: "#444" }}>{t.threshold}</div>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex gap-1 flex-wrap">
-                {CATEGORIES.map((c) => (
-                  <button key={c} onClick={() => setCat(c)}
-                    className="px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
-                    style={{ background: cat === c ? "rgba(251,191,36,0.15)" : "transparent", borderColor: cat === c ? "rgba(251,191,36,0.5)" : "rgba(255,255,255,0.06)", color: cat === c ? "#fbbf24" : "#444" }}>
-                    {c}
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-center gap-3 text-[9px] font-mono">
-                {(["basic","advanced","elite"] as const).map((l) => (
-                  <div key={l} className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: LEVELS[l] }} />
-                    <span style={{ color: LEVELS[l] }}>{l}</span>
+
+              {/* Task input */}
+              <div>
+                <label className="text-xs font-bold tracking-widest mb-2 block" style={{ color: "#555" }}>TASK — auto-routes to correct tier</label>
+                <textarea value={task} onChange={e => { setTask(e.target.value); if (!running) { setAutoRouted(null); setActiveTier(null); } }}
+                  onBlur={() => { if (task.trim()) autoRoute(task); }}
+                  placeholder="Describe your task — Superpowers will automatically route it to MICRO, LIGHTWEIGHT, or FULL pipeline…"
+                  rows={3} className="w-full px-3 py-2 rounded-lg border text-sm resize-none"
+                  style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#fff" }} />
+                {autoRouted && (
+                  <div className="flex items-center gap-2 mt-1.5 text-xs" style={{ color: TIER_COLORS[autoRouted] }}>
+                    <Zap size={11} />
+                    Auto-routed to <strong>{autoRouted.toUpperCase()}</strong> tier based on task complexity
                   </div>
-                ))}
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button onClick={runWorkflow} disabled={!task.trim() || running}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all disabled:opacity-40"
+                  style={{ background: "linear-gradient(135deg,#a78bfa,#7c3aed)", color: "#fff" }}>
+                  {running ? <><RefreshCw size={14} className="animate-spin" /> RUNNING…</> : <><Play size={14} /> RUN WORKFLOW</>}
+                </button>
+                {(output || running) && (
+                  <button onClick={() => { setOutput(""); setAutoRouted(null); setActiveTier(null); setTask(""); }}
+                    className="px-4 py-2.5 rounded-lg text-sm border hover:bg-white/5"
+                    style={{ borderColor: "rgba(255,255,255,0.1)", color: "#888" }}>RESET</button>
+                )}
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {filtered.map((p) => (
-                  <motion.div key={p.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                    className="rounded-xl p-3.5 flex flex-col gap-2"
-                    style={{ background: active === p.id ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${active === p.id ? "rgba(251,191,36,0.4)" : "rgba(255,255,255,0.06)"}`, boxShadow: active === p.id ? "0 0 20px rgba(251,191,36,0.15)" : "none" }}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">{p.icon}</span>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-bold" style={{ color: active === p.id ? "#fbbf24" : "#ccc" }}>{p.name}</span>
-                            <span className="text-[7px] font-bold px-1 py-0.5 rounded" style={{ background: `${LEVELS[p.level]}15`, color: LEVELS[p.level] }}>{p.level}</span>
-                          </div>
-                          <div className="text-[9px] font-mono" style={{ color: "#444" }}>{p.category}</div>
+            {/* Output */}
+            {output && (
+              <div className="p-5 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle2 size={14} color="#a78bfa" />
+                  <span className="text-xs font-bold tracking-widest" style={{ color: "#a78bfa" }}>
+                    {autoRouted?.toUpperCase()} WORKFLOW OUTPUT
+                  </span>
+                </div>
+                <div className="p-4 rounded-lg border text-sm whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto"
+                  style={{ borderColor: "rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", color: "#ccc" }}>
+                  {output}
+                </div>
+                <button onClick={() => { pipeline.push({ source: "Superpowers", sourceColor: "#10b981", label: task.slice(0,50), content: output }); toast({ description: "Sent to pipeline" }); }}
+                  className="mt-2 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border hover:bg-white/5"
+                  style={{ borderColor: "rgba(167,139,250,0.3)", color: "#a78bfa" }}>
+                  <GitMerge size={10} /> PIPE TO NEXT MODULE
+                </button>
+              </div>
+            )}
+
+            {/* Workflow library */}
+            <div className="p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xs font-bold tracking-widest" style={{ color: "#555" }}>30+ WORKFLOW SKILLS</span>
+                <div className="flex-1 relative">
+                  <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "#444" }} />
+                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search workflows…"
+                    className="w-full pl-8 pr-3 py-1.5 rounded border text-xs"
+                    style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)", color: "#ccc" }} />
+                </div>
+                <button onClick={() => setShowAll(v => !v)}
+                  className="flex items-center gap-1 text-xs px-2 py-1 rounded border"
+                  style={{ borderColor: "rgba(255,255,255,0.08)", color: "#555" }}>
+                  <ChevronDown size={11} /> {showAll ? "LESS" : "ALL"}
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {(showAll ? filtered : filtered.slice(0, 8)).map(w => {
+                  const isSelected = selectedWorkflow === w.id;
+                  const tc = TIER_COLORS[w.tier];
+                  return (
+                    <button key={w.id} onClick={() => setSelectedWorkflow(isSelected ? null : w.id)}
+                      className="p-3 rounded-lg border text-left transition-all"
+                      style={{ borderColor: isSelected ? tc + "50" : "rgba(255,255,255,0.07)", background: isSelected ? tc + "08" : "rgba(255,255,255,0.02)" }}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-white">{w.label}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: tc + "20", color: tc }}>{w.tier.toUpperCase()}</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.05)", color: "#555" }}>{w.tag}</span>
                         </div>
                       </div>
-                      <button onClick={() => inject(p)}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-bold border flex-shrink-0"
-                        style={{ background: active === p.id ? "rgba(251,191,36,0.15)" : "rgba(255,255,255,0.04)", borderColor: active === p.id ? "rgba(251,191,36,0.5)" : "rgba(255,255,255,0.1)", color: active === p.id ? "#fbbf24" : "#555" }}>
-                        {active === p.id ? <><CheckCheck className="w-2.5 h-2.5" /> Active</> : <><Play className="w-2.5 h-2.5" /> Inject</>}
-                      </button>
-                    </div>
-                    <div className="text-[10px] leading-relaxed" style={{ color: "#555" }}>{p.desc}</div>
-                    <div className="flex gap-1 flex-wrap">
-                      {p.tags.map((tag) => (
-                        <span key={tag} className="text-[7px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#333" }}>{tag}</span>
-                      ))}
-                    </div>
-                  </motion.div>
-                ))}
+                      <div className="text-xs" style={{ color: "#666" }}>{w.desc}</div>
+                    </button>
+                  );
+                })}
               </div>
+              {!showAll && filtered.length > 8 && (
+                <button onClick={() => setShowAll(true)} className="w-full mt-3 py-2 text-xs border rounded hover:bg-white/5"
+                  style={{ borderColor: "rgba(255,255,255,0.08)", color: "#555" }}>
+                  Show {filtered.length - 8} more workflows
+                </button>
+              )}
             </div>
-          </motion.div>
+          </div>
         </motion.div>
-      )}
+      </motion.div>
     </AnimatePresence>
   );
 }
