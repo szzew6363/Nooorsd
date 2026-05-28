@@ -54,12 +54,7 @@ export function AIFactoryModal({ open, onOpenChange }: AIFactoryModalProps) {
     if (!input.trim()) return;
     setLoading(true);
     setOutput("");
-    setCurrentStage(0);
-
-    for (let i = 0; i < selectedWorkflow.stages.length; i++) {
-      setCurrentStage(i + 1);
-      await new Promise(r => setTimeout(r, 350 + Math.random() * 200));
-    }
+    setCurrentStage(1);
 
     try {
       const resp = await fetch("/api/chat", {
@@ -67,19 +62,45 @@ export function AIFactoryModal({ open, onOpenChange }: AIFactoryModalProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [{ role: "user", content: selectedWorkflow.prompt(input) }],
-          model: "gpt-5.4", stream: false
+          model: "gpt-5.4",
+          stream: true,
         }),
       });
-      if (resp.ok) {
-        const data = await resp.json();
-        const content = data.choices?.[0]?.message?.content || data.content || "";
-        setOutput(content);
-        pipeline.push({ source: "AIFactory", sourceColor: "#0ea5e9", label: `${selectedWorkflow.name}`, content });
-      } else {
-        setOutput(`[AI Factory] ${selectedWorkflow.name} pipeline complete.\n\nAll ${selectedWorkflow.stages.length} stages executed successfully.`);
+
+      if (!resp.ok || !resp.body) throw new Error("API error");
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let full = "";
+      let chunkCount = 0;
+      const stageCount = selectedWorkflow.stages.length;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value, { stream: true });
+        for (const line of text.split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const raw = line.slice(6);
+          if (raw === "[DONE]") continue;
+          try {
+            const json = JSON.parse(raw);
+            const delta = json.choices?.[0]?.delta?.content || "";
+            if (delta) {
+              full += delta;
+              setOutput(full);
+              chunkCount++;
+              setCurrentStage(Math.min(stageCount, Math.floor(chunkCount / 10) + 1));
+            }
+          } catch { /* skip malformed chunk */ }
+        }
+      }
+
+      if (full) {
+        pipeline.push({ source: "AIFactory", sourceColor: "#0ea5e9", label: selectedWorkflow.name, content: full });
       }
     } catch {
-      setOutput(`[AI Factory] ${selectedWorkflow.name} — pipeline executed.`);
+      setOutput(`[AI Factory] ${selectedWorkflow.name} — connection error. Check API status.`);
     }
     setLoading(false);
     setCurrentStage(0);

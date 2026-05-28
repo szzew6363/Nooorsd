@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Bug, Shield, Target, Copy, CheckCheck, ChevronDown, ChevronUp, Search, Zap } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
+import { useToast } from "@/hooks/use-toast";
 
 interface BugHunterModalProps {
   open: boolean;
@@ -47,6 +48,7 @@ export function BugHunterModal({ open, onOpenChange }: BugHunterModalProps) {
   const [copied, setCopied] = useState(false);
   const [catFilter, setCatFilter] = useState("All");
 
+  const { toast } = useToast();
   const cats = ["All", ...Array.from(new Set(SKILLS.map(s => s.category)))];
   const filtered = SKILLS.filter(s =>
     (catFilter === "All" || s.category === catFilter) &&
@@ -54,7 +56,10 @@ export function BugHunterModal({ open, onOpenChange }: BugHunterModalProps) {
   );
 
   async function hunt(skill: typeof SKILLS[0]) {
-    if (!activeTarget.trim()) { alert("Enter a target first"); return; }
+    if (!activeTarget.trim()) {
+      toast({ description: "Enter a target domain, IP, or URL first.", variant: "destructive" });
+      return;
+    }
     setActiveSkill(skill);
     setLoading(true);
     setOutput("");

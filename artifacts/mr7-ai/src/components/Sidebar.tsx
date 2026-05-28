@@ -519,21 +519,21 @@ export function Sidebar({ isOpen, onClose, onOpenPricing, onOpenApi, onOpenTool,
           <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1">Community</h3>
           <div className="flex gap-2">
             <button
-              onClick={() => handleSocial("https://t.me/")}
+              onClick={() => handleSocial("https://t.me/mr7ai")}
               className="flex-1 py-1.5 rounded-xl bg-[#1c2a3a] text-blue-400 hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-1.5 text-xs font-semibold"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
               Telegram
             </button>
             <button
-              onClick={() => handleSocial("https://instagram.com/")}
+              onClick={() => handleSocial("https://instagram.com/mr7ai")}
               className="flex-1 py-1.5 rounded-xl bg-[#3a1c2a] text-pink-400 hover:bg-pink-500/20 transition-colors flex items-center justify-center gap-1.5 text-xs font-semibold"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
               Instagram
             </button>
             <button
-              onClick={() => handleSocial("https://wa.me/")}
+              onClick={() => handleSocial("https://wa.me/mr7ai")}
               className="flex-1 py-1.5 rounded-xl bg-[#1c3a26] text-emerald-400 hover:bg-emerald-500/20 transition-colors flex items-center justify-center gap-1.5 text-xs font-semibold"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5"><path d="M17.6 6.32A7.85 7.85 0 0 0 12.05 4a7.94 7.94 0 0 0-6.88 11.89L4 20l4.22-1.11a7.93 7.93 0 0 0 3.83.98h.01a7.94 7.94 0 0 0 5.54-13.55zM12.06 18.5a6.59 6.59 0 0 1-3.36-.92l-.24-.14-2.5.66.67-2.44-.16-.25a6.6 6.6 0 1 1 12.24-3.5 6.6 6.6 0 0 1-6.65 6.59z"/></svg>

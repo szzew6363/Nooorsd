@@ -98,6 +98,23 @@ interface PricingViewProps {
   onClose: () => void;
 }
 
+type PolicyType = "refund" | "terms" | "aup" | null;
+
+const POLICY_CONTENT: Record<NonNullable<PolicyType>, { title: string; body: string }> = {
+  refund: {
+    title: "7-Day Refund Policy",
+    body: `We offer a full 7-day money-back guarantee on all plans. If you are not satisfied within 7 days of your purchase, contact us via Telegram or email with your payment proof and we will issue a full refund — no questions asked.\n\nRefunds are processed within 1-3 business days back to your original payment method. After the 7-day window, purchases are final and non-refundable. Token usage beyond the free tier during the refund period does not affect eligibility.`,
+  },
+  terms: {
+    title: "Terms of Service",
+    body: `By subscribing to mr7.ai / KaliGPT, you agree to use the platform exclusively for lawful security research, penetration testing, and educational purposes. You must have explicit written permission before testing any system you do not own.\n\nProhibited uses include: attacking production systems without authorization, generating malware for deployment, illegal data exfiltration, and any activity that violates local or international law. Violations result in immediate account termination without refund. We reserve the right to update these terms with 7-day notice.`,
+  },
+  aup: {
+    title: "Acceptable Use Policy",
+    body: `KaliGPT tools are designed for authorized security professionals. You agree to:\n\n1. Only test systems you own or have written authorization to test.\n2. Not use generated payloads, shells, or exploits against unauthorized targets.\n3. Handle all discovered vulnerabilities responsibly (responsible disclosure).\n4. Not share, resell, or redistribute platform-generated content for malicious purposes.\n5. Comply with all applicable laws including CFAA, Computer Misuse Act, and equivalents in your jurisdiction.\n\nViolation of this policy results in immediate suspension.`,
+  },
+};
+
 export function PricingView({ onClose }: PricingViewProps) {
   const { state } = useStore();
   const [yearly, setYearly] = useState(false);
@@ -109,6 +126,8 @@ export function PricingView({ onClose }: PricingViewProps) {
   const [couponExpanded, setCouponExpanded] = useState(false);
   const [coupon, setCoupon] = useState("");
   const [highScalePlan, setHighScalePlan] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [policyModal, setPolicyModal] = useState<PolicyType>(null);
 
   const currentTier = state.subscription.tier;
 
@@ -238,9 +257,11 @@ export function PricingView({ onClose }: PricingViewProps) {
                     </div>
                     <button
                       onClick={() => {
-                        if (!isActive && isUpgrade) setPaymentPlan(tier);
+                        if (!isActive && isUpgrade && acceptedTerms) setPaymentPlan(tier);
                       }}
-                      className={`shrink-0 px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${isActive ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 cursor-default" : btnClass}`}
+                      disabled={!isActive && isUpgrade && !acceptedTerms}
+                      title={!acceptedTerms && isUpgrade ? "Accept the terms below to continue" : undefined}
+                      className={`shrink-0 px-6 py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${isActive ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 cursor-default" : btnClass}`}
                     >
                       {isActive ? (
                         <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> Active</span>
@@ -425,17 +446,54 @@ export function PricingView({ onClose }: PricingViewProps) {
           </div>
 
           <div className="p-3 rounded-xl border border-border bg-card/40 text-[11px] text-muted-foreground leading-relaxed">
-            <label className="flex items-start gap-2">
-              <input type="checkbox" className="mt-0.5 rounded" />
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5 rounded cursor-pointer"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+              />
               <span>
                 I have read and agree to the{" "}
-                <span className="text-primary">Refund Policy</span>,{" "}
-                <span className="text-primary">Terms of Service</span>, and{" "}
-                <span className="text-primary">Acceptable Use Policy</span>.
+                <button onClick={() => setPolicyModal("refund")} className="text-primary hover:underline font-semibold">Refund Policy</button>,{" "}
+                <button onClick={() => setPolicyModal("terms")} className="text-primary hover:underline font-semibold">Terms of Service</button>, and{" "}
+                <button onClick={() => setPolicyModal("aup")} className="text-primary hover:underline font-semibold">Acceptable Use Policy</button>.
                 I understand that all purchases are final and non-refundable by default.
               </span>
             </label>
           </div>
+
+          {/* Policy Modal */}
+          <AnimatePresence>
+            {policyModal && (
+              <motion.div
+                className="fixed inset-0 z-[300] flex items-center justify-center p-4"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              >
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPolicyModal(null)} />
+                <motion.div
+                  className="relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 z-10 max-h-[80vh] overflow-y-auto"
+                  initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-black text-foreground">{POLICY_CONTENT[policyModal].title}</h3>
+                    <button onClick={() => setPolicyModal(null)} className="p-1 rounded-lg hover:bg-accent transition-colors">
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                  <div className="text-[12px] text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {POLICY_CONTENT[policyModal].body}
+                  </div>
+                  <button
+                    onClick={() => { setAcceptedTerms(true); setPolicyModal(null); }}
+                    className="mt-5 w-full py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity"
+                  >
+                    I Agree
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <AnimatePresence>
