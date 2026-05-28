@@ -50,57 +50,111 @@ export function AIFactoryModal({ open, onOpenChange }: AIFactoryModalProps) {
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(true);
 
+  /** Stream one focused API call for a single pipeline stage. Returns the full stage output. */
+  async function runStage(
+    stageLabel: string,
+    stageIdx: number,
+    totalStages: number,
+    workflowName: string,
+    userInput: string,
+    prevStages: { name: string; output: string }[],
+    onToken: (token: string) => void,
+  ): Promise<string> {
+    const prevCtx = prevStages.length > 0
+      ? `\nPrevious stages completed:\n${prevStages.map(s => `• ${s.name}:\n${s.output.slice(0, 400)}`).join("\n\n")}\n`
+      : "";
+
+    const isLastStage = stageIdx === totalStages - 1;
+    const stagePrompt = isLastStage
+      ? `You are executing the final stage (${stageIdx + 1}/${totalStages}) of the "${workflowName}" pipeline: **${stageLabel}**.\n${prevCtx}\nInput:\n${userInput}\n\nUsing all previous stage outputs as context, produce the complete final output for this pipeline. Be thorough and comprehensive.`
+      : `You are executing stage ${stageIdx + 1}/${totalStages} of the "${workflowName}" pipeline: **${stageLabel}**.\n${prevCtx}\nInput:\n${userInput}\n\nFocus ONLY on: "${stageLabel}". Be concise and specific. Your output feeds the next stage.`;
+
+    const resp = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: stagePrompt }],
+        model: "gpt-5.4",
+        stream: true,
+      }),
+    });
+
+    if (!resp.ok || !resp.body) throw new Error(`Stage ${stageIdx + 1} API error (${resp.status})`);
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+    let stageOutput = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      let idx;
+      while ((idx = buf.indexOf("\n\n")) !== -1) {
+        const block = buf.slice(0, idx);
+        buf = buf.slice(idx + 2);
+        for (const line of block.split("\n")) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+          const payload = trimmed.slice(5).trim();
+          if (!payload) continue;
+          try {
+            const obj = JSON.parse(payload) as { content?: string; done?: boolean; error?: string };
+            if (obj.error) throw new Error(obj.error);
+            if (obj.content) { stageOutput += obj.content; onToken(obj.content); }
+            if (obj.done) return stageOutput;
+          } catch (e) { if (e instanceof Error && e.message) throw e; }
+        }
+      }
+    }
+    return stageOutput;
+  }
+
   async function runFactory() {
     if (!input.trim()) return;
     setLoading(true);
     setOutput("");
-    setCurrentStage(1);
+    setCurrentStage(0);
 
-    try {
-      const resp = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: selectedWorkflow.prompt(input) }],
-          model: "gpt-5.4",
-          stream: true,
-        }),
-      });
+    const stages = selectedWorkflow.stages;
+    const completedStages: { name: string; output: string }[] = [];
+    let displayOutput = "";
 
-      if (!resp.ok || !resp.body) throw new Error("API error");
+    for (let i = 0; i < stages.length; i++) {
+      setCurrentStage(i + 1);
+      const stageName = stages[i];
+      const stageHeader = `## Stage ${i + 1}/${stages.length}: ${stageName}\n`;
 
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let full = "";
-      let chunkCount = 0;
-      const stageCount = selectedWorkflow.stages.length;
+      try {
+        const stageResult = await runStage(
+          stageName, i, stages.length,
+          selectedWorkflow.name, input,
+          completedStages,
+          (token) => {
+            displayOutput = completedStages
+              .map((s, idx) => `## Stage ${idx + 1}/${stages.length}: ${s.name}\n${s.output}`)
+              .join("\n\n---\n\n") +
+              (completedStages.length > 0 ? "\n\n---\n\n" : "") +
+              stageHeader +
+              (displayOutput.split(stageHeader)[1] ?? "") + token;
+            setOutput(displayOutput);
+          },
+        );
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const text = decoder.decode(value, { stream: true });
-        for (const line of text.split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const raw = line.slice(6);
-          if (raw === "[DONE]") continue;
-          try {
-            const json = JSON.parse(raw);
-            const delta = json.choices?.[0]?.delta?.content || "";
-            if (delta) {
-              full += delta;
-              setOutput(full);
-              chunkCount++;
-              setCurrentStage(Math.min(stageCount, Math.floor(chunkCount / 10) + 1));
-            }
-          } catch { /* skip malformed chunk */ }
-        }
+        completedStages.push({ name: stageName, output: stageResult });
+        displayOutput = completedStages
+          .map((s, idx) => `## Stage ${idx + 1}/${stages.length}: ${s.name}\n${s.output}`)
+          .join("\n\n---\n\n");
+        setOutput(displayOutput);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Unknown error";
+        completedStages.push({ name: stageName, output: `[Error: ${msg}]` });
       }
+    }
 
-      if (full) {
-        pipeline.push({ source: "AIFactory", sourceColor: "#0ea5e9", label: selectedWorkflow.name, content: full });
-      }
-    } catch {
-      setOutput(`[AI Factory] ${selectedWorkflow.name} — connection error. Check API status.`);
+    if (displayOutput) {
+      pipeline.push({ source: "AIFactory", sourceColor: "#0ea5e9", label: selectedWorkflow.name, content: displayOutput });
     }
     setLoading(false);
     setCurrentStage(0);
