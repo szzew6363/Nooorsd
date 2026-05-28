@@ -66,6 +66,18 @@ import { RalphAgentModal } from "./components/modals/RalphAgentModal";
 import { BurnBabyBurnModal } from "./components/modals/BurnBabyBurnModal";
 import { CrushModal } from "./components/modals/CrushModal";
 import { RTKModal } from "./components/modals/RTKModal";
+import { CodexBarModal } from "./components/modals/CodexBarModal";
+import { CodexSaverModal } from "./components/modals/CodexSaverModal";
+import { AgentMemoryModal } from "./components/modals/AgentMemoryModal";
+import { DecepticonModal } from "./components/modals/DecepticonModal";
+import { DroidDeskModal } from "./components/modals/DroidDeskModal";
+import { BugHunterModal } from "./components/modals/BugHunterModal";
+import { HyperResearchModal } from "./components/modals/HyperResearchModal";
+import { AIFactoryModal } from "./components/modals/AIFactoryModal";
+import { GemmaChatModal } from "./components/modals/GemmaChatModal";
+import { CodeGraphModal } from "./components/modals/CodeGraphModal";
+import { OhMyPiModal } from "./components/modals/OhMyPiModal";
+import { AwesomeOpenCodeModal } from "./components/modals/AwesomeOpenCodeModal";
 
 const queryClient = new QueryClient();
 
@@ -174,6 +186,19 @@ function AppContent() {
   const [burnbabyOpen, setBurnbabyOpen] = useState(false);
   const [crushOpen, setCrushOpen] = useState(false);
   const [rtkOpen, setRtkOpen] = useState(false);
+  // New modules — batch 3 (latest uploaded ZIPs)
+  const [codexBarOpen, setCodexBarOpen] = useState(false);
+  const [codexSaverOpen, setCodexSaverOpen] = useState(false);
+  const [agentMemoryOpen, setAgentMemoryOpen] = useState(false);
+  const [decepticonOpen, setDecepticonOpen] = useState(false);
+  const [droidDeskOpen, setDroidDeskOpen] = useState(false);
+  const [bugHunterOpen, setBugHunterOpen] = useState(false);
+  const [hyperResearchOpen, setHyperResearchOpen] = useState(false);
+  const [aiFactoryOpen, setAIFactoryOpen] = useState(false);
+  const [gemmaChatOpen, setGemmaChatOpen] = useState(false);
+  const [codeGraphOpen, setCodeGraphOpen] = useState(false);
+  const [ohMyPiOpen, setOhMyPiOpen] = useState(false);
+  const [awesomeOpenCodeOpen, setAwesomeOpenCodeOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -237,6 +262,19 @@ function AppContent() {
       case "burnbaby":     setBurnbabyOpen(true); break;
       case "crush":        setCrushOpen(true); break;
       case "rtk":          setRtkOpen(true); break;
+      // New modules — batch 3
+      case "codexbar":        setCodexBarOpen(true); break;
+      case "codexsaver":      setCodexSaverOpen(true); break;
+      case "agentmemory":     setAgentMemoryOpen(true); break;
+      case "decepticon":      setDecepticonOpen(true); break;
+      case "droiddesk":       setDroidDeskOpen(true); break;
+      case "bughunter":       setBugHunterOpen(true); break;
+      case "hyperresearch":   setHyperResearchOpen(true); break;
+      case "aifactory":       setAIFactoryOpen(true); break;
+      case "gemmachat":       setGemmaChatOpen(true); break;
+      case "codegraph":       setCodeGraphOpen(true); break;
+      case "ohmypi":          setOhMyPiOpen(true); break;
+      case "awesomeopencode": setAwesomeOpenCodeOpen(true); break;
     }
   }
 
@@ -405,6 +443,19 @@ function AppContent() {
       <BurnBabyBurnModal open={burnbabyOpen} onOpenChange={setBurnbabyOpen} />
       <CrushModal open={crushOpen} onOpenChange={setCrushOpen} />
       <RTKModal open={rtkOpen} onOpenChange={setRtkOpen} />
+      {/* New Arsenal modules — batch 3 */}
+      <CodexBarModal open={codexBarOpen} onOpenChange={setCodexBarOpen} />
+      <CodexSaverModal open={codexSaverOpen} onOpenChange={setCodexSaverOpen} />
+      <AgentMemoryModal open={agentMemoryOpen} onOpenChange={setAgentMemoryOpen} />
+      <DecepticonModal open={decepticonOpen} onOpenChange={setDecepticonOpen} />
+      <DroidDeskModal open={droidDeskOpen} onOpenChange={setDroidDeskOpen} />
+      <BugHunterModal open={bugHunterOpen} onOpenChange={setBugHunterOpen} />
+      <HyperResearchModal open={hyperResearchOpen} onOpenChange={setHyperResearchOpen} />
+      <AIFactoryModal open={aiFactoryOpen} onOpenChange={setAIFactoryOpen} />
+      <GemmaChatModal open={gemmaChatOpen} onOpenChange={setGemmaChatOpen} />
+      <CodeGraphModal open={codeGraphOpen} onOpenChange={setCodeGraphOpen} />
+      <OhMyPiModal open={ohMyPiOpen} onOpenChange={setOhMyPiOpen} />
+      <AwesomeOpenCodeModal open={awesomeOpenCodeOpen} onOpenChange={setAwesomeOpenCodeOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

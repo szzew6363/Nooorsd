@@ -7,7 +7,8 @@ import {
   GitMerge, ArrowRight, RotateCcw, Trash2, Copy, CheckCheck,
   Network, Briefcase, Palette, Activity, Link2, Plus,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
-  Flame, TrendingDown, Monitor, BarChart2,
+  Flame, TrendingDown, Monitor, BarChart2, Bug, Factory,
+  FlaskConical, Search, Wifi,
 } from "lucide-react";
 import { pipeline, type PipelineHistoryEntry, type ChainRule } from "@/lib/pipeline";
 
@@ -20,7 +21,10 @@ export type ArsenalModuleId =
   | "osintscanner" | "nanobot" | "agentkanban" | "autobe"
   | "superpowers" | "lerimcli" | "claudeprompts" | "rvsagent"
   | "codexmobile" | "openacp" | "handclaw" | "ralph"
-  | "burnbaby" | "crush" | "rtk";
+  | "burnbaby" | "crush" | "rtk"
+  | "codexbar" | "codexsaver" | "agentmemory" | "decepticon"
+  | "droiddesk" | "bughunter" | "hyperresearch" | "aifactory"
+  | "gemmachat" | "codegraph" | "ohmypi" | "awesomeopencode";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -236,6 +240,79 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "CLI proxy that reduces LLM token consumption 60-90%. Single Rust binary, 100+ commands, <10ms overhead. Saves ~80% in 30-min sessions.",
     icon: TrendingDown, color: "#e21227", border: "rgba(226,18,39,0.35)", bg: "rgba(226,18,39,0.07)", glow: "rgba(226,18,39,0.25)",
     source: "rtk-develop", tag: "COMPRESS",
+  },
+  // --- Batch 3: New modules from uploaded ZIPs ---
+  {
+    id: "codexbar", name: "CodexBar", subtitle: "AI Token Limits Dashboard",
+    desc: "40+ AI provider token limits in one view. Usage bars, reset countdowns, near-limit alerts. Copy usage report instantly.",
+    icon: BarChart2, color: "#10b981", border: "rgba(16,185,129,0.35)", bg: "rgba(16,185,129,0.07)", glow: "rgba(16,185,129,0.25)",
+    source: "CodexBar-main", tag: "MONITOR",
+  },
+  {
+    id: "codexsaver", name: "CodexSaver", subtitle: "Cost-Aware AI Router",
+    desc: "Smart token cost optimizer. Routes low-risk tasks to cheaper worker LLM. Analyze any task and get router recommendation + cost saving %.",
+    icon: TrendingDown, color: "#22d3ee", border: "rgba(34,211,238,0.35)", bg: "rgba(34,211,238,0.07)", glow: "rgba(34,211,238,0.25)",
+    source: "CodexSaver-main", tag: "COST",
+  },
+  {
+    id: "agentmemory", name: "Agent Memory", subtitle: "Persistent Cross-Session Memory",
+    desc: "Store and retrieve context across AI sessions. No more re-explaining your stack. Inject full memory context into any conversation.",
+    icon: Brain, color: "#fbbf24", border: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.07)", glow: "rgba(251,191,36,0.25)",
+    source: "agentmemory-main", tag: "MEMORY",
+  },
+  {
+    id: "decepticon", name: "Decepticon", subtitle: "Autonomous Red Team Agent",
+    desc: "5-phase autonomous red team pipeline: Recon → Scan → Exploit → Persist → Report. AI-powered attack planning for authorized engagements.",
+    icon: Swords, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
+    source: "Decepticon-main", tag: "RED TEAM",
+  },
+  {
+    id: "droiddesk", name: "DroidDesk", subtitle: "Linux Desktop on Android",
+    desc: "Full Linux desktop on any Android phone. Termux + PRoot + XFCE4. Run VS Code, Claude Code, Metasploit, Wireshark — no root required.",
+    icon: Monitor, color: "#0ea5e9", border: "rgba(14,165,233,0.35)", bg: "rgba(14,165,233,0.07)", glow: "rgba(14,165,233,0.25)",
+    source: "DroidDesk-main", tag: "MOBILE",
+  },
+  {
+    id: "bughunter", name: "Bug Hunter", subtitle: "51 Skills · 681 HackerOne Patterns",
+    desc: "claude-bughunter skill bundle. 24 vulnerability classes, enterprise attack chains (M365, Okta, Cloud IAM), APK red team, supply chain.",
+    icon: Bug, color: "#e21227", border: "rgba(226,18,39,0.35)", bg: "rgba(226,18,39,0.07)", glow: "rgba(226,18,39,0.25)",
+    source: "Claude-BugHunter-main", tag: "BUG HUNT",
+  },
+  {
+    id: "hyperresearch", name: "HyperResearch", subtitle: "Deep Research Agent",
+    desc: "16-step adversarially-audited research pipeline. Leads DeepResearch-Bench. Source provenance vault, bias detection, tier-adaptive depth.",
+    icon: Search, color: "#a78bfa", border: "rgba(167,139,250,0.35)", bg: "rgba(167,139,250,0.07)", glow: "rgba(167,139,250,0.25)",
+    source: "hyperresearch-main", tag: "RESEARCH",
+  },
+  {
+    id: "aifactory", name: "AI Factory", subtitle: "Multi-Stage AI Pipelines",
+    desc: "Stop configuring. Start building. 6 production pipelines: Code Review, Docs, Tests, Refactor, Security Audit, Code Translate.",
+    icon: Factory, color: "#0ea5e9", border: "rgba(14,165,233,0.35)", bg: "rgba(14,165,233,0.07)", glow: "rgba(14,165,233,0.25)",
+    source: "ai-factory-2.x", tag: "PIPELINE",
+  },
+  {
+    id: "gemmachat", name: "Gemma Chat", subtitle: "Local AI Coding Agent",
+    desc: "Vibe code without the internet. Gemma 4 via Apple MLX — no API keys, no cloud, no Wi-Fi. Full coding assistant running on your device.",
+    icon: Wifi, color: "#4299e1", border: "rgba(66,153,225,0.35)", bg: "rgba(66,153,225,0.07)", glow: "rgba(66,153,225,0.25)",
+    source: "gemma-chat-main", tag: "LOCAL AI",
+  },
+  {
+    id: "codegraph", name: "CodeGraph", subtitle: "Codebase Knowledge Graph",
+    desc: "Transform your codebase into a semantically searchable knowledge graph. AI agents reason about architecture — not just grep.",
+    icon: Network, color: "#3b82f6", border: "rgba(59,130,246,0.35)", bg: "rgba(59,130,246,0.07)", glow: "rgba(59,130,246,0.25)",
+    source: "codegraph-rust-main", tag: "GRAPH",
+  },
+  {
+    id: "ohmypi", name: "oh-my-pi", subtitle: "Coding Agent · IDE Wired In",
+    desc: "Pi coding agent with the full IDE wired in. TypeScript + Rust + Bun. Senior-engineer-level code, architecture, and debugging.",
+    icon: Cpu, color: "#34d399", border: "rgba(52,211,153,0.35)", bg: "rgba(52,211,153,0.07)", glow: "rgba(52,211,153,0.25)",
+    source: "oh-my-pi-main", tag: "CODING",
+  },
+  {
+    id: "awesomeopencode", name: "Awesome OpenCode", subtitle: "Curated AI Tool Gallery",
+    desc: "Hand-curated open-source AI coding projects. Agents, memory systems, skills, security tools, research pipelines — inject any into chat.",
+    icon: Sparkles, color: "#6366f1", border: "rgba(99,102,241,0.35)", bg: "rgba(99,102,241,0.07)", glow: "rgba(99,102,241,0.25)",
+    source: "awesome-opencode-main", tag: "GALLERY",
   },
 ];
 
