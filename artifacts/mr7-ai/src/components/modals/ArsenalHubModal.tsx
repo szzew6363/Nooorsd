@@ -26,7 +26,7 @@ export type ArsenalModuleId =
   | "droiddesk" | "bughunter" | "hyperresearch" | "aifactory"
   | "gemmachat" | "codegraph" | "ohmypi" | "awesomeopencode"
   | "openreplove" | "dyad" | "ghostwriter" | "agentscope" | "insforge"
-  | "malwarearsenal";
+  | "malwarearsenal" | "threatintel";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -352,6 +352,12 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "Complete offensive security arsenal: Payloads · Obfuscation · C2 Frameworks · Persistence · Evasion · Lateral Movement · PrivEsc · Injection · Ransomware · Post-Exploitation.",
     icon: Skull, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
     source: "KaliGPT", tag: "ARSENAL",
+  },
+  {
+    id: "threatintel", name: "Threat Intelligence", subtitle: "CVE · APT · Campaigns · AI Briefs",
+    desc: "Live threat intelligence dashboard: real-time CVE feed, APT group tracking, active campaign monitoring, and AI-powered security briefings updated on demand.",
+    icon: Shield, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
+    source: "KaliGPT · NVD · MITRE ATT&CK", tag: "THREAT INTEL",
   },
 ];
 
