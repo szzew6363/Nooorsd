@@ -8,7 +8,7 @@ import {
   Network, Briefcase, Palette, Activity, Link2, Plus,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
   Flame, TrendingDown, Monitor, BarChart2, Bug, Factory,
-  FlaskConical, Search, Wifi,
+  FlaskConical, Search, Wifi, Rocket, FileText,
 } from "lucide-react";
 import { pipeline, type PipelineHistoryEntry, type ChainRule } from "@/lib/pipeline";
 
@@ -24,7 +24,8 @@ export type ArsenalModuleId =
   | "burnbaby" | "crush" | "rtk"
   | "codexbar" | "codexsaver" | "agentmemory" | "decepticon"
   | "droiddesk" | "bughunter" | "hyperresearch" | "aifactory"
-  | "gemmachat" | "codegraph" | "ohmypi" | "awesomeopencode";
+  | "gemmachat" | "codegraph" | "ohmypi" | "awesomeopencode"
+  | "openreplove" | "dyad" | "ghostwriter" | "agentscope" | "insforge";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -313,6 +314,37 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "Hand-curated open-source AI coding projects. Agents, memory systems, skills, security tools, research pipelines — inject any into chat.",
     icon: Sparkles, color: "#6366f1", border: "rgba(99,102,241,0.35)", bg: "rgba(99,102,241,0.07)", glow: "rgba(99,102,241,0.25)",
     source: "awesome-opencode-main", tag: "GALLERY",
+  },
+  // ─── Batch 4: OpenRepLove · Dyad · Ghostwriter · AgentScope · InsForge ───────
+  {
+    id: "openreplove", name: "OpenRepLove", subtitle: "Local AI IDE · 6 Agents",
+    desc: "Replit/Lovable-style local AI IDE. 6 specialized agents: Planner, Context, Coder, QA, UI, Deployment. Build full-stack apps from plain English prompts.",
+    icon: Rocket, color: "#6366f1", border: "rgba(99,102,241,0.35)", bg: "rgba(99,102,241,0.07)", glow: "rgba(99,102,241,0.25)",
+    source: "OpenRepLove-main", tag: "IDE AGENT",
+  },
+  {
+    id: "dyad", name: "Dyad", subtitle: "8 Dev Workflow Skills",
+    desc: "Claude Code skill bundle for dev workflows: Plan→Issue, Fix Issue, PR Fix, Lint, Deflake E2E, Feedback→Issues, Fast Push, Session Debug.",
+    icon: GitMerge, color: "#818cf8", border: "rgba(129,140,248,0.35)", bg: "rgba(129,140,248,0.07)", glow: "rgba(129,140,248,0.25)",
+    source: "dyad-main", tag: "WORKFLOW",
+  },
+  {
+    id: "ghostwriter", name: "Ghostwriter", subtitle: "Pentest Report Generator",
+    desc: "Professional engagement management platform. 6 report types: Pentest, Red Team, Vuln, Finding, OSINT, Cloud. CVSS scoring, PoC writeups, remediation roadmaps.",
+    icon: FileText, color: "#e21227", border: "rgba(226,18,39,0.35)", bg: "rgba(226,18,39,0.07)", glow: "rgba(226,18,39,0.25)",
+    source: "Ghostwriter-master", tag: "REPORTING",
+  },
+  {
+    id: "agentscope", name: "AgentScope 2.0", subtitle: "Production Agent Framework",
+    desc: "Production-ready multi-agent framework. ReAct, Multi-Agent orchestration, Workflow pipelines, Memory, Realtime Voice, MCP integration. A2A coordination.",
+    icon: Cpu, color: "#fbbf24", border: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.07)", glow: "rgba(251,191,36,0.25)",
+    source: "agentscope-main", tag: "FRAMEWORK",
+  },
+  {
+    id: "insforge", name: "InsForge", subtitle: "Agentic Backend Platform",
+    desc: "All-in-one backend for agentic coding. DB · Auth · Storage · Edge Functions · AI Gateway · Realtime. Coding agents interact via MCP or CLI skills.",
+    icon: Database, color: "#10b981", border: "rgba(16,185,129,0.35)", bg: "rgba(16,185,129,0.07)", glow: "rgba(16,185,129,0.25)",
+    source: "InsForge-main", tag: "BACKEND",
   },
 ];
 

@@ -78,6 +78,12 @@ import { GemmaChatModal } from "./components/modals/GemmaChatModal";
 import { CodeGraphModal } from "./components/modals/CodeGraphModal";
 import { OhMyPiModal } from "./components/modals/OhMyPiModal";
 import { AwesomeOpenCodeModal } from "./components/modals/AwesomeOpenCodeModal";
+// New Arsenal modules — batch 4 (OpenRepLove / Dyad / Ghostwriter / AgentScope / InsForge)
+import { OpenRepLoveModal } from "./components/modals/OpenRepLoveModal";
+import { DyadModal } from "./components/modals/DyadModal";
+import { GhostwriterModal } from "./components/modals/GhostwriterModal";
+import { AgentScopeModal } from "./components/modals/AgentScopeModal";
+import { InsForgeModal } from "./components/modals/InsForgeModal";
 
 const queryClient = new QueryClient();
 
@@ -199,6 +205,12 @@ function AppContent() {
   const [codeGraphOpen, setCodeGraphOpen] = useState(false);
   const [ohMyPiOpen, setOhMyPiOpen] = useState(false);
   const [awesomeOpenCodeOpen, setAwesomeOpenCodeOpen] = useState(false);
+  // New modules — batch 4
+  const [openRepLoveOpen, setOpenRepLoveOpen] = useState(false);
+  const [dyadOpen, setDyadOpen] = useState(false);
+  const [ghostwriterOpen, setGhostwriterOpen] = useState(false);
+  const [agentScopeOpen, setAgentScopeOpen] = useState(false);
+  const [insForgeOpen, setInsForgeOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -275,6 +287,12 @@ function AppContent() {
       case "codegraph":       setCodeGraphOpen(true); break;
       case "ohmypi":          setOhMyPiOpen(true); break;
       case "awesomeopencode": setAwesomeOpenCodeOpen(true); break;
+      // New modules — batch 4
+      case "openreplove":   setOpenRepLoveOpen(true); break;
+      case "dyad":          setDyadOpen(true); break;
+      case "ghostwriter":   setGhostwriterOpen(true); break;
+      case "agentscope":    setAgentScopeOpen(true); break;
+      case "insforge":      setInsForgeOpen(true); break;
     }
   }
 
@@ -456,6 +474,12 @@ function AppContent() {
       <CodeGraphModal open={codeGraphOpen} onOpenChange={setCodeGraphOpen} />
       <OhMyPiModal open={ohMyPiOpen} onOpenChange={setOhMyPiOpen} />
       <AwesomeOpenCodeModal open={awesomeOpenCodeOpen} onOpenChange={setAwesomeOpenCodeOpen} />
+      {/* New Arsenal modules — batch 4 */}
+      <OpenRepLoveModal open={openRepLoveOpen} onOpenChange={setOpenRepLoveOpen} />
+      <DyadModal open={dyadOpen} onOpenChange={setDyadOpen} />
+      <GhostwriterModal open={ghostwriterOpen} onOpenChange={setGhostwriterOpen} />
+      <AgentScopeModal open={agentScopeOpen} onOpenChange={setAgentScopeOpen} />
+      <InsForgeModal open={insForgeOpen} onOpenChange={setInsForgeOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}
