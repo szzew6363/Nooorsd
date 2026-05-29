@@ -86,6 +86,7 @@ import { AgentScopeModal } from "./components/modals/AgentScopeModal";
 import { InsForgeModal } from "./components/modals/InsForgeModal";
 import { MalwareArsenalModal } from "./components/modals/MalwareArsenalModal";
 import { ThreatIntelModal } from "./components/modals/ThreatIntelModal";
+import { WormGPTModal } from "./components/modals/WormGPTModal";
 
 const queryClient = new QueryClient();
 
@@ -215,6 +216,7 @@ function AppContent() {
   const [insForgeOpen, setInsForgeOpen] = useState(false);
   const [malwareArsenalOpen, setMalwareArsenalOpen] = useState(false);
   const [threatIntelOpen, setThreatIntelOpen] = useState(false);
+  const [wormGPTOpen, setWormGPTOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -299,6 +301,7 @@ function AppContent() {
       case "insforge":         setInsForgeOpen(true); break;
       case "malwarearsenal":   setMalwareArsenalOpen(true); break;
       case "threatintel":      setThreatIntelOpen(true); break;
+      case "wormgpt":          setWormGPTOpen(true); break;
     }
   }
 
@@ -488,6 +491,7 @@ function AppContent() {
       <InsForgeModal open={insForgeOpen} onOpenChange={setInsForgeOpen} />
       <MalwareArsenalModal open={malwareArsenalOpen} onOpenChange={setMalwareArsenalOpen} />
       <ThreatIntelModal open={threatIntelOpen} onOpenChange={setThreatIntelOpen} />
+      <WormGPTModal open={wormGPTOpen} onOpenChange={setWormGPTOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

@@ -26,7 +26,7 @@ export type ArsenalModuleId =
   | "droiddesk" | "bughunter" | "hyperresearch" | "aifactory"
   | "gemmachat" | "codegraph" | "ohmypi" | "awesomeopencode"
   | "openreplove" | "dyad" | "ghostwriter" | "agentscope" | "insforge"
-  | "malwarearsenal" | "threatintel";
+  | "malwarearsenal" | "threatintel" | "wormgpt";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -358,6 +358,12 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "Live threat intelligence dashboard: real-time CVE feed, APT group tracking, active campaign monitoring, and AI-powered security briefings updated on demand.",
     icon: Shield, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
     source: "KaliGPT · NVD · MITRE ATT&CK", tag: "THREAT INTEL",
+  },
+  {
+    id: "wormgpt", name: "Worm-GPT", subtitle: "Operator · Red Team · File Analysis · Mission Logs",
+    desc: "Dual-mode offensive AI terminal: OPERATOR (professional security research) & RED TEAM (unrestricted attack mindset). File upload analysis, pre-built arsenal commands, and persistent mission log storage.",
+    icon: Terminal, color: "#00ff41", border: "rgba(0,255,65,0.4)", bg: "rgba(0,255,65,0.07)", glow: "rgba(0,255,65,0.3)",
+    source: "Worm-GPT · KaliGPT", tag: "OFFENSIVE AI",
   },
 ];
 
