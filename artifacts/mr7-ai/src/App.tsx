@@ -84,6 +84,7 @@ import { DyadModal } from "./components/modals/DyadModal";
 import { GhostwriterModal } from "./components/modals/GhostwriterModal";
 import { AgentScopeModal } from "./components/modals/AgentScopeModal";
 import { InsForgeModal } from "./components/modals/InsForgeModal";
+import { MalwareArsenalModal } from "./components/modals/MalwareArsenalModal";
 
 const queryClient = new QueryClient();
 
@@ -211,6 +212,7 @@ function AppContent() {
   const [ghostwriterOpen, setGhostwriterOpen] = useState(false);
   const [agentScopeOpen, setAgentScopeOpen] = useState(false);
   const [insForgeOpen, setInsForgeOpen] = useState(false);
+  const [malwareArsenalOpen, setMalwareArsenalOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -292,7 +294,8 @@ function AppContent() {
       case "dyad":          setDyadOpen(true); break;
       case "ghostwriter":   setGhostwriterOpen(true); break;
       case "agentscope":    setAgentScopeOpen(true); break;
-      case "insforge":      setInsForgeOpen(true); break;
+      case "insforge":         setInsForgeOpen(true); break;
+      case "malwarearsenal":   setMalwareArsenalOpen(true); break;
     }
   }
 
@@ -480,6 +483,7 @@ function AppContent() {
       <GhostwriterModal open={ghostwriterOpen} onOpenChange={setGhostwriterOpen} />
       <AgentScopeModal open={agentScopeOpen} onOpenChange={setAgentScopeOpen} />
       <InsForgeModal open={insForgeOpen} onOpenChange={setInsForgeOpen} />
+      <MalwareArsenalModal open={malwareArsenalOpen} onOpenChange={setMalwareArsenalOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

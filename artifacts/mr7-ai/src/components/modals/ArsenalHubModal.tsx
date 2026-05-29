@@ -8,7 +8,7 @@ import {
   Network, Briefcase, Palette, Activity, Link2, Plus,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
   Flame, TrendingDown, Monitor, BarChart2, Bug, Factory,
-  FlaskConical, Search, Wifi, Rocket, FileText,
+  FlaskConical, Search, Wifi, Rocket, FileText, Skull,
 } from "lucide-react";
 import { pipeline, type PipelineHistoryEntry, type ChainRule } from "@/lib/pipeline";
 
@@ -25,7 +25,8 @@ export type ArsenalModuleId =
   | "codexbar" | "codexsaver" | "agentmemory" | "decepticon"
   | "droiddesk" | "bughunter" | "hyperresearch" | "aifactory"
   | "gemmachat" | "codegraph" | "ohmypi" | "awesomeopencode"
-  | "openreplove" | "dyad" | "ghostwriter" | "agentscope" | "insforge";
+  | "openreplove" | "dyad" | "ghostwriter" | "agentscope" | "insforge"
+  | "malwarearsenal";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -345,6 +346,12 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "All-in-one backend for agentic coding. DB · Auth · Storage · Edge Functions · AI Gateway · Realtime. Coding agents interact via MCP or CLI skills.",
     icon: Database, color: "#10b981", border: "rgba(16,185,129,0.35)", bg: "rgba(16,185,129,0.07)", glow: "rgba(16,185,129,0.25)",
     source: "InsForge-main", tag: "BACKEND",
+  },
+  {
+    id: "malwarearsenal", name: "Malware Arsenal", subtitle: "100+ Offensive Techniques",
+    desc: "Complete offensive security arsenal: Payloads · Obfuscation · C2 Frameworks · Persistence · Evasion · Lateral Movement · PrivEsc · Injection · Ransomware · Post-Exploitation.",
+    icon: Skull, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
+    source: "KaliGPT", tag: "ARSENAL",
   },
 ];
 
