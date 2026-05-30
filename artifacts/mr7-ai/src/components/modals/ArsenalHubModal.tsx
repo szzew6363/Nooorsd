@@ -26,7 +26,9 @@ export type ArsenalModuleId =
   | "droiddesk" | "bughunter" | "hyperresearch" | "aifactory"
   | "gemmachat" | "codegraph" | "ohmypi" | "awesomeopencode"
   | "openreplove" | "dyad" | "ghostwriter" | "agentscope" | "insforge"
-  | "malwarearsenal" | "threatintel" | "wormgpt";
+  | "malwarearsenal" | "threatintel" | "wormgpt"
+  | "antigravitymgr" | "axonhub" | "bigagi" | "hackingtool"
+  | "godmod3" | "geminiresearch" | "openantigravity";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -364,6 +366,49 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "Dual-mode offensive AI terminal: OPERATOR (professional security research) & RED TEAM (unrestricted attack mindset). File upload analysis, pre-built arsenal commands, and persistent mission log storage.",
     icon: Terminal, color: "#00ff41", border: "rgba(0,255,65,0.4)", bg: "rgba(0,255,65,0.07)", glow: "rgba(0,255,65,0.3)",
     source: "Worm-GPT · KaliGPT", tag: "OFFENSIVE AI",
+  },
+  // ── Batch 5: ZIP-project integrations ────────────────────────────────────
+  {
+    id: "antigravitymgr", name: "AntigravityManager", subtitle: "Gravity · Levitation · Physics Override",
+    desc: "Advanced anti-gravity simulation and manager: control levitation engines, inertia dampeners, gravity field manipulation, and physics override sequences for speculative tech research.",
+    icon: Zap, color: "#8b5cf6", border: "rgba(139,92,246,0.4)", bg: "rgba(139,92,246,0.08)", glow: "rgba(139,92,246,0.3)",
+    source: "AntigravityManager-main", tag: "SIMULATION",
+  },
+  {
+    id: "axonhub", name: "AxonHub", subtitle: "Distributed Agent Mesh · Event Bus · Orchestration",
+    desc: "Multi-agent neural communication hub: distributed event-bus routing, agent registration, pub/sub messaging, and real-time orchestration of autonomous agent networks.",
+    icon: Network, color: "#06b6d4", border: "rgba(6,182,212,0.4)", bg: "rgba(6,182,212,0.08)", glow: "rgba(6,182,212,0.3)",
+    source: "AxonHub", tag: "AGENT INFRA",
+  },
+  {
+    id: "bigagi", name: "Big-AGI Beam", subtitle: "Multi-Model · Parallel Inference · Fusion",
+    desc: "Parallel multi-model beam search: query GPT-4, Claude, Gemini, and open-source models simultaneously, compare responses side-by-side, and merge the best into a single authoritative answer.",
+    icon: Layers, color: "#f59e0b", border: "rgba(245,158,11,0.4)", bg: "rgba(245,158,11,0.08)", glow: "rgba(245,158,11,0.3)",
+    source: "big-AGI · Beam", tag: "MULTI-MODEL",
+  },
+  {
+    id: "hackingtool", name: "HackingTool Suite", subtitle: "185+ Tools · 20 Categories",
+    desc: "Comprehensive offensive security toolkit with 185+ tools across 20 categories: Information Gathering, Vulnerability Analysis, Exploitation, Post-Exploitation, Wireless, Forensics, Malware, MITM, OSINT, Password Attacks, and more.",
+    icon: Skull, color: "#ef4444", border: "rgba(239,68,68,0.4)", bg: "rgba(239,68,68,0.08)", glow: "rgba(239,68,68,0.3)",
+    source: "HackingTool", tag: "OFFENSIVE",
+  },
+  {
+    id: "godmod3", name: "G0DM0D3", subtitle: "GODMODE · ULTRAPLINIAN · Parseltongue · AutoTune",
+    desc: "Quadruple-mode AI amplifier: GODMODE (unrestricted expert combos), ULTRAPLINIAN (catastrophic knowledge expansion), Parseltongue (serpent language encoder), AutoTune (response quality optimizer).",
+    icon: FlaskConical, color: "#dc2626", border: "rgba(220,38,38,0.5)", bg: "rgba(220,38,38,0.1)", glow: "rgba(220,38,38,0.35)",
+    source: "G0DM0D3", tag: "GODMODE",
+  },
+  {
+    id: "geminiresearch", name: "Gemini Deep Research", subtitle: "Multi-Phase · Reflection · Refinement Loops",
+    desc: "Gemini-style iterative deep research agent: Phase 1 query generation → Phase 2 broad research → Phase 3 reflection & gap analysis → Phase 4 refinement loops → Phase 5 synthesized comprehensive answer.",
+    icon: Search, color: "#4285f4", border: "rgba(66,133,244,0.4)", bg: "rgba(66,133,244,0.08)", glow: "rgba(66,133,244,0.3)",
+    source: "Gemini LangGraph Research", tag: "RESEARCH AI",
+  },
+  {
+    id: "openantigravity", name: "Open-Antigravity", subtitle: "Phase Engine · Dark Matter · Quantum Lift",
+    desc: "Open-source anti-gravity research platform: phase resonance calculations, dark matter interaction simulations, quantum lift field generation, and propulsion system modeling for theoretical physics.",
+    icon: Rocket, color: "#10b981", border: "rgba(16,185,129,0.4)", bg: "rgba(16,185,129,0.08)", glow: "rgba(16,185,129,0.3)",
+    source: "Open-Antigravity", tag: "QUANTUM SIM",
   },
 ];
 

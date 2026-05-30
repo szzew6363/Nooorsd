@@ -87,6 +87,14 @@ import { InsForgeModal } from "./components/modals/InsForgeModal";
 import { MalwareArsenalModal } from "./components/modals/MalwareArsenalModal";
 import { ThreatIntelModal } from "./components/modals/ThreatIntelModal";
 import { WormGPTModal } from "./components/modals/WormGPTModal";
+// New Arsenal modules — batch 5 (AntigravityMgr, AxonHub, BigAGI, HackingTool, G0DM0D3, GeminiResearch, OpenAntigravity)
+import { AntigravityManagerModal } from "./components/modals/AntigravityManagerModal";
+import { AxonHubModal } from "./components/modals/AxonHubModal";
+import { BigAGIModal } from "./components/modals/BigAGIModal";
+import { HackingToolModal } from "./components/modals/HackingToolModal";
+import { GodMod3Modal } from "./components/modals/GodMod3Modal";
+import { GeminiResearchModal } from "./components/modals/GeminiResearchModal";
+import { OpenAntigravityModal } from "./components/modals/OpenAntigravityModal";
 
 const queryClient = new QueryClient();
 
@@ -217,6 +225,14 @@ function AppContent() {
   const [malwareArsenalOpen, setMalwareArsenalOpen] = useState(false);
   const [threatIntelOpen, setThreatIntelOpen] = useState(false);
   const [wormGPTOpen, setWormGPTOpen] = useState(false);
+  // New modules — batch 5
+  const [antigravityMgrOpen, setAntigravityMgrOpen] = useState(false);
+  const [axonHubOpen, setAxonHubOpen] = useState(false);
+  const [bigAGIOpen, setBigAGIOpen] = useState(false);
+  const [hackingToolOpen, setHackingToolOpen] = useState(false);
+  const [godMod3Open, setGodMod3Open] = useState(false);
+  const [geminiResearchOpen, setGeminiResearchOpen] = useState(false);
+  const [openAntigravityOpen, setOpenAntigravityOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -302,6 +318,13 @@ function AppContent() {
       case "malwarearsenal":   setMalwareArsenalOpen(true); break;
       case "threatintel":      setThreatIntelOpen(true); break;
       case "wormgpt":          setWormGPTOpen(true); break;
+      case "antigravitymgr":   setAntigravityMgrOpen(true); break;
+      case "axonhub":          setAxonHubOpen(true); break;
+      case "bigagi":           setBigAGIOpen(true); break;
+      case "hackingtool":      setHackingToolOpen(true); break;
+      case "godmod3":          setGodMod3Open(true); break;
+      case "geminiresearch":   setGeminiResearchOpen(true); break;
+      case "openantigravity":  setOpenAntigravityOpen(true); break;
     }
   }
 
@@ -492,6 +515,14 @@ function AppContent() {
       <MalwareArsenalModal open={malwareArsenalOpen} onOpenChange={setMalwareArsenalOpen} />
       <ThreatIntelModal open={threatIntelOpen} onOpenChange={setThreatIntelOpen} />
       <WormGPTModal open={wormGPTOpen} onOpenChange={setWormGPTOpen} />
+      {/* New Arsenal modules — batch 5 */}
+      <AntigravityManagerModal open={antigravityMgrOpen} onOpenChange={setAntigravityMgrOpen} />
+      <AxonHubModal open={axonHubOpen} onOpenChange={setAxonHubOpen} />
+      <BigAGIModal open={bigAGIOpen} onOpenChange={setBigAGIOpen} />
+      <HackingToolModal open={hackingToolOpen} onOpenChange={setHackingToolOpen} />
+      <GodMod3Modal open={godMod3Open} onOpenChange={setGodMod3Open} />
+      <GeminiResearchModal open={geminiResearchOpen} onOpenChange={setGeminiResearchOpen} />
+      <OpenAntigravityModal open={openAntigravityOpen} onOpenChange={setOpenAntigravityOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}
