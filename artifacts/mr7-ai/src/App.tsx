@@ -95,6 +95,12 @@ import { HackingToolModal } from "./components/modals/HackingToolModal";
 import { GodMod3Modal } from "./components/modals/GodMod3Modal";
 import { GeminiResearchModal } from "./components/modals/GeminiResearchModal";
 import { OpenAntigravityModal } from "./components/modals/OpenAntigravityModal";
+// New modules from uploaded files
+import { PaseoModal } from "./components/modals/PaseoModal";
+import { GemmaLibModal } from "./components/modals/GemmaLibModal";
+import { RogueMasterModal } from "./components/modals/RogueMasterModal";
+import { PasswordAttackModal } from "./components/modals/PasswordAttackModal";
+import { AIHackingSkillsModal } from "./components/modals/AIHackingSkillsModal";
 
 const queryClient = new QueryClient();
 
@@ -233,6 +239,11 @@ function AppContent() {
   const [godMod3Open, setGodMod3Open] = useState(false);
   const [geminiResearchOpen, setGeminiResearchOpen] = useState(false);
   const [openAntigravityOpen, setOpenAntigravityOpen] = useState(false);
+  const [paseoOpen, setPaseoOpen] = useState(false);
+  const [gemmaLibOpen, setGemmaLibOpen] = useState(false);
+  const [rogueMasterOpen, setRogueMasterOpen] = useState(false);
+  const [passwordAttackOpen, setPasswordAttackOpen] = useState(false);
+  const [aiHackingSkillsOpen, setAIHackingSkillsOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -325,6 +336,11 @@ function AppContent() {
       case "godmod3":          setGodMod3Open(true); break;
       case "geminiresearch":   setGeminiResearchOpen(true); break;
       case "openantigravity":  setOpenAntigravityOpen(true); break;
+      case "paseo":            setPaseoOpen(true); break;
+      case "gemmalib":         setGemmaLibOpen(true); break;
+      case "roguemaster":      setRogueMasterOpen(true); break;
+      case "passwordattack":   setPasswordAttackOpen(true); break;
+      case "aihackingskills":  setAIHackingSkillsOpen(true); break;
     }
   }
 
@@ -523,6 +539,11 @@ function AppContent() {
       <GodMod3Modal open={godMod3Open} onOpenChange={setGodMod3Open} />
       <GeminiResearchModal open={geminiResearchOpen} onOpenChange={setGeminiResearchOpen} />
       <OpenAntigravityModal open={openAntigravityOpen} onOpenChange={setOpenAntigravityOpen} />
+      <PaseoModal open={paseoOpen} onOpenChange={setPaseoOpen} />
+      <GemmaLibModal open={gemmaLibOpen} onOpenChange={setGemmaLibOpen} />
+      <RogueMasterModal open={rogueMasterOpen} onOpenChange={setRogueMasterOpen} />
+      <PasswordAttackModal open={passwordAttackOpen} onOpenChange={setPasswordAttackOpen} />
+      <AIHackingSkillsModal open={aiHackingSkillsOpen} onOpenChange={setAIHackingSkillsOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

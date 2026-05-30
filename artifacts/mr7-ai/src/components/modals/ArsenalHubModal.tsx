@@ -28,7 +28,8 @@ export type ArsenalModuleId =
   | "openreplove" | "dyad" | "ghostwriter" | "agentscope" | "insforge"
   | "malwarearsenal" | "threatintel" | "wormgpt"
   | "antigravitymgr" | "axonhub" | "bigagi" | "hackingtool"
-  | "godmod3" | "geminiresearch" | "openantigravity";
+  | "godmod3" | "geminiresearch" | "openantigravity"
+  | "paseo" | "gemmalib" | "roguemaster" | "passwordattack" | "aihackingskills";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -409,6 +410,37 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "Open-source anti-gravity research platform: phase resonance calculations, dark matter interaction simulations, quantum lift field generation, and propulsion system modeling for theoretical physics.",
     icon: Rocket, color: "#10b981", border: "rgba(16,185,129,0.4)", bg: "rgba(16,185,129,0.08)", glow: "rgba(16,185,129,0.3)",
     source: "Open-Antigravity", tag: "QUANTUM SIM",
+  },
+  // ─── New modules from uploaded files ─────────────────────────────────────────
+  {
+    id: "paseo", name: "Paseo", subtitle: "Multi-Agent Mobile Orchestration",
+    desc: "Run Claude Code, Codex, Copilot, OpenCode & Pi agents in parallel. Ship from your phone. Multi-host daemons, voice control, /paseo-handoff /paseo-loop /paseo-committee skills.",
+    icon: Layers, color: "#ff6b35", border: "rgba(255,107,53,0.35)", bg: "rgba(255,107,53,0.08)", glow: "rgba(255,107,53,0.25)",
+    source: "getpaseo/paseo", tag: "ORCHESTRATOR",
+  },
+  {
+    id: "gemmalib", name: "Gemma Library", subtitle: "Google DeepMind · JAX LLM Framework",
+    desc: "JAX-based library for Gemma 1/2/3/3n/4. Fine-tuning, LoRA, quantization, multimodal vision, tool use, sharding. Interactive tutorials: sampling, LoRA, fine-tuning, tokenizer, tool-use.",
+    icon: FlaskConical, color: "#4285f4", border: "rgba(66,133,244,0.35)", bg: "rgba(66,133,244,0.08)", glow: "rgba(66,133,244,0.25)",
+    source: "google-deepmind/gemma", tag: "LLM FRAMEWORK",
+  },
+  {
+    id: "roguemaster", name: "RogueMaster", subtitle: "Flipper Zero Firmware · 100+ Plugins",
+    desc: "Feature-rich Flipper Zero firmware. Sub-GHz capture/replay, NFC/RFID read-write-emulate, BadUSB payloads, IR universal remotes, GPIO hacking tools, WiFi Marauder, BLE scanner.",
+    icon: Wifi, color: "#f59e0b", border: "rgba(245,158,11,0.35)", bg: "rgba(245,158,11,0.08)", glow: "rgba(245,158,11,0.25)",
+    source: "RogueMaster/flipperzero-firmware", tag: "HARDWARE",
+  },
+  {
+    id: "passwordattack", name: "Password Attack Hub", subtitle: "Brute Force · Dictionary · Hash Cracking",
+    desc: "Complete password offensive toolkit: brute force, dictionary attacks (rockyou/SecLists), hash cracking (hashcat/john), mutation rules, hybrid attacks, network spraying (hydra/medusa).",
+    icon: Shield, color: "#ef4444", border: "rgba(239,68,68,0.35)", bg: "rgba(239,68,68,0.08)", glow: "rgba(239,68,68,0.25)",
+    source: "GitHub Topics: password-attack", tag: "RED TEAM",
+  },
+  {
+    id: "aihackingskills", name: "AI Hacking Skills", subtitle: "Hack the AI Agent · Gemini Security",
+    desc: "6 skill categories: prompt injection, model extraction, adversarial ML, agent hacking (tool poisoning/goal hijacking), data poisoning, and AI defense. Based on 'Hack the AI Agent' book.",
+    icon: Brain, color: "#8b5cf6", border: "rgba(139,92,246,0.35)", bg: "rgba(139,92,246,0.08)", glow: "rgba(139,92,246,0.25)",
+    source: "Hack the AI Agent · Google", tag: "AI RED TEAM",
   },
 ];
 
