@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "while fuser 22938/tcp >/dev/null 2>&1; do fuser -k 22938/tcp 2>/dev/null; sleep 1; done; vite --config vite.config.ts --host 0.0.0.0",
+    "dev": "while fuser ${PORT:-5000}/tcp >/dev/null 2>&1; do fuser -k ${PORT:-5000}/tcp 2>/dev/null; sleep 1; done; BASE_PATH=${BASE_PATH:-/} vite --config vite.config.ts --host 0.0.0.0",
     "build": "vite build --config vite.config.ts",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit"
