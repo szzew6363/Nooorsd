@@ -69,6 +69,7 @@ import { GemmaLibModal } from "./modals/GemmaLibModal";
 import { RogueMasterModal } from "./modals/RogueMasterModal";
 import { PasswordAttackModal } from "./modals/PasswordAttackModal";
 import { AIHackingSkillsModal } from "./modals/AIHackingSkillsModal";
+import { ClaudeCodeModal } from "./modals/ClaudeCodeModal";
 
 interface Props {
   moduleId: ArsenalModuleId;
@@ -217,6 +218,7 @@ export function ArsenalFullPage({ moduleId, onBack }: Props) {
       case "roguemaster":     return <RogueMasterModal open={open} onOpenChange={v => !v && onBack()} />;
       case "passwordattack":  return <PasswordAttackModal open={open} onOpenChange={v => !v && onBack()} />;
       case "aihackingskills": return <AIHackingSkillsModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "claudecode":      return <ClaudeCodeModal open={open} onOpenChange={v => !v && onBack()} />;
       default:                return null;
     }
   })();

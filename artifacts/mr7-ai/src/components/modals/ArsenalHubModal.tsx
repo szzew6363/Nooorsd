@@ -30,7 +30,8 @@ export type ArsenalModuleId =
   | "antigravitymgr" | "axonhub" | "bigagi" | "hackingtool"
   | "godmod3" | "geminiresearch" | "openantigravity"
   | "paseo" | "gemmalib" | "roguemaster" | "passwordattack" | "aihackingskills"
-  | "ai-terminal";
+  | "ai-terminal"
+  | "claudecode";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -442,6 +443,12 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "6 skill categories: prompt injection, model extraction, adversarial ML, agent hacking (tool poisoning/goal hijacking), data poisoning, and AI defense. Based on 'Hack the AI Agent' book.",
     icon: Brain, color: "#8b5cf6", border: "rgba(139,92,246,0.35)", bg: "rgba(139,92,246,0.08)", glow: "rgba(139,92,246,0.25)",
     source: "Hack the AI Agent · Google", tag: "AI RED TEAM",
+  },
+  {
+    id: "claudecode", name: "Claude Code", subtitle: "Ultracode · Autonomous Dev Agent · 5-Mode Slider",
+    desc: "Claude Code-style terminal with 5 intelligence modes: medium → high → xhigh → max → ultracode (xhigh + workflow orchestration). Real AI streaming with step-by-step execution.",
+    icon: Terminal, color: "#7c3aed", border: "rgba(124,58,237,0.4)", bg: "rgba(124,58,237,0.08)", glow: "rgba(124,58,237,0.3)",
+    source: "Claude Code v2.1", tag: "ULTRACODE",
   },
   {
     id: "ai-terminal", name: "AI Terminal", subtitle: "8-Session · KaliGPT Shell · Red Team · OSINT",
