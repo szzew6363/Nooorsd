@@ -4,10 +4,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useT } from "@/lib/i18n";
+import { AnimatePresence } from "framer-motion";
 import { Sidebar } from "./components/Sidebar";
 import { TopBar } from "./components/TopBar";
 import { ChatView } from "./components/ChatView";
 import { PricingView } from "./components/PricingView";
+import { AITerminal } from "./components/AITerminal";
 import { StoreProvider, useStore } from "./lib/store";
 import { checkAndExpireSubscription } from "./lib/subscription";
 import { ApiAccessModal } from "./components/modals/ApiAccessModal";
@@ -101,6 +103,8 @@ import { GemmaLibModal } from "./components/modals/GemmaLibModal";
 import { RogueMasterModal } from "./components/modals/RogueMasterModal";
 import { PasswordAttackModal } from "./components/modals/PasswordAttackModal";
 import { AIHackingSkillsModal } from "./components/modals/AIHackingSkillsModal";
+// Arsenal full-page system
+import { ArsenalFullPage } from "./components/ArsenalFullPage";
 
 const queryClient = new QueryClient();
 
@@ -152,6 +156,9 @@ function AppContent() {
     document.addEventListener("keydown", onKonami);
     return () => document.removeEventListener("keydown", onKonami);
   }, [toast, t]);
+
+  // ── Full-page Arsenal view state ────────────────────────────────────────────
+  const [arsenalPage, setArsenalPage] = useState<ArsenalModuleId | "ai-terminal" | null>(null);
 
   // ── Modal state ─────────────────────────────────────────────────────────────
   const [personaEditorOpen, setPersonaEditorOpen] = useState(false);
@@ -271,77 +278,9 @@ function AppContent() {
   }
 
   function handleArsenalLaunch(id: ArsenalModuleId) {
-    switch (id) {
-      case "kaliagent":    setAgentOpen(true); break;
-      case "nexus":        setNexusOpen(true); break;
-      case "jarvis":       setJarvisOpen(true); break;
-      case "parseltongue": setParseltongueOpen(true); break;
-      case "ragflow":      setRagOpen(true); break;
-      case "teamagent":    setTeamAgentOpen(true); break;
-      case "skills":       setSkillsOpen(true); break;
-      case "opengravity":  setOpenGravityOpen(true); break;
-      case "agentOS":      setAgentOSOpen(true); break;
-      case "geminiCLI":    setGeminiCLIOpen(true); break;
-      // New modules — batch 1
-      case "hermes":       setHermesOpen(true); break;
-      case "graphify":     setGraphifyOpen(true); break;
-      case "getshitdone":  setGetShitDoneOpen(true); break;
-      case "ccswitch":     setCcswitchOpen(true); break;
-      case "uiuxpro":      setUiuxproOpen(true); break;
-      case "careerops":    setCareerOpsOpen(true); break;
-      case "abtop":        setAbTopOpen(true); break;
-      case "awesomellm":   setAwesomeLLMOpen(true); break;
-      // New modules — batch 2
-      case "osintscanner": setOsintScannerOpen(true); break;
-      case "nanobot":      setNanoBotOpen(true); break;
-      case "agentkanban":  setAgentKanbanOpen(true); break;
-      case "autobe":       setAutoBEOpen(true); break;
-      case "superpowers":  setSuperpowersOpen(true); break;
-      case "lerimcli":     setLerimCLIOpen(true); break;
-      case "claudeprompts":setClaudePromptsOpen(true); break;
-      case "rvsagent":     setRunVSAgentOpen(true); break;
-      case "codexmobile":  setCodexMobileOpen(true); break;
-      case "openacp":      setOpenACPOpen(true); break;
-      case "handclaw":     setHandClawOpen(true); break;
-      case "ralph":        setRalphOpen(true); break;
-      case "burnbaby":     setBurnbabyOpen(true); break;
-      case "crush":        setCrushOpen(true); break;
-      case "rtk":          setRtkOpen(true); break;
-      // New modules — batch 3
-      case "codexbar":        setCodexBarOpen(true); break;
-      case "codexsaver":      setCodexSaverOpen(true); break;
-      case "agentmemory":     setAgentMemoryOpen(true); break;
-      case "decepticon":      setDecepticonOpen(true); break;
-      case "droiddesk":       setDroidDeskOpen(true); break;
-      case "bughunter":       setBugHunterOpen(true); break;
-      case "hyperresearch":   setHyperResearchOpen(true); break;
-      case "aifactory":       setAIFactoryOpen(true); break;
-      case "gemmachat":       setGemmaChatOpen(true); break;
-      case "codegraph":       setCodeGraphOpen(true); break;
-      case "ohmypi":          setOhMyPiOpen(true); break;
-      case "awesomeopencode": setAwesomeOpenCodeOpen(true); break;
-      // New modules — batch 4
-      case "openreplove":   setOpenRepLoveOpen(true); break;
-      case "dyad":          setDyadOpen(true); break;
-      case "ghostwriter":   setGhostwriterOpen(true); break;
-      case "agentscope":    setAgentScopeOpen(true); break;
-      case "insforge":         setInsForgeOpen(true); break;
-      case "malwarearsenal":   setMalwareArsenalOpen(true); break;
-      case "threatintel":      setThreatIntelOpen(true); break;
-      case "wormgpt":          setWormGPTOpen(true); break;
-      case "antigravitymgr":   setAntigravityMgrOpen(true); break;
-      case "axonhub":          setAxonHubOpen(true); break;
-      case "bigagi":           setBigAGIOpen(true); break;
-      case "hackingtool":      setHackingToolOpen(true); break;
-      case "godmod3":          setGodMod3Open(true); break;
-      case "geminiresearch":   setGeminiResearchOpen(true); break;
-      case "openantigravity":  setOpenAntigravityOpen(true); break;
-      case "paseo":            setPaseoOpen(true); break;
-      case "gemmalib":         setGemmaLibOpen(true); break;
-      case "roguemaster":      setRogueMasterOpen(true); break;
-      case "passwordattack":   setPasswordAttackOpen(true); break;
-      case "aihackingskills":  setAIHackingSkillsOpen(true); break;
-    }
+    // Open as full page instead of modal
+    setArsenalOpen(false);
+    setArsenalPage(id);
   }
 
   useEffect(() => {
@@ -443,6 +382,18 @@ function AppContent() {
         <ChatView onOpenOsintDash={() => setOsintDashOpen(true)} />
         {compareOpen && <CompareView onClose={() => setCompareOpen(false)} />}
       </main>
+
+      {/* Arsenal full-page overlays */}
+      <AnimatePresence>
+        {arsenalPage === "ai-terminal" && (
+          <div className="fixed inset-0 z-40">
+            <AITerminal onBack={() => setArsenalPage(null)} />
+          </div>
+        )}
+        {arsenalPage && arsenalPage !== "ai-terminal" && (
+          <ArsenalFullPage moduleId={arsenalPage} onBack={() => setArsenalPage(null)} />
+        )}
+      </AnimatePresence>
 
       <FloatingActionDock
         onNewChat={() => dispatch({ type: "NEW_CHAT" })}

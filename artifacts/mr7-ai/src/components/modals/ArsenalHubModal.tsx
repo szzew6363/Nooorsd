@@ -29,7 +29,8 @@ export type ArsenalModuleId =
   | "malwarearsenal" | "threatintel" | "wormgpt"
   | "antigravitymgr" | "axonhub" | "bigagi" | "hackingtool"
   | "godmod3" | "geminiresearch" | "openantigravity"
-  | "paseo" | "gemmalib" | "roguemaster" | "passwordattack" | "aihackingskills";
+  | "paseo" | "gemmalib" | "roguemaster" | "passwordattack" | "aihackingskills"
+  | "ai-terminal";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -441,6 +442,12 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "6 skill categories: prompt injection, model extraction, adversarial ML, agent hacking (tool poisoning/goal hijacking), data poisoning, and AI defense. Based on 'Hack the AI Agent' book.",
     icon: Brain, color: "#8b5cf6", border: "rgba(139,92,246,0.35)", bg: "rgba(139,92,246,0.08)", glow: "rgba(139,92,246,0.25)",
     source: "Hack the AI Agent · Google", tag: "AI RED TEAM",
+  },
+  {
+    id: "ai-terminal", name: "AI Terminal", subtitle: "8-Session · KaliGPT Shell · Red Team · OSINT",
+    desc: "Advanced AI-powered terminal with 8 specialized sessions: KaliGPT Shell, Red Team Ops, OSINT Engine, Malware Lab, Exploit Dev, Network Ops, Crypto Breaker, AI Attack Lab. Real AI streaming.",
+    icon: Terminal, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
+    source: "KaliGPT Arsenal", tag: "TERMINAL",
   },
 ];
 

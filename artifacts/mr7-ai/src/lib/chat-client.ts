@@ -56,7 +56,7 @@ export async function streamChat(req: ChatRequest, onChunk: (text: string) => vo
         if (!payload) continue;
         try {
           const obj = JSON.parse(payload) as { content?: string; done?: boolean; error?: string };
-          if (obj.error) throw new Error(obj.error);
+          if (obj.error) { onChunk(`\n\n[خطأ: ${obj.error}]`); return full; }
           if (obj.content) {
             full += obj.content;
             onChunk(obj.content);

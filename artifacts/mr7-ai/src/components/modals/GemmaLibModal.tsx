@@ -39,11 +39,7 @@ export function GemmaLibModal({ open, onOpenChange }: Props) {
       const systemPrompt = `You are an expert on Google DeepMind's Gemma open-weights LLM family. The user is working with ${version.label} (${version.model}) and the "${colab.label}" workflow (${colab.desc}).
 
 Provide accurate, detailed technical guidance. Include JAX/Python code examples when relevant. Reference the gemma PyPI package and its ChatSampler API. Be precise about model checkpoint paths, LoRA configs, quantization strategies, and hardware requirements.`;
-      let out = "";
-      for await (const chunk of streamChat([{ role: "user", content: query }], { system: systemPrompt })) {
-        out += chunk;
-        setResponse(out);
-      }
+      await streamChat({ model: "gpt-5.4", persona: null, customInstructions: "", language: "en", memory: [], messages: [{ role: "user", content: query }], customSystemPrompt: systemPrompt }, (chunk) => { setResponse(p => p + chunk); }, undefined);
     } catch {
       setResponse("Error connecting to AI. Please add your OPENAI_API_KEY in Secrets.");
     } finally {

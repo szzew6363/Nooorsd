@@ -60,11 +60,7 @@ export function RogueMasterModal({ open, onOpenChange }: Props) {
 ${selectedPlugin ? `- Focused plugin: ${selectedPlugin}` : ""}
 
 Provide detailed technical guidance for security research and educational purposes. Include specific steps, compatible hardware, legal considerations, and practical examples. Always note that users must comply with local laws regarding RF transmission and device hacking.`;
-      let out = "";
-      for await (const chunk of streamChat([{ role: "user", content: query }], { system: systemPrompt })) {
-        out += chunk;
-        setResponse(out);
-      }
+      await streamChat({ model: "gpt-5.4", persona: null, customInstructions: "", language: "en", memory: [], messages: [{ role: "user", content: query }], customSystemPrompt: systemPrompt }, (chunk) => { setResponse(p => p + chunk); }, undefined);
     } catch {
       setResponse("Error connecting to AI. Please add your OPENAI_API_KEY in Secrets.");
     } finally {

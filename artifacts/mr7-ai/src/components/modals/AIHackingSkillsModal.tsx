@@ -77,11 +77,7 @@ Based on the "Hack the AI Agent" book (Build agentic AI security skills with the
 5. Real-world case studies when applicable
 
 This is for defensive security research, CTF challenges, and authorized red team exercises.`;
-      let out = "";
-      for await (const chunk of streamChat([{ role: "user", content: query }], { system: systemPrompt })) {
-        out += chunk;
-        setResponse(out);
-      }
+      await streamChat({ model: "gpt-5.4", persona: null, customInstructions: "", language: "en", memory: [], messages: [{ role: "user", content: query }], customSystemPrompt: systemPrompt }, (chunk) => { setResponse(p => p + chunk); }, undefined);
     } catch {
       setResponse("Error connecting to AI. Please add your OPENAI_API_KEY in Secrets.");
     } finally {

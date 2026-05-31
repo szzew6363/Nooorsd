@@ -51,10 +51,7 @@ export function PaseoModal({ open, onOpenChange }: Props) {
         ? `You are a ${provider.label} agent. Use the ${selectedSkill} pattern to complete this task:\n\n${task}\n\nProvide a structured, actionable response.`
         : `You are a ${provider.label} coding agent running via Paseo. Complete this task:\n\n${task}\n\nProvide a detailed, actionable plan with code if needed.`;
       let out = "";
-      for await (const chunk of streamChat([{ role: "user", content: prompt }], { signal: abortRef.current.signal })) {
-        out += chunk;
-        setAgents(prev => prev.map(a => a.id === agentId ? { ...a, output: out } : a));
-      }
+      await streamChat({ model: "gpt-5.4", persona: null, customInstructions: "", language: "en", memory: [], messages: [{ role: "user", content: prompt }], customSystemPrompt: "You are a professional AI coding agent." }, (chunk) => { out += chunk; setAgents(prev => prev.map(a => a.id === agentId ? { ...a, output: out } : a)); }, abortRef.current.signal);
       setAgents(prev => prev.map(a => a.id === agentId ? { ...a, status: "done" } : a));
     } catch {
       setAgents(prev => prev.map(a => a.id === agentId ? { ...a, status: "error", output: "Agent interrupted." } : a));
@@ -168,7 +165,7 @@ export function PaseoModal({ open, onOpenChange }: Props) {
                         <div key={agent.id} className="rounded-xl border p-4" style={{ borderColor: `${agent.color}25`, background: `${agent.color}05` }}>
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full" style={{ background: agent.status === "running" ? agent.color : agent.status === "done" ? "#4ade80" : "#ef4444", boxShadow: agent.status === "running" ? `0 0 6px ${agent.color}` : "none" }} className={agent.status === "running" ? "animate-pulse" : ""} />
+                              <div className={`w-2 h-2 rounded-full ${agent.status === "running" ? "animate-pulse" : ""}`} style={{ background: agent.status === "running" ? agent.color : agent.status === "done" ? "#4ade80" : "#ef4444", boxShadow: agent.status === "running" ? `0 0 6px ${agent.color}` : "none" }} />
                               <span className="text-[11px] font-bold" style={{ color: agent.color }}>{agent.provider}</span>
                               <span className="text-[9px] px-1.5 py-0.5 rounded font-mono uppercase" style={{ background: "rgba(255,255,255,0.05)", color: "#444" }}>{agent.status}</span>
                             </div>

@@ -56,11 +56,7 @@ Provide detailed technical information for authorized security testing, CTF chal
 - Defense countermeasures
 
 Always note these techniques require explicit authorization to use on target systems.`;
-      let out = "";
-      for await (const chunk of streamChat([{ role: "user", content: query }], { system: systemPrompt })) {
-        out += chunk;
-        setResponse(out);
-      }
+      await streamChat({ model: "gpt-5.4", persona: null, customInstructions: "", language: "en", memory: [], messages: [{ role: "user", content: query }], customSystemPrompt: systemPrompt }, (chunk) => { setResponse(p => p + chunk); }, undefined);
     } catch {
       setResponse("Error connecting to AI. Please add your OPENAI_API_KEY in Secrets.");
     } finally {
