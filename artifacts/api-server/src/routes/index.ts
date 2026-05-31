@@ -9,6 +9,7 @@ import visionRouter from "./vision";
 import agentRouter from "./agent";
 import contextRouter from "./context";
 import osintRouter from "./osint";
+import claudeCodeRouter from "./claude-code";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(visionRouter);
 router.use(agentRouter);
 router.use(contextRouter);
 router.use(osintRouter);
+router.use(claudeCodeRouter);
 
 export default router;
