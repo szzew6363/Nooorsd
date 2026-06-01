@@ -104,6 +104,16 @@ import { RogueMasterModal } from "./components/modals/RogueMasterModal";
 import { PasswordAttackModal } from "./components/modals/PasswordAttackModal";
 import { AIHackingSkillsModal } from "./components/modals/AIHackingSkillsModal";
 import { AITerminalModal } from "./components/modals/AITerminalModal";
+// Batch 7 — new ZIPs
+import { MarkXXXIXModal } from "./components/modals/MarkXXXIXModal";
+import { MarkXXXIXORModal } from "./components/modals/MarkXXXIXORModal";
+import { FreeLLMAPIModal } from "./components/modals/FreeLLMAPIModal";
+import { NineRouterModal } from "./components/modals/NineRouterModal";
+import { FeynmanModal } from "./components/modals/FeynmanModal";
+import { GovernorModal } from "./components/modals/GovernorModal";
+import { HeadroomModal } from "./components/modals/HeadroomModal";
+import { TokenOptimizerModal } from "./components/modals/TokenOptimizerModal";
+import { ClaudeCodeMemoryModal } from "./components/modals/ClaudeCodeMemoryModal";
 // Arsenal full-page system
 import { ArsenalFullPage } from "./components/ArsenalFullPage";
 
@@ -253,6 +263,16 @@ function AppContent() {
   const [passwordAttackOpen, setPasswordAttackOpen] = useState(false);
   const [aiHackingSkillsOpen, setAIHackingSkillsOpen] = useState(false);
   const [aiTerminalOpen, setAiTerminalOpen] = useState(false);
+  // New modules — batch 7
+  const [markXXXIXOpen, setMarkXXXIXOpen] = useState(false);
+  const [markXXXIXOROpen, setMarkXXXIXOROpen] = useState(false);
+  const [freeLLMAPIOpen, setFreeLLMAPIOpen] = useState(false);
+  const [nineRouterOpen, setNineRouterOpen] = useState(false);
+  const [feynmanOpen, setFeynmanOpen] = useState(false);
+  const [governorOpen, setGovernorOpen] = useState(false);
+  const [headroomOpen, setHeadroomOpen] = useState(false);
+  const [tokenOptimizerOpen, setTokenOptimizerOpen] = useState(false);
+  const [claudeMemoryOpen, setClaudeMemoryOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -501,6 +521,16 @@ function AppContent() {
       <PasswordAttackModal open={passwordAttackOpen} onOpenChange={setPasswordAttackOpen} />
       <AIHackingSkillsModal open={aiHackingSkillsOpen} onOpenChange={setAIHackingSkillsOpen} />
       <AITerminalModal open={aiTerminalOpen} onOpenChange={setAiTerminalOpen} />
+      {/* New Arsenal modules — batch 7 */}
+      <MarkXXXIXModal open={markXXXIXOpen} onOpenChange={setMarkXXXIXOpen} />
+      <MarkXXXIXORModal open={markXXXIXOROpen} onOpenChange={setMarkXXXIXOROpen} />
+      <FreeLLMAPIModal open={freeLLMAPIOpen} onOpenChange={setFreeLLMAPIOpen} />
+      <NineRouterModal open={nineRouterOpen} onOpenChange={setNineRouterOpen} />
+      <FeynmanModal open={feynmanOpen} onOpenChange={setFeynmanOpen} />
+      <GovernorModal open={governorOpen} onOpenChange={setGovernorOpen} />
+      <HeadroomModal open={headroomOpen} onOpenChange={setHeadroomOpen} />
+      <TokenOptimizerModal open={tokenOptimizerOpen} onOpenChange={setTokenOptimizerOpen} />
+      <ClaudeCodeMemoryModal open={claudeMemoryOpen} onOpenChange={setClaudeMemoryOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

@@ -8,7 +8,7 @@ import {
   Network, Briefcase, Palette, Activity, Link2, Plus,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
   Flame, TrendingDown, Monitor, BarChart2, Bug, Factory,
-  FlaskConical, Search, Wifi, Rocket, FileText, Skull,
+  FlaskConical, Search, Wifi, Rocket, FileText, Skull, Shuffle,
 } from "lucide-react";
 import { pipeline, type PipelineHistoryEntry, type ChainRule } from "@/lib/pipeline";
 
@@ -33,7 +33,10 @@ export type ArsenalModuleId =
   | "ai-terminal"
   | "claudecode"
   // Batch 6 — new ZIPs
-  | "adav2" | "omnibot" | "pocketai" | "claudeskills" | "buildyourownx" | "instagramcli";
+  | "adav2" | "omnibot" | "pocketai" | "claudeskills" | "buildyourownx" | "instagramcli"
+  // Batch 7 — Mark XXXIX, FreeLLMAPI, 9Router, Feynman, Governor, Headroom, TokenOptimizer, ClaudeMemory
+  | "markxxxix" | "markxxxixor" | "freellmapi" | "ninerouter"
+  | "feynman" | "governor" | "headroom" | "tokenoptimizer" | "claudememory";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -494,6 +497,61 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "Terminal-based Instagram client with 100% keyboard navigation: AI caption generator (3 variations), hashtag strategy (high/mid/niche volume), DM reply writer, trend analyzer, TUI feed browser. Minimal, intentional social media.",
     icon: Search, color: "#e1306c", border: "rgba(225,48,108,0.4)", bg: "rgba(225,48,108,0.08)", glow: "rgba(225,48,108,0.3)",
     source: "instagram-cli-main", tag: "SOCIAL",
+  },
+  // ─── Batch 7: Mark XXXIX · FreeLLMAPI · 9Router · Feynman · Governor · Headroom · TokenOptimizer · ClaudeMemory ───
+  {
+    id: "markxxxix", name: "Mark XXXIX", subtitle: "Voice AI · Screen · System · 15+ Actions · Memory",
+    desc: "Iron Man Mark-39 personal AI suit. Real-time voice, screen analysis, system control, browser automation, file management, code helper, web search, persistent memory. Cross-platform: Win/Mac/Linux.",
+    icon: Cpu, color: "#fbbf24", border: "rgba(251,191,36,0.4)", bg: "rgba(251,191,36,0.08)", glow: "rgba(251,191,36,0.3)",
+    source: "Mark-XXXIX · FatihMakes", tag: "VOICE AI",
+  },
+  {
+    id: "markxxxixor", name: "Mark XXXIX-OR", subtitle: "+OpenRouter · 6 Free Models · 40% Faster",
+    desc: "Mark XXXIX enhanced with OpenRouter integration. Action modules (web search, memory, browser, desktop) route to free-tier models — Llama, DeepSeek, Qwen, Mistral. 40% faster, quota-optimized, no extra cost.",
+    icon: Cpu, color: "#00e5ff", border: "rgba(0,229,255,0.4)", bg: "rgba(0,229,255,0.08)", glow: "rgba(0,229,255,0.3)",
+    source: "Mark-XXXIX-OR · FatihMakes", tag: "VOICE AI",
+  },
+  {
+    id: "freellmapi", name: "FreeLLMAPI", subtitle: "16 Providers · ~1.7B Tokens/Month · Auto-Fallback",
+    desc: "Aggregate 16 free LLM providers (Google, Groq, Cerebras, SambaNova, Mistral, Together, Hyperbolic, OpenRouter) behind one OpenAI-compatible endpoint. Auto-fallback chain, per-key rate tracking, encrypted storage.",
+    icon: Zap, color: "#10b981", border: "rgba(16,185,129,0.4)", bg: "rgba(16,185,129,0.08)", glow: "rgba(16,185,129,0.3)",
+    source: "freellmapi-main", tag: "LLM INFRA",
+  },
+  {
+    id: "ninerouter", name: "9Router", subtitle: "AI Router · RTK Compression · 40+ Providers · 100+ Models",
+    desc: "Smart AI request router with RTK compression (20-40% token savings). Auto-fallback: Subscription → Cheap → Free tier. 40+ providers, 100+ models. Route complex tasks to premium, simple to free.",
+    icon: Shuffle, color: "#a78bfa", border: "rgba(167,139,250,0.4)", bg: "rgba(167,139,250,0.08)", glow: "rgba(167,139,250,0.3)",
+    source: "9router-master", tag: "ROUTER",
+  },
+  {
+    id: "feynman", name: "Feynman", subtitle: "Deep Research · Literature Review · Paper Audit · Replication",
+    desc: "Open-source AI research agent. 4 modes: Deep Research (multi-angle synthesis), Literature Review (academic landscape), Paper Audit (adversarial fact-check), Experiment Replication (full protocol design).",
+    icon: FlaskConical, color: "#3b82f6", border: "rgba(59,130,246,0.4)", bg: "rgba(59,130,246,0.08)", glow: "rgba(59,130,246,0.3)",
+    source: "feynman-main", tag: "RESEARCH",
+  },
+  {
+    id: "governor", name: "Governor", subtitle: "Context Hygiene · Memory Compress · Compact · Drift Check",
+    desc: "Claude Code session hygiene plugin. 4 modes: Context Hygiene (filter tool output noise), Memory Compress (session → atomic notes), Compact (max-density output), Drift Check (detect goal drift in long sessions).",
+    icon: Shield, color: "#06b6d4", border: "rgba(6,182,212,0.4)", bg: "rgba(6,182,212,0.08)", glow: "rgba(6,182,212,0.3)",
+    source: "governor-main", tag: "HYGIENE",
+  },
+  {
+    id: "headroom", name: "Headroom", subtitle: "Context Compression · 60-95% Reduction · 6 Algorithms",
+    desc: "Context compression layer for AI coding agents. 6 algorithms: SmartCrusher, CodeCompressor, Kompress-base, Semantic Crush, Hybrid, Extreme. 60-95% fewer tokens. Proxy/MCP/library modes. Cross-agent memory.",
+    icon: Layers, color: "#a78bfa", border: "rgba(167,139,250,0.4)", bg: "rgba(167,139,250,0.08)", glow: "rgba(167,139,250,0.3)",
+    source: "headroom-main", tag: "COMPRESS",
+  },
+  {
+    id: "tokenoptimizer", name: "Token Optimizer", subtitle: "Analyze · Optimize · Compact · Benchmark · 257 Tests",
+    desc: "Full token optimization suite with 257 test cases. 4 modes: Analyze (waste detection), Optimize (prompt compression), Compact (compaction-survival format), Benchmark (quality scoring). Works with Claude Code, OpenCode, Codex.",
+    icon: BarChart2, color: "#22c55e", border: "rgba(34,197,94,0.4)", bg: "rgba(34,197,94,0.08)", glow: "rgba(34,197,94,0.3)",
+    source: "token-optimizer-main", tag: "OPTIMIZER",
+  },
+  {
+    id: "claudememory", name: "Claude Code Memory", subtitle: "Obsidian Zettelkasten · 71.5x Reduction · Graphify",
+    desc: "Persistent memory system for Claude Code sessions. Obsidian Zettelkasten format: 71.5x fewer tokens per session. 4 modes: Capture, Retrieve, Compress, Memory Graph. Graphify integration for visual knowledge maps.",
+    icon: Brain, color: "#f59e0b", border: "rgba(245,158,11,0.4)", bg: "rgba(245,158,11,0.08)", glow: "rgba(245,158,11,0.3)",
+    source: "claude-code-memory-setup-main", tag: "MEMORY",
   },
 ];
 

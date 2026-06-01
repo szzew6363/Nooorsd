@@ -77,6 +77,16 @@ import { PocketAIModal } from "./modals/PocketAIModal";
 import { ClaudeSkillsModal } from "./modals/ClaudeSkillsModal";
 import { BuildYourOwnXModal } from "./modals/BuildYourOwnXModal";
 import { InstagramCLIModal } from "./modals/InstagramCLIModal";
+// Batch 7 — Mark XXXIX, FreeLLMAPI, 9Router, Feynman, Governor, Headroom, TokenOptimizer, ClaudeMemory
+import { MarkXXXIXModal } from "./modals/MarkXXXIXModal";
+import { MarkXXXIXORModal } from "./modals/MarkXXXIXORModal";
+import { FreeLLMAPIModal } from "./modals/FreeLLMAPIModal";
+import { NineRouterModal } from "./modals/NineRouterModal";
+import { FeynmanModal } from "./modals/FeynmanModal";
+import { GovernorModal } from "./modals/GovernorModal";
+import { HeadroomModal } from "./modals/HeadroomModal";
+import { TokenOptimizerModal } from "./modals/TokenOptimizerModal";
+import { ClaudeCodeMemoryModal } from "./modals/ClaudeCodeMemoryModal";
 
 interface Props {
   moduleId: ArsenalModuleId;
@@ -233,6 +243,16 @@ export function ArsenalFullPage({ moduleId, onBack }: Props) {
       case "claudeskills":    return <ClaudeSkillsModal open={open} onOpenChange={v => !v && onBack()} />;
       case "buildyourownx":   return <BuildYourOwnXModal open={open} onOpenChange={v => !v && onBack()} />;
       case "instagramcli":    return <InstagramCLIModal open={open} onOpenChange={v => !v && onBack()} />;
+      // Batch 7
+      case "markxxxix":       return <MarkXXXIXModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "markxxxixor":     return <MarkXXXIXORModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "freellmapi":      return <FreeLLMAPIModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "ninerouter":      return <NineRouterModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "feynman":         return <FeynmanModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "governor":        return <GovernorModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "headroom":        return <HeadroomModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "tokenoptimizer":  return <TokenOptimizerModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "claudememory":    return <ClaudeCodeMemoryModal open={open} onOpenChange={v => !v && onBack()} />;
       default:                return null;
     }
   })();
