@@ -386,7 +386,7 @@ router.post("/claude-code/verify-key", async (req, res) => {
       const r = await fetch("https://api.anthropic.com/v1/models", {
         headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
       });
-      const data = await r.json();
+      const data = await r.json() as any;
       if (!r.ok) {
         res.status(401).json({ error: data?.error?.message ?? "مفتاح Anthropic غير صالح" });
         return;
@@ -396,7 +396,7 @@ router.post("/claude-code/verify-key", async (req, res) => {
       const r = await fetch("https://api.openai.com/v1/models", {
         headers: { "Authorization": `Bearer ${apiKey}` },
       });
-      const data = await r.json();
+      const data = await r.json() as any;
       if (!r.ok) {
         res.status(401).json({ error: data?.error?.message ?? "مفتاح OpenAI غير صالح" });
         return;
@@ -406,7 +406,7 @@ router.post("/claude-code/verify-key", async (req, res) => {
       const r = await fetch("https://api.groq.com/openai/v1/models", {
         headers: { "Authorization": `Bearer ${apiKey}` },
       });
-      const data = await r.json();
+      const data = await r.json() as any;
       if (!r.ok) {
         res.status(401).json({ error: data?.error?.message ?? "مفتاح Groq غير صالح" });
         return;
@@ -414,7 +414,7 @@ router.post("/claude-code/verify-key", async (req, res) => {
       res.json({ ok: true, provider, models: (data.data ?? []).slice(0, 5).map((m: any) => m.id) });
     } else if (provider === "gemini") {
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      const data = await r.json();
+      const data = await r.json() as any;
       if (!r.ok) {
         res.status(401).json({ error: data?.error?.message ?? "مفتاح Gemini غير صالح" });
         return;
@@ -424,7 +424,7 @@ router.post("/claude-code/verify-key", async (req, res) => {
       const r = await fetch("https://openrouter.ai/api/v1/models", {
         headers: { "Authorization": `Bearer ${apiKey}` },
       });
-      const data = await r.json();
+      const data = await r.json() as any;
       if (!r.ok) {
         res.status(401).json({ error: data?.error?.message ?? "مفتاح OpenRouter غير صالح" });
         return;

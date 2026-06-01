@@ -103,6 +103,7 @@ import { GemmaLibModal } from "./components/modals/GemmaLibModal";
 import { RogueMasterModal } from "./components/modals/RogueMasterModal";
 import { PasswordAttackModal } from "./components/modals/PasswordAttackModal";
 import { AIHackingSkillsModal } from "./components/modals/AIHackingSkillsModal";
+import { AITerminalModal } from "./components/modals/AITerminalModal";
 // Arsenal full-page system
 import { ArsenalFullPage } from "./components/ArsenalFullPage";
 
@@ -251,6 +252,7 @@ function AppContent() {
   const [rogueMasterOpen, setRogueMasterOpen] = useState(false);
   const [passwordAttackOpen, setPasswordAttackOpen] = useState(false);
   const [aiHackingSkillsOpen, setAIHackingSkillsOpen] = useState(false);
+  const [aiTerminalOpen, setAiTerminalOpen] = useState(false);
 
   const [pipelineKeyRef] = useState(() => ({ n: 0 }));
   const [ragPipelineDoc, setRagPipelineDoc] = useState<{ text: string; name: string; key: number } | undefined>();
@@ -278,9 +280,12 @@ function AppContent() {
   }
 
   function handleArsenalLaunch(id: ArsenalModuleId) {
-    // Open as full page instead of modal
     setArsenalOpen(false);
-    setArsenalPage(id);
+    if (id === "ai-terminal") {
+      setAiTerminalOpen(true);
+    } else {
+      setArsenalPage(id);
+    }
   }
 
   useEffect(() => {
@@ -495,6 +500,7 @@ function AppContent() {
       <RogueMasterModal open={rogueMasterOpen} onOpenChange={setRogueMasterOpen} />
       <PasswordAttackModal open={passwordAttackOpen} onOpenChange={setPasswordAttackOpen} />
       <AIHackingSkillsModal open={aiHackingSkillsOpen} onOpenChange={setAIHackingSkillsOpen} />
+      <AITerminalModal open={aiTerminalOpen} onOpenChange={setAiTerminalOpen} />
       <PipelineHUD
         onSendToRag={handlePipeToRag}
         onSendToCLI={handlePipeToCLI}

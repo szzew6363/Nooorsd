@@ -11,6 +11,8 @@ import contextRouter from "./context";
 import osintRouter from "./osint";
 import claudeCodeRouter from "./claude-code";
 import filesRouter from "./files";
+import shellRouter from "./shell";
+import gitRouter from "./git";
 
 const router: IRouter = Router();
 
@@ -26,5 +28,7 @@ router.use(contextRouter);
 router.use(osintRouter);
 router.use(claudeCodeRouter);
 router.use(filesRouter);
+router.use(shellRouter);
+router.use(gitRouter);
 
 export default router;
