@@ -70,6 +70,13 @@ import { RogueMasterModal } from "./modals/RogueMasterModal";
 import { PasswordAttackModal } from "./modals/PasswordAttackModal";
 import { AIHackingSkillsModal } from "./modals/AIHackingSkillsModal";
 import { ClaudeCodeModal } from "./modals/ClaudeCodeModal";
+// Batch 6 — new ZIPs
+import { AdaV2Modal } from "./modals/AdaV2Modal";
+import { OmniBotModal } from "./modals/OmniBotModal";
+import { PocketAIModal } from "./modals/PocketAIModal";
+import { ClaudeSkillsModal } from "./modals/ClaudeSkillsModal";
+import { BuildYourOwnXModal } from "./modals/BuildYourOwnXModal";
+import { InstagramCLIModal } from "./modals/InstagramCLIModal";
 
 interface Props {
   moduleId: ArsenalModuleId;
@@ -219,6 +226,13 @@ export function ArsenalFullPage({ moduleId, onBack }: Props) {
       case "passwordattack":  return <PasswordAttackModal open={open} onOpenChange={v => !v && onBack()} />;
       case "aihackingskills": return <AIHackingSkillsModal open={open} onOpenChange={v => !v && onBack()} />;
       case "claudecode":      return <ClaudeCodeModal open={open} onOpenChange={v => !v && onBack()} />;
+      // Batch 6
+      case "adav2":           return <AdaV2Modal open={open} onOpenChange={v => !v && onBack()} />;
+      case "omnibot":         return <OmniBotModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "pocketai":        return <PocketAIModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "claudeskills":    return <ClaudeSkillsModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "buildyourownx":   return <BuildYourOwnXModal open={open} onOpenChange={v => !v && onBack()} />;
+      case "instagramcli":    return <InstagramCLIModal open={open} onOpenChange={v => !v && onBack()} />;
       default:                return null;
     }
   })();

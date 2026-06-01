@@ -31,7 +31,9 @@ export type ArsenalModuleId =
   | "godmod3" | "geminiresearch" | "openantigravity"
   | "paseo" | "gemmalib" | "roguemaster" | "passwordattack" | "aihackingskills"
   | "ai-terminal"
-  | "claudecode";
+  | "claudecode"
+  // Batch 6 — new ZIPs
+  | "adav2" | "omnibot" | "pocketai" | "claudeskills" | "buildyourownx" | "instagramcli";
 
 export type ArsenalModule = {
   id: ArsenalModuleId;
@@ -455,6 +457,43 @@ export const ARSENAL_MODULES: ArsenalModule[] = [
     desc: "Advanced AI-powered terminal with 8 specialized sessions: KaliGPT Shell, Red Team Ops, OSINT Engine, Malware Lab, Exploit Dev, Network Ops, Crypto Breaker, AI Attack Lab. Real AI streaming.",
     icon: Terminal, color: "#e21227", border: "rgba(226,18,39,0.4)", bg: "rgba(226,18,39,0.08)", glow: "rgba(226,18,39,0.3)",
     source: "KaliGPT Arsenal", tag: "TERMINAL",
+  },
+  // ─── Batch 6: New ZIPs (ADA V2, OmniBot, Pocket AI, Claude Skills, Build-Your-Own-X, Instagram CLI) ─────
+  {
+    id: "adav2", name: "A.D.A V2", subtitle: "Voice AI · 3D CAD · Smart Home · Web Agent",
+    desc: "Advanced Design Assistant V2: Gemini-powered voice conversation, parametric 3D CAD generation (build123d → STL), 3D printing via OrcaSlicer, TP-Link Kasa smart home control, Playwright web agent, gesture UI, and face authentication.",
+    icon: Bot, color: "#00e5ff", border: "rgba(0,229,255,0.4)", bg: "rgba(0,229,255,0.08)", glow: "rgba(0,229,255,0.3)",
+    source: "ADA V2 (ada_v2-main)", tag: "MULTIMODAL",
+  },
+  {
+    id: "omnibot", name: "OmniBot", subtitle: "ESP32 Robot AI · Gemini Live · Persona Engine",
+    desc: "ESP32 robot AI hub with Gemini Live voice+video, OpenClaw-style persona files (soul/identity/memory/tools), BLE Wi-Fi provisioning, heartbeat memory maintenance, multi-bot management with online/offline status.",
+    icon: Cpu, color: "#fbbf24", border: "rgba(251,191,36,0.4)", bg: "rgba(251,191,36,0.08)", glow: "rgba(251,191,36,0.3)",
+    source: "OmniBot (OmniBot-main)", tag: "ROBOTICS",
+  },
+  {
+    id: "pocketai", name: "Pocket AI", subtitle: "Raspberry Pi 5 · Local LLM · Voice · Camera",
+    desc: "Local-first AI assistant for Raspberry Pi 5: Qwen 2.5-7B GGUF running offline, Piper TTS, Whisper/Vosk STT, Pi Camera 2 vision, FastAPI backend, Electron+React GUI. 100% offline — no cloud required.",
+    icon: Zap, color: "#f97316", border: "rgba(249,115,22,0.4)", bg: "rgba(249,115,22,0.08)", glow: "rgba(249,115,22,0.3)",
+    source: "Pocket AI (pocket-ai-main)", tag: "EDGE AI",
+  },
+  {
+    id: "claudeskills", name: "Claude Skills Hub", subtitle: "1000+ Skills · Inject Into AI · Composio",
+    desc: "Curated library of 1000+ production-ready Claude skills and plugins: Artifacts Builder, Brand Guidelines, Canvas Design, Changelog Generator, Lead Research, MCP Builder, Invoice Organizer, WebApp Testing, and 500+ Composio integrations.",
+    icon: BookOpen, color: "#6366f1", border: "rgba(99,102,241,0.4)", bg: "rgba(99,102,241,0.08)", glow: "rgba(99,102,241,0.3)",
+    source: "awesome-claude-skills-master", tag: "SKILLS",
+  },
+  {
+    id: "buildyourownx", name: "Build Your Own X", subtitle: "30+ Technologies · AI Tutor · From Scratch",
+    desc: "\"What I cannot create, I do not understand\" — 30+ step-by-step guides for building 3D renderers, LLMs, databases, Docker, OS kernels, shells, neural networks, blockchains, web browsers, and more from scratch. AI-guided interactive tutoring.",
+    icon: Code2, color: "#22c55e", border: "rgba(34,197,94,0.4)", bg: "rgba(34,197,94,0.08)", glow: "rgba(34,197,94,0.3)",
+    source: "build-your-own-x-master", tag: "LEARN",
+  },
+  {
+    id: "instagramcli", name: "Instagram CLI", subtitle: "Terminal Social Media · AI Captions · Hashtag AI",
+    desc: "Terminal-based Instagram client with 100% keyboard navigation: AI caption generator (3 variations), hashtag strategy (high/mid/niche volume), DM reply writer, trend analyzer, TUI feed browser. Minimal, intentional social media.",
+    icon: Search, color: "#e1306c", border: "rgba(225,48,108,0.4)", bg: "rgba(225,48,108,0.08)", glow: "rgba(225,48,108,0.3)",
+    source: "instagram-cli-main", tag: "SOCIAL",
   },
 ];
 

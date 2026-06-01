@@ -13,3 +13,4 @@ attached_assets/InsForge-main_1780016377804.zip filter=lfs diff=lfs merge=lfs -t
 attached_assets/antigravity-awesome-skills-main_(1)_1780102090371.zip filter=lfs diff=lfs merge=lfs -text
 attached_assets/cookbook-main_1780101815687.zip filter=lfs diff=lfs merge=lfs -text
 attached_assets/generative-ai-main_1780101712897.zip filter=lfs diff=lfs merge=lfs -text
+attached_assets/OmniBot-main_1780279554444.zip filter=lfs diff=lfs merge=lfs -text
