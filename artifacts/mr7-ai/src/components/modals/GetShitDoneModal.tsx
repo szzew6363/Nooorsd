@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, CheckSquare, Square, Trash2, GitMerge, Zap, RotateCcw, Plus } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -74,12 +75,10 @@ Goal: ${goal}
 
 Make tasks specific, actionable, and completable in one session. Order by priority.`,
           }],
-          model: "gpt-5.4",
-          stream: false,
+          model: "gpt-5.4"
         }),
       });
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content ?? "";
+      const text = await readChatText(res);
       const match = text.match(/\[[\s\S]*\]/);
       if (!match) throw new Error("no array");
       const parsed: { text: string; priority: string }[] = JSON.parse(match[0]);
@@ -111,12 +110,10 @@ Make tasks specific, actionable, and completable in one session. Order by priori
 ["step 1", "step 2", ...]
 Task: ${task.text}`,
           }],
-          model: "gpt-5.4",
-          stream: false,
+          model: "gpt-5.4"
         }),
       });
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content ?? "";
+      const text = await readChatText(res);
       const match = text.match(/\[[\s\S]*\]/);
       if (!match) throw new Error("no array");
       const steps: string[] = JSON.parse(match[0]);

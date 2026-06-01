@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Terminal, Plus, Trash2, Play, ChevronRight, Settings, GitBranch, FileCode, Shield, Zap, Book } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -118,12 +119,10 @@ export function CrushModal({ open, onOpenChange }: CrushModalProps) {
         body: JSON.stringify({
           messages: [...msgs, { role: "user", content: userMsg }].slice(-8).map(m => ({ role: m.role, content: m.content })),
           model: "gpt-5.4",
-          systemPrompt: `You are Crush, a terminal AI coding assistant by Charmbracelet. You can read, write, and execute code. You integrate with LSPs. You support multiple providers: ${PROVIDERS.map(p => p.label).join(", ")}. Currently using ${provider.label} / ${modelId}. LSP: ${lspEnabled ? "enabled" : "disabled"}. Active hooks: ${hooks.filter(h => h.enabled).map(h => h.name).join(", ") || "none"}. Respond concisely with code-focused answers. Use markdown code blocks for code.`,
-          stream: false,
+          systemPrompt: `You are Crush, a terminal AI coding assistant by Charmbracelet. You can read, write, and execute code. You integrate with LSPs. You support multiple providers: ${PROVIDERS.map(p => p.label).join(", ")}. Currently using ${provider.label} / ${modelId}. LSP: ${lspEnabled ? "enabled" : "disabled"}. Active hooks: ${hooks.filter(h => h.enabled).map(h => h.name).join(", ") || "none"}. Respond concisely with code-focused answers. Use markdown code blocks for code.`
         }),
       });
-      const data = await r.json();
-      const reply = data.content || data.choices?.[0]?.message?.content || "...";
+      const reply = await readChatText(r);
       const replyTs = new Date().toLocaleTimeString("en-US", { hour12: false });
       setMsgs(prev => [...prev, { role: "assistant", content: reply, ts: replyTs }]);
       pipeline.push({ source: "Crush", sourceColor: "#a78bfa", label: userMsg.slice(0, 40), content: reply });

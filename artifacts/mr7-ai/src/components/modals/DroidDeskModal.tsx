@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Monitor, Terminal, Copy, CheckCheck, ChevronDown, ChevronUp, Zap, CheckCircle } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -91,12 +92,12 @@ Provide a specific, actionable answer for this Android Linux setup question.`;
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4", stream: false }),
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4" }),
       });
       if (resp.ok) {
-        const data = await resp.json();
-        setAiHelp(data.choices?.[0]?.message?.content || data.content || "");
-        pipeline.push({ source: "DroidDesk", sourceColor: "#0ea5e9", label: aiQuery, content: data.choices?.[0]?.message?.content || "" });
+        const _droidContent = await readChatText(resp);
+        setAiHelp(_droidContent);
+        pipeline.push({ source: "DroidDesk", sourceColor: "#0ea5e9", label: aiQuery, content: _droidContent });
       } else {
         setAiHelp("DroidDesk AI assistant ready. Ask about setup, troubleshooting, or configurations.");
       }

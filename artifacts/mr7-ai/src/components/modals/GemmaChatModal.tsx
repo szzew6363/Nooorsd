@@ -43,6 +43,8 @@ export function GemmaChatModal({ open, onOpenChange }: GemmaChatModalProps) {
     setMsgs(prev => [...prev, { role: "user", content: msg, ts: Date.now(), offline: false }]);
     setLoading(true);
 
+    const newId = Date.now();
+    setMsgs(prev => [...prev, { role: "gemma", content: "", ts: newId, offline: true }]);
     try {
       const history = msgs.slice(-6).map(m => ({
         role: m.role === "gemma" ? "assistant" : "user" as const,
@@ -53,21 +55,41 @@ export function GemmaChatModal({ open, onOpenChange }: GemmaChatModalProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [{ role: "system", content: GEMMA_SYSTEM }, ...history, { role: "user", content: msg }],
-          model: "gpt-5.4", stream: false
+          model: "gpt-5.4",
         }),
       });
-      if (resp.ok) {
-        const data = await resp.json();
-        let content = data.choices?.[0]?.message?.content || data.content || "Done.";
-        if (!content.startsWith("[LOCAL]")) content = "[LOCAL] " + content;
-        const gemmaMsg: Msg = { role: "gemma", content, ts: Date.now(), offline: true };
-        setMsgs(prev => [...prev, gemmaMsg]);
-        pipeline.push({ source: "GemmaChat", sourceColor: "#4299e1", label: msg.slice(0, 50), content });
+      if (resp.ok && resp.body) {
+        const reader = resp.body.getReader();
+        const dec = new TextDecoder();
+        let buf = "", full = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += dec.decode(value, { stream: true });
+          const lines = buf.split("\n");
+          buf = lines.pop() ?? "";
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const raw = line.slice(6).trim();
+            if (!raw || raw === "[DONE]") continue;
+            try {
+              const obj = JSON.parse(raw);
+              const delta = obj.content ?? obj.choices?.[0]?.delta?.content ?? "";
+              full += delta;
+              const display = "[LOCAL] " + full;
+              setMsgs(prev => prev.map(m => m.ts === newId ? { ...m, content: display } : m));
+            } catch { /* ignore */ }
+          }
+        }
+        if (!full) full = "Done.";
+        const finalContent = "[LOCAL] " + full;
+        setMsgs(prev => prev.map(m => m.ts === newId ? { ...m, content: finalContent } : m));
+        pipeline.push({ source: "GemmaChat", sourceColor: "#4299e1", label: msg.slice(0, 50), content: finalContent });
       } else {
-        setMsgs(prev => [...prev, { role: "gemma", content: "[LOCAL] Processing on-device...", ts: Date.now(), offline: true }]);
+        setMsgs(prev => prev.map(m => m.ts === newId ? { ...m, content: "[LOCAL] ⚠️ Processing error — check API connection." } : m));
       }
     } catch {
-      setMsgs(prev => [...prev, { role: "gemma", content: "[LOCAL] Local inference complete.", ts: Date.now(), offline: true }]);
+      setMsgs(prev => prev.map(m => m.ts === newId ? { ...m, content: "[LOCAL] ⚠️ Connection failed. Ensure server is running." } : m));
     }
     setLoading(false);
   }

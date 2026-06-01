@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, GitMerge, Send, RotateCcw, Copy, CheckCheck, Network } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -54,12 +55,10 @@ Text to convert: ${input}`;
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [{ role: "user", content: prompt }],
-          model: "gpt-5.4",
-          stream: false,
+          model: "gpt-5.4"
         }),
       });
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content ?? "";
+      const text = await readChatText(res);
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("No JSON");
       const graph = JSON.parse(jsonMatch[0]);

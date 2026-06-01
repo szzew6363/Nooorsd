@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Network, Code2, Copy, CheckCheck, Search, Zap, GitBranch } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -82,11 +83,10 @@ Analyze and provide:
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4", stream: false }),
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4" }),
       });
       if (resp.ok) {
-        const data = await resp.json();
-        const content = data.choices?.[0]?.message?.content || data.content || "";
+        const content = await readChatText(resp);
         setOutput(content);
         pipeline.push({ source: "CodeGraph", sourceColor: "#3b82f6", label: query || "Code Analysis", content });
       } else {

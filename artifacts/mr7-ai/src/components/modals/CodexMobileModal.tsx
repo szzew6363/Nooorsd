@@ -66,7 +66,7 @@ export function CodexMobileModal({ open, onOpenChange }: CodexMobileModalProps) 
           if (!line.startsWith("data: ")) continue;
           const raw = line.slice(6);
           if (raw === "[DONE]") continue;
-          try { const c = JSON.parse(raw); const d = c.choices?.[0]?.delta?.content ?? ""; full += d; setConv((p) => p.map((item, i) => i === p.length - 1 ? { ...item, text: full } : item)); } catch { /* ignore */ }
+          try { const c = JSON.parse(raw); const d = c.content ?? c.choices?.[0]?.delta?.content ?? ""; full += d; setConv((p) => p.map((item, i) => i === p.length - 1 ? { ...item, text: full } : item)); } catch { /* ignore */ }
         }
       }
       if (full) pipeline.push({ source: "CODEXMOBILE", sourceColor: "#34d399", label: text.slice(0, 40), content: full });

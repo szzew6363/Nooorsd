@@ -71,6 +71,31 @@ export async function streamChat(req: ChatRequest, onChunk: (text: string) => vo
   return full;
 }
 
+/**
+ * Read a streaming SSE response from /api/chat and return the full accumulated text.
+ * Handles the server's `data: {"content":"..."}` format.
+ */
+export async function readChatText(resp: Response): Promise<string> {
+  if (!resp.ok || !resp.body) return "";
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "", full = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const raw = line.slice(6).trim();
+      if (!raw || raw === "[DONE]") continue;
+      try { const obj = JSON.parse(raw); full += (obj.content ?? obj.choices?.[0]?.delta?.content ?? ""); } catch { /* ignore */ }
+    }
+  }
+  return full;
+}
+
 export async function streamLocalChat(
   endpoint: string,
   model: string,

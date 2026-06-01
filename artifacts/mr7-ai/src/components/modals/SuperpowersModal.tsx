@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Zap, Shield, Brain, Play, CheckCircle2, GitMerge, RefreshCw, Search, Star, ChevronDown } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -107,12 +108,10 @@ Respond with structured, professional output appropriate to the tier.`;
         body: JSON.stringify({
           messages: [{ role: "user", content: task }],
           model: "gpt-5.4",
-          systemPrompt,
-          stream: false,
+          systemPrompt
         }),
       });
-      const data = await r.json();
-      const content = data.content || data.choices?.[0]?.message?.content || "";
+      const content = await readChatText(r);
       setOutput(content);
       pipeline.push({ source: "Superpowers", sourceColor: "#10b981", label: task.slice(0, 50), content });
       toast({ description: `${tier.toUpperCase()} workflow complete` });

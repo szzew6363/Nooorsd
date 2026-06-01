@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mic, MicOff, Hand, Zap, Copy, CheckCheck, GitMerge, RotateCcw } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -83,8 +84,7 @@ export function HandClawModal({ open, onOpenChange }: HandClawModalProps) {
             { role: "system", content: "You are HandClaw — a voice-controlled AI assistant. Interpret voice commands and execute them precisely. Be concise and direct." },
             { role: "user", content: text },
           ],
-          model: "gpt-5.4",
-          stream: false,
+          model: "gpt-5.4"
         }),
       });
       const data = await res.json();

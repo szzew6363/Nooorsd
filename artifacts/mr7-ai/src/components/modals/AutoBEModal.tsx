@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Code2, Database, FileText, TestTube, Play, Download, CheckCircle2, Loader2, ChevronDown } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -80,11 +81,10 @@ export function AutoBEModal({ open, onOpenChange }: AutoBEModalProps) {
         const r = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: [{ role: "user", content: PROMPTS[p] }], model: "gpt-5.4", stream: false }),
+          body: JSON.stringify({ messages: [{ role: "user", content: PROMPTS[p] }], model: "gpt-5.4" }),
           signal: ctrl.signal,
         });
-        const data = await r.json();
-        const content = data.content || data.choices?.[0]?.message?.content || "";
+        const content = await readChatText(r);
         collected.push({ phase: p, content });
         setOutputs([...collected]);
       } catch (e: any) {

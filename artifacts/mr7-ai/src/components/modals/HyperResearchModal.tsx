@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, FileText, Copy, CheckCheck, ChevronRight, Layers, Zap, Database } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -95,11 +96,10 @@ Be thorough, cite reasoning, flag uncertainties. ${selectedTier.steps >= 12 ? "A
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4", stream: false }),
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4" }),
       });
       if (resp.ok) {
-        const data = await resp.json();
-        const content = data.choices?.[0]?.message?.content || data.content || "";
+        const content = await readChatText(resp);
         setOutput(content);
         setVaultEntries(prev => [`[${new Date().toLocaleTimeString()}] ${query.slice(0, 50)}…`, ...prev].slice(0, 10));
         pipeline.push({ source: "HyperResearch", sourceColor: "#a78bfa", label: query.slice(0, 60), content });

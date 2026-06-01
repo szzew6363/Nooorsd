@@ -85,7 +85,7 @@ ${code}
           if (!line.startsWith("data: ")) continue;
           const raw = line.slice(6);
           if (raw === "[DONE]") continue;
-          try { const chunk = JSON.parse(raw); const delta = chunk.choices?.[0]?.delta?.content ?? ""; full += delta; setOutput(full); } catch { /* ignore */ }
+          try { const chunk = JSON.parse(raw); const delta = chunk.content ?? chunk.choices?.[0]?.delta?.content ?? ""; full += delta; setOutput(full); } catch { /* ignore */ }
         }
       }
       pipeline.push({ source: "RVSAGENT", sourceColor: "#a78bfa", label: `Run ${lang}`, content: `CODE:\n${code}\n\nOUTPUT:\n${full}` });

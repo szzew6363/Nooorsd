@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Shield, Target, Swords, Terminal, Copy, CheckCheck, Zap, AlertTriangle } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -49,11 +50,10 @@ Be specific, technical, and actionable. This is an authorized red team engagemen
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4", stream: false }),
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4" }),
       });
       if (resp.ok) {
-        const data = await resp.json();
-        const content = data.choices?.[0]?.message?.content || data.content || "Phase analysis complete.";
+        const content = await readChatText(resp);
         setOutput(content);
         pipeline.push({ source: "Decepticon", sourceColor: "#e21227", label: `${p.label} — ${target}`, content });
       } else {

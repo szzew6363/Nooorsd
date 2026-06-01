@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Bot, Play, Square, RotateCcw, Mic, ChevronRight, Loader2, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -60,12 +61,10 @@ export function RalphAgentModal({ open, onOpenChange }: RalphAgentModalProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: [{ role: "user", content: `Original vague idea: "${vagueProblem}"\n\nBrainstorm answers:\n${ctx}\n\nGenerate a clear, specific, high-quality prompt that captures exactly what needs to be built. Be precise, include success criteria, and make it actionable for an AI coding agent.` }],
-            model: "gpt-5.4",
-            stream: false,
+            model: "gpt-5.4"
           }),
         });
-        const data = await r.json();
-        const refined = data.content || data.choices?.[0]?.message?.content || vagueProblem;
+        const refined = await readChatText(r);
         setRefinedPrompt(refined);
         setPhase("idle");
         toast({ description: "Prompt refined — ready to start Ralph Loop" });
@@ -100,13 +99,11 @@ export function RalphAgentModal({ open, onOpenChange }: RalphAgentModalProps) {
           body: JSON.stringify({
             messages: [{ role: "user", content: iterPrompt }],
             model: "gpt-5.4",
-            systemPrompt: `You are an AI coding agent running iteration ${i} of ${maxIterations} in a Ralph Loop (inspired by Ralph Wiggum's persistent approach). Each iteration should produce better results than the last. Be thorough, specific, and improve on previous attempts. If this is iteration 1, do your best work. If later, explicitly address gaps from previous iterations.`,
-            stream: false,
+            systemPrompt: `You are an AI coding agent running iteration ${i} of ${maxIterations} in a Ralph Loop (inspired by Ralph Wiggum's persistent approach). Each iteration should produce better results than the last. Be thorough, specific, and improve on previous attempts. If this is iteration 1, do your best work. If later, explicitly address gaps from previous iterations.`
           }),
           signal: ctrl.signal,
         });
-        const data = await r.json();
-        const output = data.content || data.choices?.[0]?.message?.content || "";
+        const output = await readChatText(r);
         setIterations(prev => prev.map(it => it.n === i ? { ...it, status: "done", output } : it));
 
         // Check if task is complete (heuristic: output contains "complete" or "done" signals)

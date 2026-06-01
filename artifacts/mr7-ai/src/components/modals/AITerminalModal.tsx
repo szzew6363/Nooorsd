@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Terminal, Play, Square, RotateCcw, Copy, CheckCheck,
@@ -77,8 +78,8 @@ async function execCommand(cmd: string): Promise<{ stdout: string; stderr: strin
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ command: cmd }),
   });
-  const d = await r.json();
-  return { stdout: d.stdout ?? "", stderr: d.stderr ?? "", exitCode: d.exitCode ?? (d.success ? 0 : 1) };
+  const d = await r.json().catch(() => ({ stdout: "", stderr: "parse error", exitCode: 1 }));
+  return { stdout: d.stdout ?? "", stderr: d.stderr ?? "", exitCode: d.exitCode ?? 1 };
 }
 
 async function explainOutput(cmd: string, output: string): Promise<string> {
@@ -90,12 +91,10 @@ async function explainOutput(cmd: string, output: string): Promise<string> {
         { role: "user", content: `Command: ${cmd}\n\nOutput:\n${output.slice(0, 3000)}\n\nAnalyze this.` }
       ],
       model: "gpt-5.4",
-      systemPrompt: AI_SYSTEM_PROMPT,
-      stream: false,
+      systemPrompt: AI_SYSTEM_PROMPT
     }),
   });
-  const d = await r.json();
-  return d.content ?? d.choices?.[0]?.message?.content ?? "No analysis available.";
+  return await readChatText(r) || "No analysis available.";
 }
 
 let _id = 0;

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Cpu, Send, Copy, CheckCheck, Terminal, Code2, Zap, RotateCcw } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -60,12 +61,11 @@ export function OhMyPiModal({ open, onOpenChange }: OhMyPiModalProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [{ role: "system", content: PI_SYSTEM }, ...history, { role: "user", content: msg }],
-          model: "gpt-5.4", stream: false
+          model: "gpt-5.4"
         }),
       });
       if (resp.ok) {
-        const data = await resp.json();
-        const content = data.choices?.[0]?.message?.content || data.content || "Done.";
+        const content = await readChatText(resp);
         const piMsg: Msg = { role: "pi", content, ts: Date.now() };
         setMsgs(prev => [...prev, piMsg]);
         pipeline.push({ source: "OhMyPi", sourceColor: "#34d399", label: msg.slice(0, 50), content });

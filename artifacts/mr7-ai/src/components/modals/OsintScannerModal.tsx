@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Radar, GitMerge, AlertTriangle, CheckCircle, RotateCcw, ExternalLink } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -94,11 +95,10 @@ Make findings realistic and specific to the target type (${scanType}). Include a
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4", stream: false }),
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "gpt-5.4" }),
         signal: abortRef.current.signal,
       });
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content ?? "";
+      const text = await readChatText(res);
       const match = text.match(/\{[\s\S]*\}/);
       if (match) {
         const parsed = JSON.parse(match[0]);

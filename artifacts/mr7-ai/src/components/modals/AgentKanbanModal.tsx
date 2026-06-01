@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readChatText } from "@/lib/chat-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Trash2, Play, RotateCcw, GitMerge, Users, Shield, ChevronDown } from "lucide-react";
 import { pipeline } from "@/lib/pipeline";
@@ -110,12 +111,10 @@ export function AgentKanbanModal({ open, onOpenChange }: AgentKanbanModalProps) 
         body: JSON.stringify({
           messages: [{ role: "user", content: card.prompt }],
           model: "gpt-5.4",
-          systemPrompt: `You are ${agent.name}, an AI agent with role ${agent.role} (identity: ${agent.identity}). ${agent.role === "PLANNER" ? "Break down tasks and create subtasks." : agent.role === "CODER" ? "Write clean, production-ready code." : agent.role === "REVIEWER" ? "Review code for security and quality." : agent.role === "TESTER" ? "Write comprehensive tests." : "Handle deployment and infrastructure."} Be concise and produce actionable output.`,
-          stream: false,
+          systemPrompt: `You are ${agent.name}, an AI agent with role ${agent.role} (identity: ${agent.identity}). ${agent.role === "PLANNER" ? "Break down tasks and create subtasks." : agent.role === "CODER" ? "Write clean, production-ready code." : agent.role === "REVIEWER" ? "Review code for security and quality." : agent.role === "TESTER" ? "Write comprehensive tests." : "Handle deployment and infrastructure."} Be concise and produce actionable output.`
         }),
       });
-      const data = await r.json();
-      const output = data.content || data.choices?.[0]?.message?.content || "Task completed.";
+      const output = await readChatText(r);
       setCards(prev => prev.map(c => c.id === id ? { ...c, status: "review", running: false, output } : c));
       pipeline.push({ source: "AgentKanban", sourceColor: "#00e5cc", label: card.title, content: output });
       toast({ description: `${agent.name} completed: ${card.title}` });

@@ -1,6 +1,1 @@
-- [Multi-provider Claude Code](claude-code-providers.md) — ClaudeCodeModal supports Anthropic/OpenAI/Gemini/Groq/OpenRouter; key stored in cc-api-key-v3, provider in cc-provider-v3
-- [Replit AI Integration](replit-ai-integration.md) — AI_INTEGRATIONS_OPENAI_API_KEY + AI_INTEGRATIONS_OPENAI_BASE_URL provisioned; call setupReplitAIIntegrations() to refresh
-- [File tree backend](file-tree-backend.md) — /api/files/tree, /api/files/read, /api/files/write routes in artifacts/api-server/src/routes/files.ts; workspace is repo root, depth limit 6
-- [WebSocket terminal](ws-terminal.md) — ws package in api-server; handleTerminalSocket in shell.ts; index.ts uses createServer+WebSocketServer on /api/terminal; Vite proxy needs ws:true.
-- [API server typecheck quirk](api-server-ts-quirk.md) — TS6305 errors on lib/dist are pre-existing and harmless; esbuild builds/runs fine. Fix claude-code.ts data types with `as any`.
-- [Claude Code agent loop](claude-code-agent.md) — Bash:/Read file:/Write file: patterns parsed from assistant text, executed via shell/files API, fed back to Claude up to 8 steps. xterm uses dynamic import.
+- [mr7-ai streaming fix](mr7-ai-streaming.md) — server always sends SSE regardless of `stream` flag; all API consumers must use SSE reader, never `resp.json()`

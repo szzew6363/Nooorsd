@@ -187,7 +187,7 @@ export function JarvisModal({ open, onOpenChange }: JarvisModalProps) {
     const contextMessages = log.slice(-8).map(l => ({
       role: l.role === "user" ? "user" as const : "assistant" as const,
       content: l.text,
-    }));
+    })).filter(m => m.content.trim());
 
     try {
       const resp = await fetch("/api/chat", {
@@ -196,49 +196,44 @@ export function JarvisModal({ open, onOpenChange }: JarvisModalProps) {
         signal: ctrl.signal,
         body: JSON.stringify({
           messages: [...contextMessages, { role: "user", content: userText }],
-          model: state.activeModel || "gpt-4o",
-          stream: false,
+          model: state.activeModel || "gpt-5.4",
           customSystemPrompt: JARVIS_SYSTEM_PROMPT,
         }),
       });
 
-      const text = await resp.text();
-
-      if (resp.ok) {
-        let content = "";
-        if (text.startsWith("data:")) {
-          const lines = text.split("\n").filter(l => l.startsWith("data:"));
-          for (const line of lines) {
-            const raw = line.slice(5).trim();
-            if (raw === "[DONE]") break;
-            try { const j = JSON.parse(raw); content += j.choices?.[0]?.delta?.content || j.content || ""; } catch { /**/ }
-          }
-        } else {
-          try { const j = JSON.parse(text); content = j.choices?.[0]?.message?.content || j.content || text; } catch { content = text; }
-        }
-        setLog(p => p.map((l, i) => i === p.length - 1 ? { ...l, text: content } : l));
-        pipeline.push({ source: "JARVIS", sourceColor: "#00e5ff", label: userText.slice(0, 60), content });
-      } else {
-        const errData = text;
-        let friendlyErr = "System error encountered, Sir. ";
-        if (errData.includes("429") || errData.includes("quota")) {
-          friendlyErr += "The API key has exceeded its quota. Please check billing at platform.openai.com, Sir.";
-        } else if (errData.includes("401") || errData.includes("invalid")) {
-          friendlyErr += "API authentication failed. Please verify the OpenAI API key in Secrets, Sir.";
-        } else if (errData.includes("500")) {
-          friendlyErr += "Internal server error. Reinitialising neural pathways, Sir.";
-        } else {
-          friendlyErr += `API returned status ${resp.status}. ${errData.slice(0, 120)}`;
-        }
-        setLog(p => p.map((l, i) => i === p.length - 1 ? { ...l, text: friendlyErr } : l));
-        setAlertFlash(true);
-        setTimeout(() => setAlertFlash(false), 2000);
+      if (!resp.ok || !resp.body) {
+        throw new Error(`HTTP ${resp.status}`);
       }
+
+      const reader = resp.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "", full = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const raw = line.slice(6).trim();
+          if (!raw || raw === "[DONE]") continue;
+          try {
+            const obj = JSON.parse(raw);
+            const delta = obj.content ?? obj.choices?.[0]?.delta?.content ?? "";
+            full += delta;
+            setLog(p => p.map((l, i) => i === p.length - 1 ? { ...l, text: full } : l));
+          } catch { /* ignore */ }
+        }
+      }
+      pipeline.push({ source: "JARVIS", sourceColor: "#00e5ff", label: userText.slice(0, 60), content: full });
     } catch (e) {
       if ((e as Error)?.name === "AbortError") {
         setLog(p => p.map((l, i) => i === p.length - 1 ? { ...l, text: "[Transmission aborted by operator, Sir.]" } : l));
       } else {
-        setLog(p => p.map((l, i) => i === p.length - 1 ? { ...l, text: `Connection failure, Sir. ${(e as Error)?.message || "Unknown error"}. Please ensure API server is running on port 8080.` } : l));
+        setLog(p => p.map((l, i) => i === p.length - 1 ? { ...l, text: `Connection failure, Sir. ${(e as Error)?.message || "Unknown error"}.` } : l));
+        setAlertFlash(true);
+        setTimeout(() => setAlertFlash(false), 2000);
       }
     } finally {
       setRunning(false);
