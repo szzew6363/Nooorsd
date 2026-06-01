@@ -10,6 +10,7 @@ import agentRouter from "./agent";
 import contextRouter from "./context";
 import osintRouter from "./osint";
 import claudeCodeRouter from "./claude-code";
+import filesRouter from "./files";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(agentRouter);
 router.use(contextRouter);
 router.use(osintRouter);
 router.use(claudeCodeRouter);
+router.use(filesRouter);
 
 export default router;

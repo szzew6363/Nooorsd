@@ -1,0 +1,3 @@
+- [Multi-provider Claude Code](claude-code-providers.md) — ClaudeCodeModal supports Anthropic/OpenAI/Gemini/Groq/OpenRouter; key stored in cc-api-key-v3, provider in cc-provider-v3
+- [Replit AI Integration](replit-ai-integration.md) — AI_INTEGRATIONS_OPENAI_API_KEY + AI_INTEGRATIONS_OPENAI_BASE_URL provisioned; call setupReplitAIIntegrations() to refresh
+- [File tree backend](file-tree-backend.md) — /api/files/tree, /api/files/read, /api/files/write routes in artifacts/api-server/src/routes/files.ts; workspace is repo root, depth limit 6
